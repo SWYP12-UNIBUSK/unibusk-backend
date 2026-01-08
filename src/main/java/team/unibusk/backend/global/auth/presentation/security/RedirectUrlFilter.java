@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import team.unibusk.backend.global.jwt.injector.TokenInjector;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,6 +30,10 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
             "/oauth2/authorization/**"
     );
 
+    private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
+            "localhost"
+    );
+
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
@@ -42,7 +47,7 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
             tokenInjector.invalidateCookie(REDIRECT_URL_COOKIE_NAME, response);
 
             String redirectUri = request.getParameter(REDIRECT_URL_QUERY_PARAM);
-            if (StringUtils.hasText(redirectUri)) {
+            if (StringUtils.hasText(redirectUri) && isValidRedirectUrl(redirectUri)) {
                 String encodedUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
                 tokenInjector.addCookie(REDIRECT_URL_COOKIE_NAME, encodedUri, 3600, response);
             }
@@ -55,6 +60,18 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         return REDIRECT_URL_INJECTION_PATTERNS.stream()
                 .anyMatch(pattern -> pathMatcher.match(pattern, requestUri));
+    }
+
+    private boolean isValidRedirectUrl(String url) {
+        try {
+            URI uri = URI.create(url);
+            if (uri.getHost() == null) {
+                return true;
+            }
+            return ALLOWED_REDIRECT_HOSTS.contains(uri.getHost());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
