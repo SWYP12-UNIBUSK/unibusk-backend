@@ -22,10 +22,10 @@ public record TokenProperties(
 
     public record ExpirationTime(
 
-            @Min(value = 1000, message = "AccessToken 만료 시간은 최소 1초(1000ms) 이상이어야 합니다.")
+            @Min(value = 1, message = "AccessToken 만료 시간은 최소 1초 이상이어야 합니다.")
             long accessToken,
 
-            @Min(value = 1000, message = "RefreshToken 만료 시간은 최소 1초(1000ms) 이상이어야 합니다.")
+            @Min(value = 1, message = "RefreshToken 만료 시간은 최소 1초 이상이어야 합니다.")
             long refreshToken
 
     ) {
