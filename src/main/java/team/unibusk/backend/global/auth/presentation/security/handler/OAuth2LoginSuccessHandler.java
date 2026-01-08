@@ -57,8 +57,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     ) throws IOException {
         String redirectUrlByCookie = getRedirectUrlByCookie(request);
         String redirectUrl = determineRedirectUrl(redirectUrlByCookie);
-        response.sendRedirect(redirectUrl);
         tokenInjector.invalidateCookie(REDIRECT_URL_COOKIE_NAME, response);
+        response.sendRedirect(redirectUrl);
     }
 
     private String getRedirectUrlByCookie(HttpServletRequest request) {
