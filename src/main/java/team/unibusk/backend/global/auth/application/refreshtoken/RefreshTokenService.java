@@ -31,7 +31,12 @@ public class RefreshTokenService {
     }
 
     private RefreshToken getAndValidate(String refreshTokenStr) {
-        Long memberId = Long.valueOf(tokenResolver.getSubjectFromToken(refreshTokenStr));
+        Long memberId;
+        try {
+            memberId = Long.parseLong(tokenResolver.getSubjectFromToken(refreshTokenStr));
+        } catch (NumberFormatException e) {
+            throw new AuthenticationRequiredException();
+        }
         RefreshToken savedRefreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
                 .orElseThrow(AuthenticationRequiredException::new);
 
