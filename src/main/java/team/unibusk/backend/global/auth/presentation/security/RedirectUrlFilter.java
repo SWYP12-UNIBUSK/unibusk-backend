@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.member.presentation.security;
+package team.unibusk.backend.global.auth.presentation.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

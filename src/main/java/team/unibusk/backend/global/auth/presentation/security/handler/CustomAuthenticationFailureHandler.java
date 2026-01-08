@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.member.presentation.security.handler;
+package team.unibusk.backend.global.auth.presentation.security.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

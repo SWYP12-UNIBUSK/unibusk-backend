@@ -13,8 +13,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
-import team.unibusk.backend.domain.member.presentation.security.RedirectUrlFilter;
-import team.unibusk.backend.domain.member.presentation.security.handler.OAuth2LoginSuccessHandler;
+import team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter;
+import team.unibusk.backend.global.auth.presentation.security.handler.OAuth2LoginSuccessHandler;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.filter.JwtTokenFilter;
 
@@ -39,7 +39,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/actuator/**",
-            "auths/login"
+            "/auths/login",
+            "/oauth2/**"
     };
 
     @Bean

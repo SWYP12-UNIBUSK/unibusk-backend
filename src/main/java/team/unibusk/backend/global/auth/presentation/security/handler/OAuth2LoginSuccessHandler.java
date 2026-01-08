@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.member.presentation.security.handler;
+package team.unibusk.backend.global.auth.presentation.security.handler;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static team.unibusk.backend.domain.member.presentation.security.RedirectUrlFilter.REDIRECT_URL_COOKIE_NAME;
+import static team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter.REDIRECT_URL_COOKIE_NAME;
 import static team.unibusk.backend.global.auth.presentation.exception.AuthExceptionCode.ALREADY_REGISTERED_MEMBER;
 
 @RequiredArgsConstructor

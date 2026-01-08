@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.member.presentation.security;
+package team.unibusk.backend.global.auth.presentation.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
