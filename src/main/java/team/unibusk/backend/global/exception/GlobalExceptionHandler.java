@@ -1,6 +1,7 @@
 package team.unibusk.backend.global.exception;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -12,11 +13,13 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static team.unibusk.backend.global.exception.GlobalExceptionCode.INVALID_INPUT;
 import static team.unibusk.backend.global.exception.GlobalExceptionCode.SERVER_ERROR;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -28,7 +31,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ExceptionResponse> handleException() {
+    protected ResponseEntity<ExceptionResponse> handleException(Exception exception) {
+        log.error("Unexpected error occurred", exception);
         return ResponseEntity.internalServerError().body(ExceptionResponse.from(SERVER_ERROR));
     }
 
@@ -41,6 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         String message = exception.getAllErrors().stream()
                 .map(MessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
 
         ExceptionResponse response = ExceptionResponse.of(
