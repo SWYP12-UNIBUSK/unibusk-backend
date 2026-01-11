@@ -1,5 +1,6 @@
 package team.unibusk.backend.global.auth.application.auth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import team.unibusk.backend.global.auth.domain.refreshtoken.RefreshTokenReposito
 import team.unibusk.backend.global.auth.presentation.exception.AlreadyRegisteredMemberException;
 import team.unibusk.backend.global.jwt.config.TokenProperties;
 import team.unibusk.backend.global.jwt.generator.JwtTokenGenerator;
+import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.util.RandomNameGenerator;
 
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class AuthService {
     private final JwtTokenGenerator tokenGenerator;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProperties tokenProperties;
+    private final TokenInjector tokenInjector;
 
     @Transactional
     public OauthLoginResultResponse handleLoginSuccess(AuthAttributes attributes) {
@@ -31,6 +34,14 @@ public class AuthService {
         return memberRepository.findByEmail(email)
                 .map(member -> handleExistMember(member, attributes))
                 .orElseGet(() -> handleFirstLogin(attributes));
+    }
+
+    @Transactional
+    public void logout(Long memberId, HttpServletResponse response) {
+        tokenInjector.invalidateCookie("accessToken", response);
+        tokenInjector.invalidateCookie("refreshToken", response);
+
+        refreshTokenRepository.deleteByMemberId(memberId);
     }
 
     private OauthLoginResultResponse handleExistMember(Member member, AuthAttributes attributes) {
