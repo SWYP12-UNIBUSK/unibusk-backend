@@ -10,4 +10,6 @@ public interface RefreshTokenRepository {
 
     Optional<RefreshToken> findFirstByMemberIdOrderByIdDesc(Long id);
 
+    void deleteByMemberId(Long memberId);
+
 }
