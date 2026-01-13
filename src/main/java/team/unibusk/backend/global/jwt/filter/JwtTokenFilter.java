@@ -37,7 +37,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/env", "hc"};
+        String[] excludePath = {"/api/env", "/api/hc"};
         String path = request.getRequestURI();
 
         return Arrays.stream(excludePath).anyMatch(path::startsWith);

@@ -41,8 +41,8 @@ public class SecurityConfig {
             "/actuator/**",
             "/auths/login",
             "/oauth2/**",
-            "/hc",
-            "/env"
+            "/api/hc",
+            "/api/env"
     };
 
     @Bean
