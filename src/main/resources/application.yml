@@ -1,3 +1,6 @@
 spring:
   profiles:
     active: local
+    group:
+      blue: prod
+      green: prod
