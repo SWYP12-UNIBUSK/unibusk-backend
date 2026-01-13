@@ -72,7 +72,9 @@ public class SecurityConfig {
         httpSecurity.cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
             corsConfiguration.setAllowedOrigins(List.of(
-                    "http://localhost:8080"
+                    "http://localhost:8080",
+                    "https://unibusk.site",
+                    "https://www.unibusk.site"
             ));
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
