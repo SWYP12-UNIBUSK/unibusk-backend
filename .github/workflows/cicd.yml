@@ -107,5 +107,5 @@ jobs:
           host: ${{ secrets.UNIBUSK_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo docker stop ${{ env.CURRENT_UPSTREAM }}
-            sudo docker rm ${{ env.CURRENT_UPSTREAM }}
+            sudo docker stop ${{ env.CURRENT_UPSTREAM }} || true
+            sudo docker rm ${{ env.CURRENT_UPSTREAM }} || true
