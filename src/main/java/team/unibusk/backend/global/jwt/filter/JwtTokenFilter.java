@@ -23,6 +23,7 @@ import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +34,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final TokenInjector tokenInjector;
     private final UserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String[] excludePath = {"/env", "hc"};
+        String path = request.getRequestURI();
+
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+    }
 
     @Override
     protected void doFilterInternal(
