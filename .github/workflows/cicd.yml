@@ -58,8 +58,8 @@ jobs:
 
       - name: stop & remove all containers
         run: |
-          sudo docker ps -aq | xargs -r sudo docker stop
-          sudo docker ps -aq | xargs -r sudo docker rm
+          sudo docker stop unibusk || true
+          sudo docker rm unibusk || true
 
       - name: run spring boot container
         run: |
