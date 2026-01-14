@@ -1,33 +1,3 @@
 spring:
   profiles:
     active: local
-    group:
-      blue: blue, prod
-      green: green, prod
-
-server:
-  env: blue
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: blue
-
-server:
-  port: 8080
-
-serverName: blue_server
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: green
-
-server:
-  port: 8081
-
-serverName: green_server
