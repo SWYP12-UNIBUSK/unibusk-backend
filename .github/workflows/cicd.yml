@@ -24,8 +24,7 @@ jobs:
       - name: Make application-local.yml
         run: |
           cd ./src/main/resources
-          touch application-local.yml
-          echo "$APPLICATION_LOCAL" > application-local.yml
+          echo "$YML_LOCAL" | base64 --decode > application-local.yml
         shell: bash
         env:
           YML_LOCAL: ${{ secrets.APPLICATION_LOCAL }}
