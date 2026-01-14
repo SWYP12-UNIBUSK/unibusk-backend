@@ -11,8 +11,6 @@ import java.util.TreeMap;
 @RestController
 public class HealthCheckController {
 
-    @Value("${server.env}")
-    private String env;
     @Value("${server.port}")
     private String serverPort;
     @Value("${server.serverAddress}")
@@ -26,13 +24,7 @@ public class HealthCheckController {
         responseData.put("serverName", serverName);
         responseData.put("serverAddress", serverAddress);
         responseData.put("serverPort", serverPort);
-        responseData.put("env", env);
 
         return ResponseEntity.ok(responseData);
-    }
-
-    @GetMapping("/env")
-    public ResponseEntity<?> getEnv() {
-        return ResponseEntity.ok(env);
     }
 }

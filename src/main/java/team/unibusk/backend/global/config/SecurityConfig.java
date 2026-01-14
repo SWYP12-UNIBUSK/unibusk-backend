@@ -42,7 +42,6 @@ public class SecurityConfig {
             "/auths/login",
             "/oauth2/**",
             "/hc",
-            "/env"
     };
 
     @Bean
