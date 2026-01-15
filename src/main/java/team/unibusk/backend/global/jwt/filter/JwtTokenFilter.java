@@ -36,14 +36,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final RefreshTokenService refreshTokenService;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/api/hc"};
-        String path = request.getRequestURI();
-
-        return Arrays.stream(excludePath).anyMatch(path::startsWith);
-    }
-
-    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
