@@ -9,7 +9,7 @@ import team.unibusk.backend.domain.member.application.dto.request.MemberNameUpda
 public record MemberNameUpdateRequest(
 
         @NotBlank(message = "이름을 입력해 주세요.")
-        @Size(max = 10, message = "이름은 최대 10글자까지 작성 가능합니다.")
+        @Size(max = 15, message = "이름은 최대 15글자까지 작성 가능합니다.")
         String name
 
 ) {
