@@ -1,5 +1,5 @@
 package team.unibusk.backend.domain.performanceLocation.domain;
 
-public interface PlImageRepository {
+public interface PerformanceLocationImageRepository {
 
 }

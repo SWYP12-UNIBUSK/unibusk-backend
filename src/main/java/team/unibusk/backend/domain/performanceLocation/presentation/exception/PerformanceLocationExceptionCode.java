@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Getter
 @RequiredArgsConstructor
-public enum PlExceptionCode implements ExceptionCode {
+public enum PerformanceLocationExceptionCode implements ExceptionCode {
     PL_NOT_FOUND_EXCEPTION(NOT_FOUND, "공연 장소를 찾을 수 없습니다"),
     ;
 

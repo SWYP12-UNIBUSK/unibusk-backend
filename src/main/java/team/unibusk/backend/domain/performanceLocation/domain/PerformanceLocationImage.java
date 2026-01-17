@@ -5,17 +5,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "PerformanceLocationImage")
-public class PlImage extends BaseTimeEntity {
+public class PerformanceLocationImage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +19,7 @@ public class PlImage extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_location_id", nullable = false)
-    private Pl pl;
+    private PerformanceLocation performanceLocation;
 
     @Column(nullable = false, length = 255)
     private String imageUrl;
@@ -32,8 +28,8 @@ public class PlImage extends BaseTimeEntity {
     private Long sortOrder;
 
     @Builder
-    public PlImage(Pl pl, String imgUrl, Long sortOrder){
-        this.pl = pl;
+    private PerformanceLocationImage(PerformanceLocation performanceLocation, String imgUrl, Long sortOrder){
+        this.performanceLocation = performanceLocation;
         this.imageUrl = imgUrl;
         this.sortOrder = sortOrder;
     }

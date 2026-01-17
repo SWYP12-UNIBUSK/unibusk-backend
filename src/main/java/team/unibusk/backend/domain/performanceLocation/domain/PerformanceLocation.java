@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name="PerformanceLocation")
-public class Pl {
+public class PerformanceLocation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +36,8 @@ public class Pl {
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    // 한 장소는 여러 이미지를 가질 수 있음 (1:N)
-    @OneToMany(mappedBy = "pl", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlImage> images = new ArrayList<>();
-
     @Builder
-    public Pl(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
+    private PerformanceLocation(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
         this.name = name;
         this.phone = phone;
         this.location = location;
