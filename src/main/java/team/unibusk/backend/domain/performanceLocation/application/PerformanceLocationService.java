@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.unibusk.backend.domain.performanceLocation.application.dto.request.PerformanceLocationNameServiceRequest;
 import team.unibusk.backend.domain.performanceLocation.application.dto.request.PerformanceLocationSearchServiceRequest;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationNameResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchResponse;
@@ -20,7 +19,6 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,10 +31,10 @@ public class PerformanceLocationService {
 
     //name으로 공연 장소 검색
     public PerformanceLocationNameResponse searchByNamePerformanceLocationService(
-            PerformanceLocationNameServiceRequest serviceRequest
+            String name
     ){
         //이름으로 장소 검색
-        PerformanceLocation location = performanceLocationRepository.findByNameContaining(serviceRequest.name())
+        PerformanceLocation location = performanceLocationRepository.findByName(name)
                         .orElseThrow(PerformanceLocationNotFoundException::new);
 
         List<Long> locationIds = List.of(location.getId());

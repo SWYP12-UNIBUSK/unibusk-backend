@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.PerformanceLocationNotFoundException;
 
 import java.util.Optional;
 
