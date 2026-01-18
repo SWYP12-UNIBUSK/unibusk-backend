@@ -1,5 +1,6 @@
 package team.unibusk.backend.global.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
@@ -70,6 +71,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ExceptionResponse response = ExceptionResponse.of(
                 INVALID_INPUT.getStatus(),
                 INVALID_INPUT.getCode(), message
+        );
+
+        return ResponseEntity.status(response.status()).body(response);
+    }
+
+    // 1. PathVariable 검증 실패 처리
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException exception) {
+        String message = exception.getConstraintViolations().stream()
+                .map(violation -> {
+                    // 필드명(name)을 추출하여 "name: 메시지" 형태로 조합
+                    String propertyPath = violation.getPropertyPath().toString();
+                    String fieldName = propertyPath.substring(propertyPath.lastIndexOf('.') + 1);
+                    return fieldName + ": " + violation.getMessage();
+                })
+                .collect(Collectors.joining(", "));
+
+        ExceptionResponse response = ExceptionResponse.of(
+                INVALID_INPUT.getStatus(),
+                INVALID_INPUT.getCode(),
+                message
         );
 
         return ResponseEntity.status(response.status()).body(response);
