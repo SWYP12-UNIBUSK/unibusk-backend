@@ -25,7 +25,7 @@ public class PerformanceLocationController {
     private final PerformanceLocationService performanceLocationService;
 
 
-    //특정 공연 장소 상세 조회 (ID 기준)
+    //이름으로 공연 장소 조회
     @GetMapping("/search/name")
     public ResponseEntity<PerformanceLocationNameResponse> searchByNamePerformanceLocation(
             @Valid @ModelAttribute PerformanceLocationNameRequest request
