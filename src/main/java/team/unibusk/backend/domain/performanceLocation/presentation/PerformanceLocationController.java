@@ -1,5 +1,6 @@
 package team.unibusk.backend.domain.performanceLocation.presentation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,9 +26,9 @@ public class PerformanceLocationController {
 
 
     //특정 공연 장소 상세 조회 (ID 기준)
-    @GetMapping("/{name}")
+    @GetMapping("/search/name")
     public ResponseEntity<PerformanceLocationNameResponse> searchByNamePerformanceLocation(
-            @ModelAttribute PerformanceLocationNameRequest request
+            @Valid @ModelAttribute PerformanceLocationNameRequest request
     ) {
         //서비스에서 이름 검색
         PerformanceLocationNameResponse response =
@@ -40,9 +41,9 @@ public class PerformanceLocationController {
 
     //키워드로 공연 장소 조회
     //전체 공연 장소를 조회하고 싶으면 keyword에 아무것도 입력 안하면 됨
-    @GetMapping("/search")
+    @GetMapping("/search/keyword")
     public ResponseEntity<Page<PerformanceLocationSearchResponse>> searchByKeywordPerformanceLocations(
-            @ModelAttribute PerformanceLocationSearchRequest request
+            @Valid @ModelAttribute PerformanceLocationSearchRequest request
             ) {
         //서비스에서 entity 페이지 가져오기
         Page<PerformanceLocationSearchResponse> responses =
