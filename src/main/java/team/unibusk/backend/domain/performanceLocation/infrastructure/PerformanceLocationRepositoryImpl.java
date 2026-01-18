@@ -22,8 +22,8 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     }
 
     @Override
-    public Optional<PerformanceLocation> findByNameContaining(String name){
-        return jpaRepository.findByNameContaining(name);
+    public Optional<PerformanceLocation> findByName(String name){
+        return jpaRepository.findByName(name);
     }
 
 

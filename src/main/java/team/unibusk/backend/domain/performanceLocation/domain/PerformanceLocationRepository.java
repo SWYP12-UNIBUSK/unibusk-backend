@@ -11,6 +11,6 @@ public interface PerformanceLocationRepository {
     Page<PerformanceLocation> findByKeywordContaining(String keyword, Pageable pageable);
 
     //name 으로 공연 장소 검색
-    Optional<PerformanceLocation> findByNameContaining(String name);
+    Optional<PerformanceLocation> findByName(String name);
 
 }

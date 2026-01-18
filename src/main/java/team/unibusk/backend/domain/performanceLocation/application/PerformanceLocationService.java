@@ -39,11 +39,11 @@ public class PerformanceLocationService {
         PerformanceLocation location = performanceLocationRepository.findByNameContaining(serviceRequest.name())
                         .orElseThrow(PerformanceLocationNotFoundException::new);
 
-        List<Long> locationId = List.of(location.getId());
+        List<Long> locationIds = List.of(location.getId());
 
         //해당 장소에 속한 모든 이미지 엔티티 조회
         List<PerformanceLocationImage> allImages =
-                performanceLocationImageRepository.findAllByPerformanceLocationIdIn(locationId);
+                performanceLocationImageRepository.findAllByPerformanceLocationIdIn(locationIds);
 
         //이미지 엔티티 리스트를 URL 문자열 리스트로 변환
         List<String> imageUrls = allImages.stream()

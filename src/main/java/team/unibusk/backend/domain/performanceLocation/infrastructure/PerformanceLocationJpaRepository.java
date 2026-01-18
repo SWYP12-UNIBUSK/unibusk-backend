@@ -17,6 +17,6 @@ public interface PerformanceLocationJpaRepository extends JpaRepository<Performa
     Page<PerformanceLocation> findByNameContainingOrLocationContaining(@Param("keyword") String keyword, Pageable pageable);
 
     //name으로 검색
-    Optional<PerformanceLocation> findByNameContaining(String name);
+    Optional<PerformanceLocation> findByName(String name);
 
 }
