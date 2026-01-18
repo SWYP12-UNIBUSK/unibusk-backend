@@ -1,15 +1,15 @@
-package team.unibusk.backend.domain.performanceLocation.domain;
+package team.unibusk.backend.domain.performanceLocationImage.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "PerformanceLocationImage")
 public class PerformanceLocationImage extends BaseTimeEntity {
 
@@ -27,11 +27,13 @@ public class PerformanceLocationImage extends BaseTimeEntity {
     @Column(nullable = false)
     private Long sortOrder;
 
-    @Builder
-    private PerformanceLocationImage(PerformanceLocation performanceLocation, String imgUrl, Long sortOrder){
-        this.performanceLocation = performanceLocation;
-        this.imageUrl = imgUrl;
-        this.sortOrder = sortOrder;
+
+    public static PerformanceLocationImage from(PerformanceLocation performanceLocation, String imageUrl, Long sortOrder) {
+        return PerformanceLocationImage.builder()
+                .performanceLocation(performanceLocation)
+                .imageUrl(imageUrl)
+                .sortOrder(sortOrder)
+                .build();
     }
 
 }

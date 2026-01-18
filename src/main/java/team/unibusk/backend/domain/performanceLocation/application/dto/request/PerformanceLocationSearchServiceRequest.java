@@ -4,6 +4,9 @@ import lombok.Builder;
 
 @Builder
 public record PerformanceLocationSearchServiceRequest(
-        String keyword
+        String keyword,
+        Integer page,
+        Integer size
 ) {
+
 }

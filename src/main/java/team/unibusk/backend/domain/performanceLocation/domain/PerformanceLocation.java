@@ -1,10 +1,7 @@
 package team.unibusk.backend.domain.performanceLocation.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,7 +9,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name="PerformanceLocation")
 public class PerformanceLocation {
 
@@ -36,12 +35,14 @@ public class PerformanceLocation {
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    @Builder
-    private PerformanceLocation(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
-        this.name = name;
-        this.phone = phone;
-        this.location = location;
-        this.latitude = latitude != null ? latitude : BigDecimal.ZERO;
-        this.longitude = longitude != null ? longitude : BigDecimal.ZERO;
+
+    public static PerformanceLocation from(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
+        return PerformanceLocation.builder()
+                .name(name)
+                .phone(phone)
+                .location(location)
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
     }
 }
