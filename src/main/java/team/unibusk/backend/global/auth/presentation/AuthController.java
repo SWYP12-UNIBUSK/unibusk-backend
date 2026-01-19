@@ -13,7 +13,7 @@ import team.unibusk.backend.global.auth.application.auth.AuthService;
 @RequiredArgsConstructor
 @RequestMapping("/auths")
 @Controller
-public class AuthController {
+public class AuthController implements AuthDocsController{
 
     private final AuthService authService;
 
