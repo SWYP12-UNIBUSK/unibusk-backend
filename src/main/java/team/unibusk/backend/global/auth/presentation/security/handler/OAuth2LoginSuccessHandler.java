@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static team.unibusk.backend.global.auth.presentation.exception.AuthExceptionCode.ALREADY_REGISTERED_MEMBER;
-import static team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter.REDIRECT_URL_COOKIE_NAME;
+import static team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter.STATE_COOKIE_NAME;
 
 @RequiredArgsConstructor
 @Component
@@ -41,7 +41,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         try {
             OauthLoginResultResponse result = resolveLoginResultFromAuthentication(authentication);
             tokenInjector.injectTokensToCookie(result, response);
-            redirectToSuccessUrl(request, response, result);
+            redirectToSuccessUrl(request, response);
         } catch (AlreadyRegisteredMemberException e) {
             handleAlreadyExistUser(response);
         }
@@ -54,40 +54,41 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private void redirectToSuccessUrl(
             HttpServletRequest request,
-            HttpServletResponse response,
-            OauthLoginResultResponse result
+            HttpServletResponse response
     ) throws IOException {
-        String redirectUrlByCookie = getRedirectUrlByCookie(request);
-        String redirectUrl = determineRedirectUrl(redirectUrlByCookie);
-        tokenInjector.invalidateCookie(REDIRECT_URL_COOKIE_NAME, response);
-        response.sendRedirect(redirectUrl);
+        String stateCookieValue = getStateCookie(request);
+        String target = determineTargetUrl(stateCookieValue);
+
+        tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
+        response.sendRedirect(target);
     }
 
-    private String getRedirectUrlByCookie(HttpServletRequest request) {
+    private String getStateCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
+        if (cookies == null) return null;
 
         return Arrays.stream(cookies)
-                .filter(cookie -> Objects.equals(cookie.getName(), REDIRECT_URL_COOKIE_NAME))
+                .filter(cookie -> Objects.equals(cookie.getName(), STATE_COOKIE_NAME))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
     }
 
-    private String determineRedirectUrl(String redirectCookie) {
-        if (StringUtils.hasText(redirectCookie)) {
-            String decodedUrl = URLDecoder.decode(redirectCookie, StandardCharsets.UTF_8);
-            if (isValidRedirectUrl(decodedUrl)) {
-                return decodedUrl;
+    private String determineTargetUrl(String cookieValue) {
+        if (StringUtils.hasText(cookieValue)) {
+            String decoded = URLDecoder.decode(cookieValue, StandardCharsets.UTF_8);
+            if (isValidRedirectUrl(decoded)) {
+                return decoded;
             }
         }
         return securityProperties.oAuthUrl().redirectUrl();
     }
 
     private void handleAlreadyExistUser(HttpServletResponse response) throws IOException {
-        response.sendRedirect(securityProperties.oAuthUrl().loginUrl() + "?error=true&exception=" + ALREADY_REGISTERED_MEMBER);
+        response.sendRedirect(
+                securityProperties.oAuthUrl().loginUrl()
+                        + "?error=true&exception=" + ALREADY_REGISTERED_MEMBER
+        );
     }
 
     private boolean isValidRedirectUrl(String url) {
