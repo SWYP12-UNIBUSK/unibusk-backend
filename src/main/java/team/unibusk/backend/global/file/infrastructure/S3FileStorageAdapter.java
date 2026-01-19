@@ -46,7 +46,7 @@ public class S3FileStorageAdapter implements FileStoragePort {
                 );
             }
 
-        } catch (IOException e) {
+        } catch (IOException | software.amazon.awssdk.core.exception.SdkException e) {
             throw new FileUploadFailedException();
         }
 
@@ -59,15 +59,17 @@ public class S3FileStorageAdapter implements FileStoragePort {
     }
 
     private String getExtension(String filename) {
-        if (filename == null || !filename.contains(".")) {
+        if (filename == null || !filename.contains(".") || filename.endsWith(".")) {
             throw new InvalidFileTypeException();
         }
         return filename.substring(filename.lastIndexOf('.') + 1);
     }
 
     private String getPublicUrl(String key) {
-        String encodedKey = URLEncoder.encode(key, StandardCharsets.UTF_8)
-                .replace("+", "%20");
+        String[] parts = key.split("/");
+        String encodedKey = java.util.Arrays.stream(parts)
+                .map(part -> URLEncoder.encode(part, StandardCharsets.UTF_8).replace("+", "%20"))
+                .collect(java.util.stream.Collectors.joining("/"));
         return String.format(publicUrlFormat, bucket) + "/" + encodedKey;
     }
 }
