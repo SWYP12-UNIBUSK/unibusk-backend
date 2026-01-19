@@ -2,6 +2,7 @@ package team.unibusk.backend.domain.performanceLocation.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImage;
 
 import java.math.BigDecimal;
@@ -36,6 +37,7 @@ public class PerformanceLocation {
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
+    @BatchSize(size = 100)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_location_id") // DB의 이미지 테이블에 FK 생성
     private List<PerformanceLocationImage> images = new ArrayList<>();
