@@ -17,10 +17,6 @@ public class PerformanceLocationImage extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_location_id", nullable = false)
-    private PerformanceLocation performanceLocation;
-
     @Column(nullable = false, length = 255)
     private String imageUrl;
 
@@ -28,9 +24,8 @@ public class PerformanceLocationImage extends BaseTimeEntity {
     private Long sortOrder;
 
 
-    public static PerformanceLocationImage from(PerformanceLocation performanceLocation, String imageUrl, Long sortOrder) {
+    public static PerformanceLocationImage create(String imageUrl, Long sortOrder) {
         return PerformanceLocationImage.builder()
-                .performanceLocation(performanceLocation)
                 .imageUrl(imageUrl)
                 .sortOrder(sortOrder)
                 .build();

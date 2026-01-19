@@ -13,13 +13,10 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.response.
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.PerformanceLocationNotFoundException;
 import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImage;
-import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImageRepository;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 
-import java.util.Collections;
+
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +24,6 @@ import java.util.stream.Collectors;
 public class PerformanceLocationService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
-    private final PerformanceLocationImageRepository performanceLocationImageRepository;
 
     //name으로 공연 장소 검색
     public PerformanceLocationNameResponse searchByNamePerformanceLocationService(
@@ -37,14 +33,8 @@ public class PerformanceLocationService {
         PerformanceLocation location = performanceLocationRepository.findByName(name)
                         .orElseThrow(PerformanceLocationNotFoundException::new);
 
-        List<Long> locationIds = List.of(location.getId());
-
-        //해당 장소에 속한 모든 이미지 엔티티 조회
-        List<PerformanceLocationImage> allImages =
-                performanceLocationImageRepository.findAllByPerformanceLocationIdIn(locationIds);
-
-        //이미지 엔티티 리스트를 URL 문자열 리스트로 변환
-        List<String> imageUrls = allImages.stream()
+        //
+        List<String> imageUrls = location.getImages().stream()
                 .map(PerformanceLocationImage::getImageUrl)
                 .toList();
 
@@ -64,22 +54,13 @@ public class PerformanceLocationService {
         //장소 검색
         Page<PerformanceLocation> locations =
                 performanceLocationRepository.findByKeywordContaining(serviceRequest.keyword(), pageable);
-        List<Long> locationIds = locations.getContent().stream().map(PerformanceLocation::getId).toList();
-        //조회된 장소들의 이미지 조회
-        List<PerformanceLocationImage> allImages =
-                performanceLocationImageRepository.findAllByPerformanceLocationIdIn(locationIds);
 
-        //장소 ID 별로 이미지 그룹화
-        Map<Long, List<String>> imageMap = allImages.stream()
-                .collect(Collectors.groupingBy(
-                        img -> img.getPerformanceLocation().getId(),
-                        Collectors.mapping(PerformanceLocationImage::getImageUrl, Collectors.toList())
-                ));
-
-        //Map에서 꺼내서 DTO로 저장
+        //각 장소 엔티티가 들고 있는 images를 활용해 DTO로 변환
         return locations.map(location -> PerformanceLocationSearchResponse.from(
                 location,
-                imageMap.getOrDefault(location.getId(), Collections.emptyList())
+                location.getImages().stream()
+                        .map(PerformanceLocationImage::getImageUrl)
+                        .toList()
         ));
     }
 

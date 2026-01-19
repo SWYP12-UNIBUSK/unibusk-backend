@@ -2,8 +2,11 @@ package team.unibusk.backend.domain.performanceLocation.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImage;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,6 +36,9 @@ public class PerformanceLocation {
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "performance_location_id") // DB의 이미지 테이블에 FK 생성
+    private List<PerformanceLocationImage> images = new ArrayList<>();
 
     public static PerformanceLocation from(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
         return PerformanceLocation.builder()
@@ -41,6 +47,11 @@ public class PerformanceLocation {
                 .location(location)
                 .latitude(latitude)
                 .longitude(longitude)
+                .images(new ArrayList<>())
                 .build();
+    }
+
+    public void addImage(PerformanceLocationImage image) {
+        this.images.add(image);
     }
 }
