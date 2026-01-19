@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import team.unibusk.backend.domain.performanceImage.domain.PerformanceImage;
 import team.unibusk.backend.domain.performer.domain.Performer;
-import team.unibusk.backend.domain.performance.application.dto.requset.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -79,12 +79,14 @@ public class Performance extends BaseTimeEntity {
                 .instagram(request.instagram())
                 .build());
 
-        // 이미지 추가 (정렬 순서 로직 포함)
-        for (int i = 0; i < imageUrls.size(); i++) {
-            performance.addImage(PerformanceImage.builder()
-                    .imageUrl(imageUrls.get(i))
-                    .sortOrder((long) i + 1)
-                    .build());
+        // 이미지 리스트가 null이 아니고 비어있지 않은 경우에만 이미지 추가 로직 수행
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            for (int i = 0; i < imageUrls.size(); i++) {
+                performance.addImage(PerformanceImage.builder()
+                        .imageUrl(imageUrls.get(i))
+                        .sortOrder((long) i + 1)
+                        .build());
+            }
         }
 
         return performance;

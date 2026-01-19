@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.application.dto.requset;
+package team.unibusk.backend.domain.performance.application.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
