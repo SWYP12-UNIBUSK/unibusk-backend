@@ -17,15 +17,12 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
 
     @Override
     public Page<PerformanceLocation> findByKeywordContaining(String keyword, Pageable pageable) {
-        return jpaRepository.findByNameContainingOrLocationContaining(keyword, pageable);
+        return jpaRepository.findByNameContaining(keyword, pageable);
     }
 
     @Override
-    public Optional<PerformanceLocation> findByName(String name){
-        return jpaRepository.findByName(name);
+    public Optional<PerformanceLocation> findByName(String name) {
+        // 서비스에서 호출 시 Fetch Join이 적용된 최적화 메서드 사용
+        return jpaRepository.findByNameWithImages(name);
     }
-
-
-
-
 }

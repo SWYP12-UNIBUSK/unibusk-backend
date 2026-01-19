@@ -8,4 +8,5 @@ public interface PerformanceImageUploadRepository {
 
     List<String> uploadFiles(List<MultipartFile> files);
     String uploadFile(MultipartFile file);
+    void deleteFiles(List<String> imageUrls);
 }

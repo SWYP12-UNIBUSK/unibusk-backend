@@ -11,7 +11,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequiredArgsConstructor
 public enum PerformanceLocationExceptionCode implements ExceptionCode {
     PL_NOT_FOUND_EXCEPTION(NOT_FOUND, "공연 장소를 찾을 수 없습니다"),
-    INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다"),
     ;
 
     private final HttpStatus status;

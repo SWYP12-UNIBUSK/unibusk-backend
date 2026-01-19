@@ -1,12 +1,11 @@
-package team.unibusk.backend.domain.perfromance.domain;
+package team.unibusk.backend.domain.performance.domain;
 
 
 import jakarta.persistence.*;
 import lombok.*;
 import team.unibusk.backend.domain.performanceImage.domain.PerformanceImage;
-import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performer.domain.Performer;
-import team.unibusk.backend.domain.perfromance.application.dto.requset.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.requset.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;

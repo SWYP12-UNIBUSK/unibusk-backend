@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.perfromance.domain;
+package team.unibusk.backend.domain.performance.domain;
 
 public interface PerformanceRepository {
 

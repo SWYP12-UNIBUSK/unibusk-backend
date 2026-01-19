@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.perfromance.presentation;
+package team.unibusk.backend.domain.performance.presentation;
 
 
 import jakarta.validation.Valid;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import team.unibusk.backend.domain.perfromance.application.PerformanceService;
-import team.unibusk.backend.domain.perfromance.application.dto.response.PerformanceRegisterResponse;
-import team.unibusk.backend.domain.perfromance.presentation.request.PerformanceRegisterRequest;
+import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
+import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 
 @RestController

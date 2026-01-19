@@ -1,11 +1,11 @@
-package team.unibusk.backend.domain.perfromance.presentation.request;
+package team.unibusk.backend.domain.performance.presentation.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.perfromance.application.dto.requset.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.requset.PerformanceRegisterServiceRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

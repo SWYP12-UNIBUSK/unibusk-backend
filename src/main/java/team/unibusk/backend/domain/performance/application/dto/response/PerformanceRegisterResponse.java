@@ -1,6 +1,6 @@
-package team.unibusk.backend.domain.perfromance.application.dto.response;
+package team.unibusk.backend.domain.performance.application.dto.response;
 
-import team.unibusk.backend.domain.perfromance.domain.Performance;
+import team.unibusk.backend.domain.performance.domain.Performance;
 
 public record PerformanceRegisterResponse(
         Long performanceId

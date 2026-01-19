@@ -1,11 +1,10 @@
-package team.unibusk.backend.domain.perfromance.infrastructure;
+package team.unibusk.backend.domain.performance.infrastructure;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import team.unibusk.backend.domain.perfromance.domain.Performance;
-import team.unibusk.backend.domain.perfromance.domain.PerformanceRepository;
+import team.unibusk.backend.domain.performance.domain.Performance;
+import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 
-import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class PerformanceRepositoryImpl implements PerformanceRepository {

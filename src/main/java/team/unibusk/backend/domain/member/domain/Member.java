@@ -2,12 +2,9 @@ package team.unibusk.backend.domain.member.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import team.unibusk.backend.domain.perfromance.domain.Performance;
 import team.unibusk.backend.global.auth.application.attributes.AuthAttributes;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
