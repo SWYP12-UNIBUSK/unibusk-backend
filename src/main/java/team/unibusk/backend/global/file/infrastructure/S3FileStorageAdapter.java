@@ -8,6 +8,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import team.unibusk.backend.global.file.port.FileStoragePort;
+import team.unibusk.backend.global.file.presentation.exception.FileUploadFailedException;
+import team.unibusk.backend.global.file.presentation.exception.InvalidFileTypeException;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -37,13 +39,15 @@ public class S3FileStorageAdapter implements FileStoragePort {
                     .contentType(file.getContentType())
                     .build();
 
-            s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromBytes(file.getBytes())
-            );
+            try (var in = file.getInputStream()) {
+                s3Client.putObject(
+                        putObjectRequest,
+                        RequestBody.fromInputStream(in, file.getSize())
+                );
+            }
 
         } catch (IOException e) {
-            throw new RuntimeException("S3 파일 업로드 실패", e);
+            throw new FileUploadFailedException();
         }
 
         return getPublicUrl(key);
@@ -56,7 +60,7 @@ public class S3FileStorageAdapter implements FileStoragePort {
 
     private String getExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
-            throw new IllegalArgumentException("파일 확장자가 없습니다.");
+            throw new InvalidFileTypeException();
         }
         return filename.substring(filename.lastIndexOf('.') + 1);
     }

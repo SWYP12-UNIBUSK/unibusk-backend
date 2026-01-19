@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.global.file.port.FileStoragePort;
+import team.unibusk.backend.global.file.presentation.exception.EmptyFolderNameException;
+import team.unibusk.backend.global.file.presentation.exception.FileNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -13,12 +15,19 @@ public class FileUploadService {
 
     public String upload(MultipartFile file, String folder) {
         validate(file);
+        validateFolder(folder);
         return fileStoragePort.upload(file, folder);
     }
 
     private void validate(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+            throw new FileNotFoundException();
+        }
+    }
+
+    private void validateFolder(String folder) {
+        if (folder == null || folder.isBlank()) {
+            throw new EmptyFolderNameException();
         }
     }
 }
