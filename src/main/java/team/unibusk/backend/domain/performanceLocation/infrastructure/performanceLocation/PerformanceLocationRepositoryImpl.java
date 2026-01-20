@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performanceLocation.infrastructure;
+package team.unibusk.backend.domain.performanceLocation.infrastructure.performanceLocation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

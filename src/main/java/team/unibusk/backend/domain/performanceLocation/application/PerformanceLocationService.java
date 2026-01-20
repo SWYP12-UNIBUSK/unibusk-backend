@@ -11,12 +11,16 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.request.P
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationNameResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImageRepository;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.PerformanceLocationNotFoundException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ import java.util.List;
 public class PerformanceLocationService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
+    private final PerformanceLocationImageRepository performanceLocationImageRepository;
 
     //name으로 공연 장소 검색
     public PerformanceLocationNameResponse searchByNamePerformanceLocationService(
@@ -34,7 +39,9 @@ public class PerformanceLocationService {
                         .orElseThrow(PerformanceLocationNotFoundException::new);
 
         //이미지 가져오기
-        List<String> imageUrls = location.getImages().stream()
+        List<PerformanceLocationImage> images = performanceLocationImageRepository.findAllByPerformanceLocationId(location.getId());
+
+        List<String> imageUrls = images.stream()
                 .map(PerformanceLocationImage::getImageUrl)
                 .toList();
 
@@ -55,12 +62,28 @@ public class PerformanceLocationService {
         Page<PerformanceLocation> locations =
                 performanceLocationRepository.findByKeywordContaining(serviceRequest.keyword(), pageable);
 
-        //각 장소 엔티티가 들고 있는 images를 활용해 DTO로 변환
+        //검색 결과 없으면 즉시 반환
+        if (locations.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        //조회된 모든 장소 ID 추출해서 이미지 일괄 조회
+        List<Long> locationIds = locations.getContent().stream()
+                .map(PerformanceLocation::getId)
+                .toList();
+        List<PerformanceLocationImage> allImages =
+                performanceLocationImageRepository.findAllByPerformanceLocationIdIn(locationIds);
+
+
+        //장소 ID별로 이미지 그룹화
+        Map<Long, List<String>> imageMap = allImages.stream()
+                .collect(Collectors.groupingBy(
+                        img -> img.getPerformanceLocation().getId(),
+                        Collectors.mapping(PerformanceLocationImage::getImageUrl, Collectors.toList())
+                ));
         return locations.map(location -> PerformanceLocationSearchResponse.from(
                 location,
-                location.getImages().stream()
-                        .map(PerformanceLocationImage::getImageUrl)
-                        .toList()
+                imageMap.getOrDefault(location.getId(), Collections.emptyList())
         ));
     }
 
