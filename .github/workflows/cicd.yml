@@ -28,10 +28,13 @@ jobs:
         env:
           YML_LOCAL: ${{ secrets.APPLICATION_LOCAL }}
 
-      - name: Build with Gradle
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: clean build -x test
+          gradle-version: wrapper
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
 
       - name: Docker login
         uses: docker/login-action@v3
