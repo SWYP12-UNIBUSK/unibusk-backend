@@ -29,8 +29,7 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     public static final String STATE_COOKIE_NAME = "oauth_state";
 
     private static final List<String> REDIRECT_URL_INJECTION_PATTERNS = List.of(
-            "/api/auths/login",
-            "/api/oauth2/authorization/**"
+            "/api/auths/login"
     );
 
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
@@ -48,8 +47,11 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (isRedirectRequest(request)) {
-            String requestUri = request.getRequestURI();
+        String requestUri = request.getRequestURI();
+
+        // ✅ 오직 login 진입 시점에서만 처리
+        if (pathMatcher.match("/api/auths/login", requestUri)) {
+
             String state = request.getParameter(STATE_PARAM);
 
             log.info("[RedirectUrlFilter] requestUri={}", requestUri);
@@ -61,7 +63,12 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
                 String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
                 log.info("[RedirectUrlFilter] encoded state={}", encodedState);
 
-                tokenInjector.addCookie(STATE_COOKIE_NAME, encodedState, 3600, response);
+                tokenInjector.addCookie(
+                        STATE_COOKIE_NAME,
+                        encodedState,
+                        3600,
+                        response
+                );
             } else {
                 log.warn("[RedirectUrlFilter] invalid or empty state={}", state);
             }
