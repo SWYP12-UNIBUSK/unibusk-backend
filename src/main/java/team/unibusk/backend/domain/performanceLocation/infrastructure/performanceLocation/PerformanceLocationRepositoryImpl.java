@@ -22,7 +22,6 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
 
     @Override
     public Optional<PerformanceLocation> findByName(String name) {
-        // 서비스에서 호출 시 Fetch Join이 적용된 최적화 메서드 사용
-        return jpaRepository.findByNameWithImages(name);
+        return jpaRepository.findByName(name);
     }
 }
