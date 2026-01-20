@@ -17,9 +17,11 @@ import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.injector.TokenInjector;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static team.unibusk.backend.global.auth.presentation.exception.AuthExceptionCode.ALREADY_REGISTERED_MEMBER;
@@ -33,6 +35,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final AuthService authService;
     private final TokenInjector tokenInjector;
     private final SecurityProperties securityProperties;
+
+    private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
+            "localhost",
+            "unibusk.site",
+            "www.unibusk.site"
+    );
 
     @Override
     public void onAuthenticationSuccess(
@@ -101,7 +109,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private boolean isValidRedirectUrl(String url) {
-        return url.startsWith("/") || url.startsWith(securityProperties.oAuthUrl().redirectUrl());
+        try {
+            URI uri = URI.create(url);
+
+            if (uri.getHost() == null) {
+                return true;
+            }
+
+            return ALLOWED_REDIRECT_HOSTS.contains(uri.getHost());
+        } catch (Exception e) {
+            log.warn("[OAuth2Success] invalid redirect url={}", url);
+            return false;
+        }
     }
 
 }
