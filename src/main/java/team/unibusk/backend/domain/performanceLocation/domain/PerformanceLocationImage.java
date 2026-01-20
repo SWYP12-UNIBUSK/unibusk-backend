@@ -1,8 +1,7 @@
-package team.unibusk.backend.domain.performanceLocationImage.domain;
+package team.unibusk.backend.domain.performanceLocation.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 @Entity

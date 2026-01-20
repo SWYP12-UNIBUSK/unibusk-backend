@@ -3,7 +3,6 @@ package team.unibusk.backend.domain.performanceLocation.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
-import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImage;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

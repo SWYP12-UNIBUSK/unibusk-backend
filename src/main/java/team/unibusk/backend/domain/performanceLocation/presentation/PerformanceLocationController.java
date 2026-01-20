@@ -15,7 +15,7 @@ import team.unibusk.backend.domain.performanceLocation.presentation.request.Perf
 
 
 @RestController
-@RequestMapping("/api/performance-locations")
+@RequestMapping("/performance-locations")
 @RequiredArgsConstructor
 @Validated
 public class PerformanceLocationController {

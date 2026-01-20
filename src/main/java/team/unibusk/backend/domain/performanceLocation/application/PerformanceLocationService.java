@@ -12,7 +12,7 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.response.
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.PerformanceLocationNotFoundException;
-import team.unibusk.backend.domain.performanceLocationImage.domain.PerformanceLocationImage;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class PerformanceLocationService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
@@ -33,7 +33,7 @@ public class PerformanceLocationService {
         PerformanceLocation location = performanceLocationRepository.findByName(name)
                         .orElseThrow(PerformanceLocationNotFoundException::new);
 
-        //
+        //이미지 가져오기
         List<String> imageUrls = location.getImages().stream()
                 .map(PerformanceLocationImage::getImageUrl)
                 .toList();

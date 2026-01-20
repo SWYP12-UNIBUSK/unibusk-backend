@@ -1,5 +1,6 @@
 package team.unibusk.backend.domain.performance.presentation.request;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +23,7 @@ public record PerformanceRegisterRequest (
         String email,
 
         @NotBlank(message = "전화번호는 필수 입력 항목입니다.")
-        String phone,
+        String phoneNumber,
 
         @Size(max = 50, message = "인스타그램 아이디는 최대 50자까지 입력 가능합니다.")
         String instagram,
@@ -56,7 +57,7 @@ public record PerformanceRegisterRequest (
         return new PerformanceRegisterServiceRequest(
                 name,
                 email,
-                phone,
+                phoneNumber,
                 instagram,
                 performanceLocationId,
                 title,

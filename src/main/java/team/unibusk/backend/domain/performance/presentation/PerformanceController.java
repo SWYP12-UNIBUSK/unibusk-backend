@@ -14,7 +14,7 @@ import team.unibusk.backend.domain.performance.presentation.request.PerformanceR
 import team.unibusk.backend.global.annotation.MemberId;
 
 @RestController
-@RequestMapping("/api/performances")
+@RequestMapping("/performances")
 @RequiredArgsConstructor
 public class PerformanceController {
 
@@ -29,7 +29,7 @@ public class PerformanceController {
 
         //서비스에서 저장
         PerformanceRegisterResponse response =
-                performanceService.registerPerformance(request.toServiceRequest(), memberId);
+                performanceService.register(request.toServiceRequest(), memberId);
 
         return ResponseEntity.status(200).body(response);
 

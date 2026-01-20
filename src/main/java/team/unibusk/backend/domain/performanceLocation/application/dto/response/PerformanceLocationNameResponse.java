@@ -12,7 +12,7 @@ public record PerformanceLocationNameResponse (
         BigDecimal latitude,     // 위도 (지도 표시용)
         BigDecimal longitude,     // 경도 (지도 표시용)
         List<String> imageUrls
-){
+) {
     // Entity를 DTO로 변환하는 정적 팩토리 메서드
     public static PerformanceLocationNameResponse from(
             PerformanceLocation location,
