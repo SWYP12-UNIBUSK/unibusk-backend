@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.util.Objects;
 import static team.unibusk.backend.global.auth.presentation.exception.AuthExceptionCode.ALREADY_REGISTERED_MEMBER;
 import static team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter.STATE_COOKIE_NAME;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -56,8 +58,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
+
         String stateCookieValue = getStateCookie(request);
+        log.info("[OAuth2Success] state cookie (encoded)={}", stateCookieValue);
+
         String target = determineTargetUrl(stateCookieValue);
+        log.info("[OAuth2Success] final redirect target={}", target);
 
         tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
         response.sendRedirect(target);
@@ -77,10 +83,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private String determineTargetUrl(String cookieValue) {
         if (StringUtils.hasText(cookieValue)) {
             String decoded = URLDecoder.decode(cookieValue, StandardCharsets.UTF_8);
+            log.info("[OAuth2Success] decoded state={}", decoded);
+
             if (isValidRedirectUrl(decoded)) {
                 return decoded;
             }
         }
+        log.warn("[OAuth2Success] fallback redirect used");
         return securityProperties.oAuthUrl().redirectUrl();
     }
 
