@@ -27,7 +27,8 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     public static final String STATE_COOKIE_NAME = "oauth_state";
 
     private static final List<String> REDIRECT_URL_INJECTION_PATTERNS = List.of(
-            "/oauth2/authorization/**"
+            "/api/auths/login",
+            "/api/oauth2/authorization/**"
     );
 
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
