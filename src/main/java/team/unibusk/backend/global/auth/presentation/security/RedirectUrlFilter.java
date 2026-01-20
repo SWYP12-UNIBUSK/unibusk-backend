@@ -23,15 +23,18 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
 
     private final TokenInjector tokenInjector;
 
-    public static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
-    public static final String REDIRECT_URL_COOKIE_NAME = "redirect_url";
+    public static final String STATE_PARAM = "state";
+    public static final String STATE_COOKIE_NAME = "oauth_state";
 
     private static final List<String> REDIRECT_URL_INJECTION_PATTERNS = List.of(
-            "/oauth2/authorization/**"
+            "/api/auths/login",
+            "/api/oauth2/authorization/**"
     );
 
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
-            "localhost"
+            "localhost",
+            "unibusk.site",
+            "www.unibusk.site"
     );
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -44,12 +47,12 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         if (isRedirectRequest(request)) {
-            tokenInjector.invalidateCookie(REDIRECT_URL_COOKIE_NAME, response);
+            tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
 
-            String redirectUri = request.getParameter(REDIRECT_URL_QUERY_PARAM);
-            if (StringUtils.hasText(redirectUri) && isValidRedirectUrl(redirectUri)) {
-                String encodedUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
-                tokenInjector.addCookie(REDIRECT_URL_COOKIE_NAME, encodedUri, 3600, response);
+            String state = request.getParameter(STATE_PARAM);
+            if (StringUtils.hasText(state) && isValidRedirectUrl(state)) {
+                String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
+                tokenInjector.addCookie(STATE_COOKIE_NAME, encodedState, 3600, response);
             }
         }
 
