@@ -53,21 +53,19 @@ jobs:
         run: |
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/unibusk_server:latest
 
-      - name: stop & remove all containers
-        run: |
-          sudo docker stop unibusk || true
-          sudo docker rm unibusk || true
-
       - name: run spring boot container
         run: |
           sudo docker run -d \
-            --name unibusk \
+            --name unibusk-new \
             -m 768m \
             --memory-swap=768m \
             --restart=always \
             -e JAVA_OPTS="-Xms128m -Xmx384m" \
             -p 8080:8080 \
             ${{ secrets.DOCKERHUB_USERNAME }}/unibusk_server:latest
-
-      - name: prune unused docker data
-        run: sudo docker system prune -f
+            
+          sleep 10
+    
+          docker stop unibusk || true
+          docker rm unibusk || true
+          docker rename unibusk-new unibusk
