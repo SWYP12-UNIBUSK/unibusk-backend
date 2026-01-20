@@ -25,13 +25,13 @@ public class PerformanceLocationImage extends BaseTimeEntity {
     private String imageUrl;
 
     @Column(nullable = false)
-    private Long sortOrder;
+    private Long sortOrder = 1L;
 
     public static PerformanceLocationImage create(PerformanceLocation performanceLocation, String imageUrl, Long sortOrder) {
         return PerformanceLocationImage.builder()
                 .performanceLocation(performanceLocation)
                 .imageUrl(imageUrl)
-                .sortOrder(sortOrder)
+                .sortOrder(sortOrder == null ? 1L : sortOrder)
                 .build();
     }
 }

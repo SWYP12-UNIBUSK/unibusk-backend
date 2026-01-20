@@ -1,10 +1,7 @@
 package team.unibusk.backend.domain.performance.presentation.request;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 
@@ -44,14 +41,24 @@ public record PerformanceRegisterRequest (
         @NotNull(message = "공연 종료 시간을 입력해 주세요.")
         LocalDateTime endTime,
 
+        @NotNull(message = "공연 간단 설명(summary)을 작성해주세요")
         String summary,
 
         //공연 상세 정보
         List<MultipartFile> images,
 
-        @NotBlank(message = "공연 상세 설명(description)은 필수 입력 항목입니다.")
+        @NotBlank(message = "공연 상세 설명(description)을 작성해주세요")
         String description
+
+
 ){
+    @AssertTrue(message = "공연 종료 시간은 시작 시간보다 빨라야 합니다.")
+    public boolean isValidTimeRange() {
+        if (startTime == null || endTime == null) {
+            return true;
+        }
+        return startTime.isBefore(endTime);
+    }
 
     public PerformanceRegisterServiceRequest toServiceRequest() {
         return new PerformanceRegisterServiceRequest(

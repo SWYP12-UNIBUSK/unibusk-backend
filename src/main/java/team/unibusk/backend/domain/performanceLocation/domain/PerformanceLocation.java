@@ -20,7 +20,7 @@ public class PerformanceLocation {
     private String name;
 
     @Column(length = 20)
-    private String phone;
+    private String phoneNumber;
 
     @Column(nullable = false, length = 255)
     private String location;
@@ -31,10 +31,10 @@ public class PerformanceLocation {
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    public static PerformanceLocation from(String name, String phone, String location, BigDecimal latitude, BigDecimal longitude) {
+    public static PerformanceLocation from(String name, String phoneNumber, String location, BigDecimal latitude, BigDecimal longitude) {
         return PerformanceLocation.builder()
                 .name(name)
-                .phone(phone)
+                .phoneNumber(phoneNumber)
                 .location(location)
                 .latitude(latitude)
                 .longitude(longitude)

@@ -2,10 +2,12 @@ package team.unibusk.backend.domain.performanceLocation.presentation.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import team.unibusk.backend.domain.performanceLocation.application.dto.request.PerformanceLocationSearchServiceRequest;
 
 public record PerformanceLocationSearchRequest(
+        @NotNull(message = "키워드를 입력해주세요.")
         @Size(max = 15, message = "keyword: 공연 장소에대한 키워드 검색은 최대 15글자까지 작성 가능합니다.")
         String keyword,
 

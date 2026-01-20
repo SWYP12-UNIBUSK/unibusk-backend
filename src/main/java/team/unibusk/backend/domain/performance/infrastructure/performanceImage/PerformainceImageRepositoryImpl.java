@@ -5,8 +5,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.repository.PerformanceImageRepository;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegisterFailedException;
 import team.unibusk.backend.global.file.application.FileUploadService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,28 @@ public class PerformainceImageRepositoryImpl implements PerformanceImageReposito
 
     @Override
     public List<String> upload(List<MultipartFile> files) {
-        //파일을 S3에 업로드하고 저장된 경로(URL) 리스트를 받아옴
-        return files.stream()
-                .map(file -> fileUploadService.upload(file, FOLDER))
-                .collect(Collectors.toList());
+        if (files == null || files.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> uploadedUrls = new ArrayList<>();
+
+        try {
+            for (MultipartFile file : files) {
+                // 파일이 비어있는 경우 스킵하거나 예외 처리를 할 수 있습니다.
+                if (file == null || file.isEmpty()) continue;
+
+                String url = fileUploadService.upload(file, FOLDER);
+                uploadedUrls.add(url);
+            }
+            return uploadedUrls;
+        } catch (Exception e) {
+            // 업로드 중 예외 발생 시, 지금까지 업로드된 파일들 즉시 삭제
+            deleteFiles(uploadedUrls);
+
+            // 에러를 다시 던져 서비스 레이어에서 인지할 수 있게 함
+            throw new PerformanceRegisterFailedException();
+        }
     }
 
     @Override

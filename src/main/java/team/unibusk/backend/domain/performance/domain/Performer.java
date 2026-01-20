@@ -38,13 +38,5 @@ public class Performer {
         this.performance = performance;
     }
 
-    public static Performer create(String name, String email, String phoneNumber, String instagram, Performance performance) {
-        return Performer.builder()
-                .name(name)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .instagram(instagram)
-                .performance(performance)
-                .build();
-    }
+
 }

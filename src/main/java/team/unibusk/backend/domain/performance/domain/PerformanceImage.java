@@ -31,11 +31,5 @@ public class PerformanceImage extends BaseTimeEntity {
         this.performance = performance;
     }
 
-    public static PerformanceImage create(String imageUrl, Long sortOrder, Performance performance) {
-        return PerformanceImage.builder()
-                .imageUrl(imageUrl)
-                .sortOrder(sortOrder)
-                .performance(performance)
-                .build();
-    }
+
 }

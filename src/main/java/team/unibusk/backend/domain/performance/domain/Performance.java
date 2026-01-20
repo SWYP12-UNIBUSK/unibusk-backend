@@ -58,19 +58,6 @@ public class Performance extends BaseTimeEntity {
         this.viewCount = 0L;
     }
 
-    public static Performance create(Long memberId, Long performanceLocationId, String title,
-                                     String summary, String description, LocalDate performanceDate,
-                                     LocalDateTime startTime, LocalDateTime endTime) {
-        return Performance.builder()
-                .memberId(memberId)
-                .performanceLocationId(performanceLocationId)
-                .title(title)
-                .summary(summary)
-                .description(description)
-                .performanceDate(performanceDate)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
-    }
+
 
 }

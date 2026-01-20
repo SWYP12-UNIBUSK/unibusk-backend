@@ -2,7 +2,6 @@ package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -19,7 +18,6 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PerformanceService {
 
     private final PerformanceRepository performanceRepository;
@@ -52,7 +50,7 @@ public class PerformanceService {
     }
 
 
-     //순수 DB 저장 로직 (MySQL)
+     //순수 DB 저장 로직
      //Performance -> Performer -> PerformanceImage 순서로 저장
     private PerformanceRegisterResponse savePerformanceProcess(
             PerformanceRegisterServiceRequest request,
@@ -61,37 +59,37 @@ public class PerformanceService {
     ) {
         // Step 1: Performance(부모) 저장
         Performance performance = performanceRepository.save(
-                Performance.create(
-                        memberId,
-                        request.performanceLocationId(),
-                        request.title(),
-                        request.summary(),
-                        request.description(),
-                        request.performanceDate(),
-                        request.startTime(),
-                        request.endTime()
-                )
+                Performance.builder()
+                        .memberId(memberId)
+                        .performanceLocationId(request.performanceLocationId())
+                        .title(request.title())
+                        .summary(request.summary())
+                        .description(request.description())
+                        .performanceDate(request.performanceDate())
+                        .startTime(request.startTime())
+                        .endTime(request.endTime())
+                        .build()
         );
 
         // Step 2: Performer(자식) 저장
         performerRepository.save(
-                Performer.create(
-                        request.name(),
-                        request.email(),
-                        request.phone(),
-                        request.instagram(),
-                        performance // 영속화된 부모 주입
-                )
+                Performer.builder()
+                        .name(request.name())
+                        .email(request.email())
+                        .phoneNumber(request.phone())
+                        .instagram(request.instagram())
+                        .performance(performance) // 연관관계 주입
+                        .build()
         );
 
-        // Step 3: PerformanceImage(자식들) 저장 (S3 URL 리스트 활용)
+        // Step 3: PerformanceImage(자식들) 저장
         if (imageUrls != null && !imageUrls.isEmpty()) {
             List<PerformanceImage> images = IntStream.range(0, imageUrls.size())
-                    .mapToObj(i -> PerformanceImage.create(
-                            imageUrls.get(i),
-                            (long) i + 1,
-                            performance // 영속화된 부모 주입
-                    ))
+                    .mapToObj(i -> PerformanceImage.builder()
+                            .imageUrl(imageUrls.get(i))
+                            .sortOrder((long) i + 1)
+                            .performance(performance)
+                            .build())
                     .toList();
             performanceImageRepository.saveAll(images);
         }

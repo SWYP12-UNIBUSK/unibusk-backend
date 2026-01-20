@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.domain.repository.PerformerRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,7 +20,7 @@ public class PerformerRepositoryImpl implements PerformerRepository {
     }
 
     @Override
-    public Optional<Performer> findByPerformanceId(Long performanceId) {
+    public List<Performer> findByPerformanceId(Long performanceId) {
         return jpaRepository.findByPerformanceId(performanceId);
     }
 
