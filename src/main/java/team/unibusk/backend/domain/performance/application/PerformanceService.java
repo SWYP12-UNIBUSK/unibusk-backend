@@ -9,6 +9,7 @@ import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.global.file.application.FileUploadService;
 
 import java.util.List;
@@ -30,7 +31,9 @@ public class PerformanceService {
 
         try{
             // 2. 공연자 생성 (Local Entity)
-            List<Performer> performers = request.performers().stream()
+            List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
+                    ? List.of()
+                    : request.performers().stream()
                     .map(p -> Performer.builder()
                             .name(p.name())
                             .email(p.email())
@@ -59,7 +62,7 @@ public class PerformanceService {
         }catch(Exception e){
             //실패하면 저장됐던 이미지 삭제
             images.forEach(img -> fileUploadService.delete(img.getImageUrl()));
-            throw e;
+            throw new PerformanceRegistrationFailedException();
         }
 
 
@@ -69,13 +72,20 @@ public class PerformanceService {
     private List<PerformanceImage> uploadImages(List<org.springframework.web.multipart.MultipartFile> files) {
         if (files == null || files.isEmpty()) return List.of();
 
-        return IntStream.range(0, files.size())
-                .mapToObj(i -> {
-                    String url = fileUploadService.upload(files.get(i), PERFORMANCE_FOLDER);
-                    return PerformanceImage.builder()
-                            .imageUrl(url)
-                            .sortOrder(i + 1)
-                            .build();
-                }).toList();
+        List<PerformanceImage> uploaded = new java.util.ArrayList<>();
+        try {
+            IntStream.range(0, files.size())
+                    .forEach(i -> {
+                        String url = fileUploadService.upload(files.get(i), PERFORMANCE_FOLDER);
+                        uploaded.add(PerformanceImage.builder()
+                                .imageUrl(url)
+                                .sortOrder(i + 1)
+                                .build());
+                    });
+            return uploaded;
+        } catch (Exception e) {
+            uploaded.forEach(img -> fileUploadService.delete(img.getImageUrl()));
+            throw e;
+        }
     }
 }
