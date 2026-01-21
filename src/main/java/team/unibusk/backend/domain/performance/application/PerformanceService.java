@@ -3,8 +3,7 @@ package team.unibusk.backend.domain.performance.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.performance.application.dto.requset.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
@@ -12,7 +11,6 @@ import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.global.file.application.FileUploadService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -30,32 +28,42 @@ public class PerformanceService {
         // 1. 이미지 업로드 (외부 도메인 서비스 활용)
         List<PerformanceImage> images = uploadImages(request.images());
 
-        // 2. 공연자 생성 (Local Entity)
-        Performer performer = Performer.builder()
-                .name(request.name())
-                .email(request.email())
-                .phoneNumber(request.phoneNumber())
-                .instagram(request.instagram())
-                .build();
+        try{
+            // 2. 공연자 생성 (Local Entity)
+            List<Performer> performers = request.performers().stream()
+                    .map(p -> Performer.builder()
+                            .name(p.name())
+                            .email(p.email())
+                            .phoneNumber(p.phoneNumber())
+                            .instagram(p.instagram())
+                            .build())
+                    .toList();
 
-        // 3. 애그리거트 루트 조립 (Builder 활용)
-        Performance performance = Performance.builder()
-                .memberId(memberId)
-                .performanceLocationId(request.performanceLocationId())
-                .title(request.title())
-                .summary(request.summary())
-                .description(request.description())
-                .performanceDate(request.performanceDate())
-                .startTime(request.startTime())
-                .endTime(request.endTime())
-                .images(images)
-                .performers(List.of(performer))
-                .build();
+            // 3. 애그리거트 루트 조립 (Builder 활용)
+            Performance performance = Performance.builder()
+                    .memberId(memberId)
+                    .performanceLocationId(request.performanceLocationId())
+                    .title(request.title())
+                    .summary(request.summary())
+                    .description(request.description())
+                    .performanceDate(request.performanceDate())
+                    .startTime(request.startTime())
+                    .endTime(request.endTime())
+                    .images(images)
+                    .performers(performers)
+                    .build();
 
-        // 4. 저장 및 ID 반환
-        Performance saved = performanceRepository.save(performance);
+            // 4. 저장 및 ID 반환
+            Performance saved = performanceRepository.save(performance);
+            return PerformanceRegisterResponse.from(saved);
+        }catch(Exception e){
+            //실패하면 저장됐던 이미지 삭제
+            images.forEach(img -> fileUploadService.delete(img.getImageUrl()));
+            throw e;
+        }
 
-        return PerformanceRegisterResponse.from(saved);
+
+
     }
 
     private List<PerformanceImage> uploadImages(List<org.springframework.web.multipart.MultipartFile> files) {

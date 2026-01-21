@@ -1,9 +1,6 @@
 package team.unibusk.backend.domain.performance.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,9 +15,16 @@ public class Performer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 15)
     private String name;
+
+    @Column(nullable = false, length = 50)
     private String email;
+
+    @Column(nullable = false, length = 20)
     private String phoneNumber;
+
+    @Column(length = 50)
     private String instagram;
 
     @Builder

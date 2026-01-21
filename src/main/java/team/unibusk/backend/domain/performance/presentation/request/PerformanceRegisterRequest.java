@@ -1,34 +1,27 @@
 package team.unibusk.backend.domain.performance.presentation.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.performance.application.dto.requset.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record PerformanceRegisterRequest (
-        //공연자 정보
-        @NotBlank(message = "공연자 이름은 필수 입력 항목입니다.")
-        String name,
 
-        @NotBlank(message = "이메일은 필수 입력 항목입니다.")
-        @Email(message = "올바른 이메일 형식이 아닙니다.")
-        @Size(max = 50, message = "이메일은 최대 50자까지 입력 가능합니다.")
-        String email,
-
-        @NotBlank(message = "전화번호는 필수 입력 항목입니다.")
-        String phoneNumber,
-
-        @Size(max = 50, message = "인스타그램 아이디는 최대 50자까지 입력 가능합니다.")
-        String instagram,
+        //공연자
+        @NotEmpty(message = "최소 한 명 이상의 공연자가 필요합니다")
+        @Valid
+        List<PerformerRegisterRequest> performers,
 
         //공연 기본 정보
         @NotNull(message = "공연 장소를 선택해주세요.")
         Long performanceLocationId,
 
         @NotBlank(message = "공연 제목은 필수 입력 항목입니다.")
+        @Size(max=100, message = "공연 제목은 최대 100자 입니다.")
         String title,
 
         @NotNull(message = "공연 날짜를 선택해 주세요.")
@@ -41,6 +34,7 @@ public record PerformanceRegisterRequest (
         LocalDateTime endTime,
 
         @NotBlank(message = "공연 간단 설명(summary)을 작성해주세요")
+        @Size(max=255, message = "공연 간단 설명(summary)은 최대 255자 입니다.")
         String summary,
 
         //공연 상세 정보
@@ -51,7 +45,26 @@ public record PerformanceRegisterRequest (
 
 
 ){
-    @AssertTrue(message = "공연 종료 시간은 시작 시간보다 빨라야 합니다.")
+    public record PerformerRegisterRequest(
+            //공연자 정보
+            @NotBlank(message = "공연자 이름은 필수 입력 항목입니다.")
+            @Size(max = 15, message = "공연자 이름은 최대 15자 입니다.")
+            String name,
+
+            @NotBlank(message = "이메일은 필수 입력 항목입니다.")
+            @Email(message = "올바른 이메일 형식이 아닙니다.")
+            @Size(max = 50, message = "이메일은 최대 50자까지 입력 가능합니다.")
+            String email,
+
+            @NotBlank(message = "전화번호는 필수 입력 항목입니다.")
+            @Size(max = 20, message = "공연자 전화번호는 최대 20자 입니다.")
+            String phoneNumber,
+
+            @Size(max = 50, message = "인스타그램 아이디는 최대 50자까지 입력 가능합니다.")
+            String instagram
+    ) {}
+
+    @AssertTrue(message = "공연 시작 시간은 종료 시간보다 빨라야 합니다.")
     public boolean isValidTimeRange() {
         if (startTime == null || endTime == null) {
             return true;
@@ -61,18 +74,22 @@ public record PerformanceRegisterRequest (
 
     public PerformanceRegisterServiceRequest toServiceRequest() {
         return new PerformanceRegisterServiceRequest(
-                name,
-                email,
-                phoneNumber,
-                instagram,
-                performanceLocationId,
-                title,
-                performanceDate,
-                startTime,
-                endTime,
-                summary,
-                images,
-                description
+                this.performers.stream()
+                        .map(p -> new PerformanceRegisterServiceRequest.PerformerServiceRequest(
+                                p.name(),
+                                p.email(),
+                                p.phoneNumber(),
+                                p.instagram()
+                        ))
+                        .toList(),
+                this.performanceLocationId,
+                this.title,
+                this.performanceDate,
+                this.startTime,
+                this.endTime,
+                this.summary,
+                this.images,
+                this.description
         );
     }
 

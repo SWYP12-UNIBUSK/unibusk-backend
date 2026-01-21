@@ -21,18 +21,32 @@ public class Performance extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long memberId;               // 작성자 ID
+
+    @Column(nullable = false)
     private Long performanceLocationId;  // 공연 장소 ID
+
+    @Column(nullable = false, length = 100)
     private String title;                // 제목
+
+    @Column(nullable = false, length = 255)
     private String summary;              // 한 줄 요약
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;          // 상세 설명
 
+    @Column(nullable = false)
     private LocalDate performanceDate;   // 공연 날짜
+
+    @Column(nullable = false)
     private LocalDateTime startTime;         // 시작 시간
+
+    @Column(nullable = false)
     private LocalDateTime endTime;           // 종료 시간
-    private long viewCount;              // 조회수
+
+    @Column(nullable = false)
+    private long viewCount = 0L;              // 조회수
 
     // 1:N 단방향 매핑
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
