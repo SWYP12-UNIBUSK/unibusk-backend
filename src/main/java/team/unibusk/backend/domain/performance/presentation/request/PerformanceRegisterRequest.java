@@ -40,7 +40,7 @@ public record PerformanceRegisterRequest (
         @NotNull(message = "공연 종료 시간을 입력해 주세요.")
         LocalDateTime endTime,
 
-        @NotNull(message = "공연 간단 설명(summary)을 작성해주세요")
+        @NotBlank(message = "공연 간단 설명(summary)을 작성해주세요")
         String summary,
 
         //공연 상세 정보
