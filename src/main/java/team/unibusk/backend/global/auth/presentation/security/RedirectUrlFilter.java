@@ -49,7 +49,6 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
 
         String requestUri = request.getRequestURI();
 
-        // ✅ 오직 login 진입 시점에서만 처리
         if (pathMatcher.match("/api/auths/login", requestUri)) {
 
             String state = request.getParameter(STATE_PARAM);
