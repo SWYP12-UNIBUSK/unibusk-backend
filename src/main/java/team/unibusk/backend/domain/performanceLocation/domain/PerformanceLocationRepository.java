@@ -10,4 +10,6 @@ public interface PerformanceLocationRepository {
     //name으로 키워드 검색 (대소문자 구분 없음)
     Page<PerformanceLocation> findByNameContatinin(String name, Pageable pageable);
 
+    //전체 조회
+    Page<PerformanceLocation> findAll(Pageable pageable);
 }

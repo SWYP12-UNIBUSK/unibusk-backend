@@ -20,5 +20,11 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
         return performanceLocationJpaRepository.findByNameContainingIgnoreCase(name, pageable);
     }
 
+    //전체 목록 조회
+    @Override
+    public Page<PerformanceLocation> findAll(Pageable pageable){
+        return performanceLocationJpaRepository.findAll(pageable);
+    }
+
 
 }
