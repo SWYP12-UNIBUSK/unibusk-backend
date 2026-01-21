@@ -3,6 +3,7 @@ package team.unibusk.backend.domain.performance.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
@@ -25,12 +26,12 @@ public class PerformanceService {
 
     private static final String PERFORMANCE_FOLDER = "performances";
 
-    public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request, Long memberId) {
-        // 1. 이미지 업로드 (외부 도메인 서비스 활용)
+    public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request) {
+        // 이미지 업로드
         List<PerformanceImage> images = uploadImages(request.images());
 
         try{
-            // 2. 공연자 생성 (Local Entity)
+            // 공연자 생성
             List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
                     ? List.of()
                     : request.performers().stream()
@@ -42,9 +43,9 @@ public class PerformanceService {
                             .build())
                     .toList();
 
-            // 3. 애그리거트 루트 조립 (Builder 활용)
+            // 애그리거트 루트 조립
             Performance performance = Performance.builder()
-                    .memberId(memberId)
+                    .memberId(request.memberId())
                     .performanceLocationId(request.performanceLocationId())
                     .title(request.title())
                     .summary(request.summary())
@@ -56,21 +57,24 @@ public class PerformanceService {
                     .performers(performers)
                     .build();
 
-            // 4. 저장 및 ID 반환
+            // 저장
             Performance saved = performanceRepository.save(performance);
-            return PerformanceRegisterResponse.from(saved);
+            return PerformanceRegisterResponse.builder()
+                    .performanceId(saved.getId())
+                    .build();
+
         }catch(Exception e){
             //실패하면 저장됐던 이미지 삭제
             images.forEach(img -> fileUploadService.delete(img.getImageUrl()));
             throw new PerformanceRegistrationFailedException();
         }
-
-
-
     }
 
     private List<PerformanceImage> uploadImages(List<org.springframework.web.multipart.MultipartFile> files) {
-        if (files == null || files.isEmpty()) return List.of();
+        //파일이 비어있는 경우
+        if (files == null || files.isEmpty() || files.stream().allMatch(MultipartFile::isEmpty)) {
+            return List.of();
+        }
 
         List<PerformanceImage> uploaded = new java.util.ArrayList<>();
         try {

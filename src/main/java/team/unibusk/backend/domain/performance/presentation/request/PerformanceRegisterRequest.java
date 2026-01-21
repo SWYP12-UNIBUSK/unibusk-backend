@@ -37,9 +37,6 @@ public record PerformanceRegisterRequest (
         @Size(max=255, message = "공연 간단 설명(summary)은 최대 255자 입니다.")
         String summary,
 
-        //공연 상세 정보
-        List<MultipartFile> images,
-
         @NotBlank(message = "공연 상세 설명(description)을 작성해주세요")
         String description
 
@@ -72,25 +69,25 @@ public record PerformanceRegisterRequest (
         return startTime.isBefore(endTime);
     }
 
-    public PerformanceRegisterServiceRequest toServiceRequest() {
-        return new PerformanceRegisterServiceRequest(
-                this.performers.stream()
-                        .map(p -> new PerformanceRegisterServiceRequest.PerformerServiceRequest(
-                                p.name(),
-                                p.email(),
-                                p.phoneNumber(),
-                                p.instagram()
-                        ))
-                        .toList(),
-                this.performanceLocationId,
-                this.title,
-                this.performanceDate,
-                this.startTime,
-                this.endTime,
-                this.summary,
-                this.images,
-                this.description
-        );
+    public PerformanceRegisterServiceRequest toServiceRequest(Long memberId, List<MultipartFile> images) {
+        return PerformanceRegisterServiceRequest.builder()
+                .performers(this.performers.stream()
+                        .map(p -> PerformanceRegisterServiceRequest.PerformerServiceRequest.builder()
+                                .name(p.name())
+                                .email(p.email())
+                                .phoneNumber(p.phoneNumber())
+                                .instagram(p.instagram())
+                                .build())
+                        .toList())
+                .memberId(memberId)
+                .performanceLocationId(this.performanceLocationId)
+                .title(this.title)
+                .performanceDate(this.performanceDate)
+                .startTime(this.startTime)
+                .endTime(this.endTime)
+                .summary(this.summary)
+                .description(this.description)
+                .images(images)
+                .build();
     }
-
 }

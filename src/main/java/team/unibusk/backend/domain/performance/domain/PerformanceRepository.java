@@ -6,7 +6,4 @@ public interface PerformanceRepository {
 
     Performance save(Performance perfomance);
 
-    Optional<Performance> findById(Long id);
-
-    void delete(Performance performance);
 }

@@ -9,7 +9,6 @@ import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,47 +21,46 @@ public class Performance extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long memberId;               // 작성자 ID
+    private Long memberId;
 
     @Column(nullable = false)
-    private Long performanceLocationId;  // 공연 장소 ID
+    private Long performanceLocationId;
 
     @Column(nullable = false, length = 100)
-    private String title;                // 제목
+    private String title;
 
     @Column(nullable = false, length = 255)
-    private String summary;              // 한 줄 요약
+    private String summary;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;          // 상세 설명
+    private String description;
 
     @Column(nullable = false)
-    private LocalDate performanceDate;   // 공연 날짜
+    private LocalDate performanceDate;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;         // 시작 시간
+    private LocalDateTime startTime;
 
     @Column(nullable = false)
-    private LocalDateTime endTime;           // 종료 시간
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private long viewCount = 0L;              // 조회수
+    private long viewCount = 0L;
 
-    // 1:N 단방향 매핑
+    // 애그리거트 루트를 통해서만 자식의 생명주기가 관리됨
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "performance_id")
+    @JoinColumn(name = "performance_id") // 자식 테이블에 FK 생성
     private List<PerformanceImage> images = new ArrayList<>();
 
-    // 1:N 단방향 매핑
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id")
     private List<Performer> performers = new ArrayList<>();
 
     @Builder
-    public Performance(Long memberId, Long performanceLocationId, String title,
-                       String summary, String description, LocalDate performanceDate,
-                       LocalDateTime startTime, LocalDateTime endTime,
-                       List<PerformanceImage> images, List<Performer> performers) {
+    private Performance(Long memberId, Long performanceLocationId, String title,
+                        String summary, String description, LocalDate performanceDate,
+                        LocalDateTime startTime, LocalDateTime endTime,
+                        List<PerformanceImage> images, List<Performer> performers) {
         this.memberId = memberId;
         this.performanceLocationId = performanceLocationId;
         this.title = title;
@@ -71,13 +69,10 @@ public class Performance extends BaseTimeEntity {
         this.performanceDate = performanceDate;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.viewCount = 0; // 초기값 설정
+        this.viewCount = 0;
+
         if (images != null) this.images.addAll(images);
         if (performers != null) this.performers.addAll(performers);
     }
 
-    // 조회수 증가 로직
-    public void incrementViewCount() {
-        this.viewCount++;
-    }
 }

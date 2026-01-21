@@ -1,16 +1,14 @@
 package team.unibusk.backend.domain.performance.application.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
 
+@Builder
 public record PerformanceRegisterResponse (
-        Long performance_id
+
+        @Schema(description = "저장된 공연 ID", example = "1")
+        Long performanceId
 ){
-    //entity를 dto로 변환
-    public static PerformanceRegisterResponse from(
-            Performance performance
-    ){
-        return new PerformanceRegisterResponse(
-                performance.getId()
-        );
-    }
+
 }
