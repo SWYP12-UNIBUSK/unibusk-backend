@@ -23,7 +23,7 @@ public class PerformanceImage extends BaseTimeEntity {
     private int sortOrder;
 
     @Builder
-    public PerformanceImage(String imageUrl, int sortOrder) {
+    private PerformanceImage(String imageUrl, int sortOrder) {
         this.imageUrl = imageUrl;
         this.sortOrder = sortOrder;
     }

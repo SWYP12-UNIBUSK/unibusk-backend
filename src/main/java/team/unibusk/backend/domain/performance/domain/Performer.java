@@ -28,7 +28,7 @@ public class Performer {
     private String instagram;
 
     @Builder
-    public Performer(String name, String email, String phoneNumber, String instagram) {
+    private Performer(String name, String email, String phoneNumber, String instagram) {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
