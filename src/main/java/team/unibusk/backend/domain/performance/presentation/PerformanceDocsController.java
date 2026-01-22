@@ -22,7 +22,7 @@ import team.unibusk.backend.global.exception.ExceptionResponse;
 import java.util.List;
 
 @Tag(name = "Performance", description = "공연 관련 API")
-@RequestMapping("/performance")
+@RequestMapping("/performances")
 public interface PerformanceDocsController{
 
     @Operation(
