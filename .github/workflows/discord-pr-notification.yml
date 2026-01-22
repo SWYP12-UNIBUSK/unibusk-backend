@@ -1,0 +1,68 @@
+name: Discord PR Notification
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ensure jq is installed
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          REPO: ${{ github.repository }}
+          ACTION: ${{ github.event.action }}
+
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is empty."
+            exit 0
+          fi
+
+          label="새 Pull Request!"
+          if [ "$ACTION" = "reopened" ]; then label="Pull Request 재오픈!"; fi
+
+          color=5793266
+          if [ "$ACTION" = "reopened" ]; then color=16753920; fi
+
+          payload=$(jq -n \
+            --arg label "$label" \
+            --arg repo "$REPO" \
+            --arg author "$PR_AUTHOR" \
+            --arg title "$PR_TITLE" \
+            --arg url "$PR_URL" \
+            --arg head "$PR_HEAD" \
+            --arg base "$PR_BASE" \
+            --arg footer "GitHub Actions - PR 알림봇" \
+            --argjson color "$color" \
+            '{
+              username: "Github PR Bot",
+              embeds: [
+                {
+                  title: ("📝 " + $label),
+                  description: ("**작성자** - " + $author + "\n" + "**PR Message** - " + $title + "\n\n" + "🔗 [PR 보러가기](" + $url + ")"),
+                  color: $color,
+                  fields: [
+                    { name: "Repo", value: ("`" + $repo + "`"), inline: false },
+                    { name: "브랜치", value: ("`" + $head + "` → `" + $base + "`"), inline: false }
+                  ],
+                  footer: { text: $footer }
+                }
+              ]
+            }')
+
+          curl -sS -H "Content-Type: application/json" -d "$payload" "$DISCORD_WEBHOOK_URL"
