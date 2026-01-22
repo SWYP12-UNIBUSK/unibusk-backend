@@ -1,5 +1,6 @@
 package team.unibusk.backend.domain.performance.presentation.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public record PerformanceRegisterRequest (
 
+        @Schema(description = "공연 등록 요청 데이터")
         //공연자
         @NotEmpty(message = "최소 한 명 이상의 공연자가 필요합니다")
         @Valid

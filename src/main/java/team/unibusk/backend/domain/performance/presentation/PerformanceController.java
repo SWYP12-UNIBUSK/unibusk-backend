@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/performances")
 @RequiredArgsConstructor
-public class PerformanceController {
+public class PerformanceController implements PerformanceDocsController{
 
     private final PerformanceService performanceService;
 
