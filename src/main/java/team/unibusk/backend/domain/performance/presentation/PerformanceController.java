@@ -3,6 +3,7 @@ package team.unibusk.backend.domain.performance.presentation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +22,7 @@ public class PerformanceController implements PerformanceDocsController{
     private final PerformanceService performanceService;
 
     //공연 등록
-    @PostMapping("/register")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PerformanceRegisterResponse> registerPerformance(
             @RequestPart("request") @Valid PerformanceRegisterRequest request,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
@@ -35,4 +36,5 @@ public class PerformanceController implements PerformanceDocsController{
         return ResponseEntity.status(201).body(response);
 
     }
+
 }
