@@ -6,12 +6,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
 import team.unibusk.backend.global.auth.application.dto.response.OauthLoginResultResponse;
 import team.unibusk.backend.global.auth.domain.user.CustomOAuth2User;
+import team.unibusk.backend.global.auth.infrastructure.CookieOAuth2AuthorizationRequestRepository;
 import team.unibusk.backend.global.auth.presentation.exception.AlreadyRegisteredMemberException;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.injector.TokenInjector;
@@ -35,6 +37,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final AuthService authService;
     private final TokenInjector tokenInjector;
     private final SecurityProperties securityProperties;
+    private final CookieOAuth2AuthorizationRequestRepository authorizationRequestRepository;
+
 
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
             "localhost",
@@ -62,20 +66,37 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         return authService.handleLoginSuccess(oAuth2User.getAuthAttributes());
     }
 
-    private void redirectToSuccessUrl(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+//    private void redirectToSuccessUrl(
+//            HttpServletRequest request,
+//            HttpServletResponse response
+//    ) throws IOException {
+//
+//        String stateCookieValue = getStateCookie(request);
+//        log.info("[OAuth2Success] state cookie (encoded)={}", stateCookieValue);
+//
+//        String target = determineTargetUrl(stateCookieValue);
+//        log.info("[OAuth2Success] final redirect target={}", target);
+//
+//        tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
+//        response.sendRedirect(target);
+//    }
 
-        String stateCookieValue = getStateCookie(request);
-        log.info("[OAuth2Success] state cookie (encoded)={}", stateCookieValue);
+    private void redirectToSuccessUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String target = determineTargetUrl(stateCookieValue);
-        log.info("[OAuth2Success] final redirect target={}", target);
+        OAuth2AuthorizationRequest authRequest =
+                authorizationRequestRepository.loadAuthorizationRequest(request);
 
-        tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
+        String target = securityProperties.oAuthUrl().redirectUrl();
+
+        if (authRequest != null && authRequest.getAdditionalParameters().containsKey("redirect_uri")) {
+            target = authRequest.getAdditionalParameters().get("redirect_uri").toString();
+        }
+
+        log.info("[OAuth2Success] redirect target={}", target);
+
         response.sendRedirect(target);
     }
+
 
     private String getStateCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

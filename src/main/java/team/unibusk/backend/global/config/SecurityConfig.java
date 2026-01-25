@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
+import team.unibusk.backend.global.auth.infrastructure.CookieOAuth2AuthorizationRequestRepository;
 import team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter;
 import team.unibusk.backend.global.auth.presentation.security.handler.OAuth2LoginSuccessHandler;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
@@ -29,10 +30,11 @@ public class SecurityConfig {
     private final DefaultOAuth2UserService defaultOAuth2UserService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final JwtTokenFilter jwtTokenFilter;
-    private final RedirectUrlFilter redirectUrlFilter;
+//    private final RedirectUrlFilter redirectUrlFilter;
     private final SecurityProperties securityProperties;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
 
     private static final String[] PERMIT_ALL_PATTERNS = {
             "/swagger-ui/**",
@@ -84,10 +86,15 @@ public class SecurityConfig {
     }
 
     private void configureLogin(HttpSecurity http) throws Exception {
-        http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+//        http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
         http.oauth2Login(oauth2 ->
-                oauth2.loginPage(securityProperties.oAuthUrl().loginUrl())
+                oauth2
+                        .authorizationEndpoint(auth ->
+                                auth.authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository)
+                        )
+                        .loginPage(securityProperties.oAuthUrl().loginUrl())
                         .userInfoEndpoint(userInfo -> userInfo.userService(defaultOAuth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(authenticationFailureHandler)
