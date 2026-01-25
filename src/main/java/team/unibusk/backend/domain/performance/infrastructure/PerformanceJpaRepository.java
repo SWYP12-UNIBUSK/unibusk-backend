@@ -19,4 +19,6 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     """)
     List<Performance> findUpcomingPerformances(@Param("now") LocalDateTime now);
 
+    List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
+
 }

@@ -9,4 +9,6 @@ public interface PerformanceRepository {
 
     List<Performance> findUpcomingPerformances(LocalDateTime now);
 
+    List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
+
 }

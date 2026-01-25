@@ -24,4 +24,9 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
         return performanceJpaRepository.findUpcomingPerformances(now);
     }
 
+    @Override
+    public List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now) {
+        return performanceJpaRepository.findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(now);
+    }
+
 }

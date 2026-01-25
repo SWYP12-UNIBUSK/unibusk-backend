@@ -44,12 +44,12 @@ public class PerformanceController implements PerformanceDocsController{
         return ResponseEntity.status(200).body(response);
     }
 
-//    @GetMapping("/upcoming/preview")
-//    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformancesPreview() {
-//        List<PerformanceResponse> response = performanceService.getUpcomingPerformancesPreview();
-//
-//        return ResponseEntity.status(200).body(response);
-//    }
+    @GetMapping("/upcoming/preview")
+    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformancesPreview() {
+        List<PerformanceResponse> response = performanceService.getUpcomingPerformancesPreview();
+
+        return ResponseEntity.status(200).body(response);
+    }
 //
 //    @GetMapping("/past")
 //    public ResponseEntity<List<PastPerformanceResponse>> getPastPerformances() {

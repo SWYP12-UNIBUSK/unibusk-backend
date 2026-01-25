@@ -129,4 +129,37 @@ public class PerformanceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PerformanceResponse> getUpcomingPerformancesPreview() {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Performance> performances =
+                performanceRepository.findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(now);
+
+
+        return performances.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private PerformanceResponse toResponse(Performance performance) {
+        String locationName = performanceLocationRepository
+                .findById(performance.getPerformanceLocationId())
+                .map(PerformanceLocation::getName)
+                .orElse("공연 장소 정보가 없습니다.");
+
+        return PerformanceResponse.builder()
+                .performanceId(performance.getId())
+                .title(performance.getTitle())
+                .performanceDate(performance.getPerformanceDate())
+                .startTime(performance.getStartTime())
+                .endTime(performance.getEndTime())
+                .locationName(locationName)
+                .images(
+                        performance.getImages().stream()
+                                .map(image -> image.getImageUrl())
+                                .toList()
+                )
+                .build();
+    }
 }
