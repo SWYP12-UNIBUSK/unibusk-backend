@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
-import team.unibusk.backend.global.file.application.FileUploadService;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,6 +17,11 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     @Override
     public Performance save(Performance performance) {
         return performanceJpaRepository.save(performance);
+    }
+
+    @Override
+    public List<Performance> findUpcomingPerformances(LocalDateTime now) {
+        return performanceJpaRepository.findUpcomingPerformances(now);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 
@@ -35,4 +36,23 @@ public class PerformanceController implements PerformanceDocsController{
         return ResponseEntity.status(201).body(response);
 
     }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformances() {
+        List<PerformanceResponse> response = performanceService.getUpcomingPerformances();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+//    @GetMapping("/upcoming/preview")
+//    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformancesPreview() {
+//        List<PerformanceResponse> response = performanceService.getUpcomingPerformancesPreview();
+//
+//        return ResponseEntity.status(200).body(response);
+//    }
+//
+//    @GetMapping("/past")
+//    public ResponseEntity<List<PastPerformanceResponse>> getPastPerformances() {
+//
+//    }
 }

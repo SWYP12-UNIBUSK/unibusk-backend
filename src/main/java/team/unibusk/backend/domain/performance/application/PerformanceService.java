@@ -6,26 +6,34 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformerResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PerformanceService {
 
     private final PerformanceRepository performanceRepository;
     private final FileUploadService fileUploadService;
+    private final PerformanceLocationRepository performanceLocationRepository;
 
     private static final String PERFORMANCE_FOLDER = "performances";
 
+    @Transactional
     public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request) {
         // 이미지 업로드
         List<PerformanceImage> images = uploadImages(request.images());
@@ -92,4 +100,33 @@ public class PerformanceService {
             throw e;
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<PerformanceResponse> getUpcomingPerformances() {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Performance> performances =
+                performanceRepository.findUpcomingPerformances(now);
+
+        List<Long> locationIds = performances.stream()
+                .map(Performance::getPerformanceLocationId)
+                .distinct()
+                .toList();
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findAllById(locationIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
+
+        return performances.stream()
+                .map(p -> PerformanceResponse.from(
+                        p,
+                        locationNameMap.get(p.getPerformanceLocationId())
+                ))
+                .toList();
+    }
+
 }
