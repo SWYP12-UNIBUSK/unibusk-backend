@@ -3,6 +3,7 @@ package team.unibusk.backend.domain.performance.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
+import team.unibusk.backend.global.annotation.SwaggerBody;
 import team.unibusk.backend.global.exception.ExceptionResponse;
 
 import java.util.List;
@@ -38,12 +40,14 @@ public interface PerformanceDocsController{
             @ApiResponse(responseCode = "500", description = "이미지 업로드 실패 등 서버 오류",
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
-
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "request", contentType = MediaType.APPLICATION_JSON_VALUE)))
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<PerformanceRegisterResponse> registerPerformance(
             @RequestPart("request") @Valid PerformanceRegisterRequest request,
             @Parameter(description = "공연 관련 이미지 리스트 (다중 파일 업로드 가능)")
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @MemberId Long memberId
     );
+
 }
