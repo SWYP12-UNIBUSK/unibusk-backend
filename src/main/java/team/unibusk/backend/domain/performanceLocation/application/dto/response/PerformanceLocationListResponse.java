@@ -8,7 +8,7 @@ import java.util.List;
 
 @Builder
 public record PerformanceLocationListResponse(
-        List<PeroformanceLocationResponse> performanceLocations,
+        List<PerformanceLocationResponse> performanceLocations,
         int currentPage,
         int totalPages,
         long totalElements,
@@ -17,7 +17,7 @@ public record PerformanceLocationListResponse(
     public static PerformanceLocationListResponse from(Page<PerformanceLocation> page) {
         return PerformanceLocationListResponse.builder()
                 .performanceLocations(page.getContent().stream()
-                        .map(PeroformanceLocationResponse::from)
+                        .map(PerformanceLocationResponse::from)
                         .toList())
                 .currentPage(page.getNumber())
                 .totalPages(page.getTotalPages())

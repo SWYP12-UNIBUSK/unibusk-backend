@@ -5,15 +5,15 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 
 //이미지는 전달하지 않고 데이터만 전달
 @Builder
-public record PeroformanceLocationResponse(
+public record PerformanceLocationResponse(
         Long id,
         String name,
         String address,
         Double latitude,
         Double longitude
 ) {
-    public static PeroformanceLocationResponse from(PerformanceLocation performanceLocation){
-        return PeroformanceLocationResponse.builder()
+    public static PerformanceLocationResponse from(PerformanceLocation performanceLocation){
+        return PerformanceLocationResponse.builder()
                 .id(performanceLocation.getId())
                 .name(performanceLocation.getName())
                 .address(performanceLocation.getAddress())
