@@ -85,9 +85,11 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     private boolean isValidRedirectUrl(String url) {
         try {
             URI uri = URI.create(url);
-            if (uri.getHost() == null) {
-                return true;
+
+            if (!uri.isAbsolute()) {
+                return false;
             }
+
             return ALLOWED_REDIRECT_HOSTS.contains(uri.getHost());
         } catch (Exception e) {
             return false;
