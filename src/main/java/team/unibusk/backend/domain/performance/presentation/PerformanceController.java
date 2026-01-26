@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performance.application.dto.response.PageResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
@@ -43,14 +44,14 @@ public class PerformanceController implements PerformanceDocsController{
     }
 
     @GetMapping("/upcoming")
-    public ResponseEntity<Page<PerformanceResponse>> getUpcomingPerformances(
+    public ResponseEntity<PageResponse<PerformanceResponse>> getUpcomingPerformances(
             @PageableDefault(
                     size = 9,
                     sort = "startTime",
-                    direction = Sort.Direction.DESC
+                    direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        Page<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
 
         return ResponseEntity.status(200).body(response);
     }
@@ -63,14 +64,14 @@ public class PerformanceController implements PerformanceDocsController{
     }
 
     @GetMapping("/past")
-    public ResponseEntity<Page<PerformanceResponse>> getPastPerformances(
+    public ResponseEntity<PageResponse<PerformanceResponse>> getPastPerformances(
             @PageableDefault(
                     size = 9,
                     sort = "startTime",
                     direction = Sort.Direction.DESC
             ) Pageable pageable
     ) {
-        Page<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
 
         return ResponseEntity.status(200).body(response);
     }
