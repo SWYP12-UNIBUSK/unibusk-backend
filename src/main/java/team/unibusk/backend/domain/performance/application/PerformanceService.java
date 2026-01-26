@@ -1,10 +1,14 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformerResponse;
@@ -162,4 +166,50 @@ public class PerformanceService {
                 )
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public Page<PerformanceResponse> getPastPerformances(Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Performance> page =
+                performanceRepository.findPastPerformances(now, pageable);
+
+        List<Performance> performances = page.getContent();
+
+        if (performances.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<Long> locationIds = performances.stream()
+                .map(Performance::getPerformanceLocationId)
+                .distinct()
+                .toList();
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findAllById(locationIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
+
+        List<PerformanceResponse> responses =
+                performances.stream()
+                        .map(p-> PerformanceResponse.from(
+                                p,
+                                locationNameMap.get(p.getPerformanceLocationId())
+                        ))
+                        .toList();
+
+        return new PageImpl<>(
+                responses,
+                pageable,
+                page.getTotalElements()
+        );
+    }
+
+//    @Transactional(readOnly = true)
+//    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+//
+//    }
 }

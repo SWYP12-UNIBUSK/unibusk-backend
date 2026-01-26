@@ -3,10 +3,15 @@ package team.unibusk.backend.domain.performance.presentation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
@@ -50,9 +55,24 @@ public class PerformanceController implements PerformanceDocsController{
 
         return ResponseEntity.status(200).body(response);
     }
+
+    @GetMapping("/past")
+    public ResponseEntity<Page<PerformanceResponse>> getPastPerformances(
+            @PageableDefault(
+                    size = 9,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        Page<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+//    @GetMapping("/{performanceId}")
+//    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
+//        PerformanceDetailResponse response = performanceService.getPerformanceDetail();
 //
-//    @GetMapping("/past")
-//    public ResponseEntity<List<PastPerformanceResponse>> getPastPerformances() {
-//
+//        return ResponseEntity.status(200).body(response);
 //    }
 }
