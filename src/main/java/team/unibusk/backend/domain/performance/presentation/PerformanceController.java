@@ -43,8 +43,14 @@ public class PerformanceController implements PerformanceDocsController{
     }
 
     @GetMapping("/upcoming")
-    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformances() {
-        List<PerformanceResponse> response = performanceService.getUpcomingPerformances();
+    public ResponseEntity<Page<PerformanceResponse>> getUpcomingPerformances(
+            @PageableDefault(
+                    size = 9,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        Page<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
 
         return ResponseEntity.status(200).body(response);
     }

@@ -12,7 +12,7 @@ public interface PerformanceRepository {
 
     Page<Performance> findPastPerformances(LocalDateTime now, Pageable pageable);
 
-    List<Performance> findUpcomingPerformances(LocalDateTime now);
+    Page<Performance> findUpcomingPerformances(LocalDateTime now, Pageable pageable);
 
     List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
 

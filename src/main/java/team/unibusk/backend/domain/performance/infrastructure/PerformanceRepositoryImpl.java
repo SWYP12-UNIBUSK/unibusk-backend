@@ -27,8 +27,8 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     }
 
     @Override
-    public List<Performance> findUpcomingPerformances(LocalDateTime now) {
-        return performanceJpaRepository.findUpcomingPerformances(now);
+    public Page<Performance> findUpcomingPerformances(LocalDateTime now, Pageable pageable) {
+        return performanceJpaRepository.findUpcomingPerformances(now, pageable);
     }
 
     @Override

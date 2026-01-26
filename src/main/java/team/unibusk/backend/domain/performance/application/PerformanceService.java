@@ -106,11 +106,17 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public List<PerformanceResponse> getUpcomingPerformances() {
+    public Page<PerformanceResponse> getUpcomingPerformances(Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
 
-        List<Performance> performances =
-                performanceRepository.findUpcomingPerformances(now);
+        Page<Performance> page =
+                performanceRepository.findUpcomingPerformances(now, pageable);
+
+        List<Performance> performances = page.getContent();
+
+        if (performances.isEmpty()) {
+            return Page.empty(pageable);
+        }
 
         List<Long> locationIds = performances.stream()
                 .map(Performance::getPerformanceLocationId)
@@ -125,12 +131,19 @@ public class PerformanceService {
                                 PerformanceLocation::getName
                         ));
 
-        return performances.stream()
-                .map(p -> PerformanceResponse.from(
-                        p,
-                        locationNameMap.get(p.getPerformanceLocationId())
-                ))
-                .toList();
+        List<PerformanceResponse> responses =
+                performances.stream()
+                        .map(p-> PerformanceResponse.from(
+                                p,
+                                locationNameMap.get(p.getPerformanceLocationId())
+                        ))
+                        .toList();
+
+        return new PageImpl<>(
+                responses,
+                pageable,
+                page.getTotalElements()
+        );
     }
 
     @Transactional(readOnly = true)

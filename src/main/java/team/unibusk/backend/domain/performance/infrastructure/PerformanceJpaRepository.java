@@ -28,14 +28,21 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     )
     Page<Performance> findPastPerformances(@Param("now") LocalDateTime now, Pageable pageable);
 
-    @Query("""
-        select distinct p
+    @Query(
+        value = """
+            select distinct p
+            from Performance p
+            left join fetch p.images
+            where p.endTime >= :now
+            order by p.startTime asc
+        """,
+        countQuery = """
+        select count(p)
         from Performance p
-        left join fetch p.images
         where p.endTime >= :now
-        order by p.startTime asc
-    """)
-    List<Performance> findUpcomingPerformances(@Param("now") LocalDateTime now);
+        """
+    )
+    Page<Performance> findUpcomingPerformances(@Param("now") LocalDateTime now, Pageable pageable);
 
     List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
 
