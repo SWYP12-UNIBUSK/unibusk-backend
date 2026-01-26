@@ -73,7 +73,8 @@ public class SecurityConfig {
                     "http://localhost:3000",
                     "http://localhost:8080",
                     "https://unibusk.site",
-                    "https://www.unibusk.site"
+                    "https://www.unibusk.site",
+                    "https://dev.unibusk.site:3000"
             ));
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
