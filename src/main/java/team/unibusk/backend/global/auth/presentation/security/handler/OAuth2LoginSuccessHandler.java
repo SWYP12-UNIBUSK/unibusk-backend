@@ -39,7 +39,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
             "localhost",
             "unibusk.site",
-            "www.unibusk.site"
+            "www.unibusk.site",
+            "dev.unibusk.site"
     );
 
     @Override
