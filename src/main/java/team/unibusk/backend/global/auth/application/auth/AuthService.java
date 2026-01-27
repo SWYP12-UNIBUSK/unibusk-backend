@@ -73,8 +73,11 @@ public class AuthService {
 
     private Member saveNewMember(AuthAttributes attributes) {
         Member member = Member.from(attributes);
-        member.generateName(randomNameGenerator.generate());
-        return memberRepository.save(member);
+        memberRepository.save(member);
+        member.generateName(
+                randomNameGenerator.generate() + member.getId()
+        );
+        return member;
     }
 
 }
