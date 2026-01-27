@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface PerformanceLocationRepository {
 
-    //기본적인 전체 조회 페이징
-    public Page<PerformanceLocation> findAll(Pageable pageable);
+    //키워드로 검색
+    public Page<PerformanceLocation> searchByKeyword(String keyword, Pageable pageable);
+
+
 }

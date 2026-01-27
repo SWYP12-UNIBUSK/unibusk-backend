@@ -8,7 +8,7 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 public record PerformanceLocationResponse(
         Long id,
         String name,
-        String address,
+        String location,
         Double latitude,
         Double longitude
 ) {
@@ -16,7 +16,7 @@ public record PerformanceLocationResponse(
         return PerformanceLocationResponse.builder()
                 .id(performanceLocation.getId())
                 .name(performanceLocation.getName())
-                .address(performanceLocation.getAddress())
+                .location(performanceLocation.getLocation())
                 .latitude(performanceLocation.getLatitude())
                 .longitude(performanceLocation.getLongitude())
                 .build();

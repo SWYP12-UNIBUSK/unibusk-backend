@@ -14,8 +14,8 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     private final PerformanceLocationJpaRepository performanceLocationJpaRepository;
 
     @Override
-    public Page<PerformanceLocation> findAll(Pageable pageable){
-        return performanceLocationJpaRepository.findAll(pageable);
+    public Page<PerformanceLocation> searchByKeyword(String keyword, Pageable pageable){
+        return performanceLocationJpaRepository.searchByNameOrLocation(keyword, pageable);
     }
 
 }

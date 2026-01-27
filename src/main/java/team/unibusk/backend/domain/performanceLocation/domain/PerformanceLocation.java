@@ -29,7 +29,7 @@ public class PerformanceLocation extends BaseTimeEntity {
     private String phoneNumber;
 
     @Column(nullable = false, length = 255)
-    private String address;
+    private String location;
 
     @Column(nullable = false)
     private Double latitude; // 위도
@@ -43,12 +43,12 @@ public class PerformanceLocation extends BaseTimeEntity {
     private List<PerformanceLocationImage> images = new ArrayList<>();
 
     @Builder
-    private PerformanceLocation(String name, String phoneNumber, String address,
+    private PerformanceLocation(String name, String phoneNumber, String location,
                                 Double latitude, Double longitude,
                                 List<PerformanceLocationImage> images) {
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.address = address;
+        this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;
 
