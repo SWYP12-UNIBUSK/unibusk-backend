@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
 
 @Service
 @RequiredArgsConstructor

@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,11 +1,9 @@
 package team.unibusk.backend.domain.performanceLocation.presentation;
 
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
