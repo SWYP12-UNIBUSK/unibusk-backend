@@ -33,6 +33,7 @@ public class SecurityConfig {
     private final SecurityProperties securityProperties;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final CorsProperties corsProperties;
 
     private static final String[] PERMIT_ALL_PATTERNS = {
             "/swagger-ui/**",
@@ -69,12 +70,9 @@ public class SecurityConfig {
     private void configureCorsPolicy(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
-            corsConfiguration.setAllowedOrigins(List.of(
-                    "http://localhost:3000",
-                    "http://localhost:8080",
-                    "https://unibusk.site",
-                    "https://www.unibusk.site"
-            ));
+            corsConfiguration.setAllowedOrigins(
+                    corsProperties.allowedOrigins()
+            );
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
             corsConfiguration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));

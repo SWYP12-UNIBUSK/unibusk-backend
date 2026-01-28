@@ -35,7 +35,8 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
             "localhost",
             "unibusk.site",
-            "www.unibusk.site"
+            "www.unibusk.site",
+            "dev.unibusk.site"
     );
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -85,9 +86,11 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     private boolean isValidRedirectUrl(String url) {
         try {
             URI uri = URI.create(url);
-            if (uri.getHost() == null) {
-                return true;
+
+            if (!uri.isAbsolute()) {
+                return false;
             }
+
             return ALLOWED_REDIRECT_HOSTS.contains(uri.getHost());
         } catch (Exception e) {
             return false;
