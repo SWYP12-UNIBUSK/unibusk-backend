@@ -113,7 +113,7 @@ public class PerformanceService {
                 performanceRepository.findUpcomingPerformances(now, pageable);
 
         Map<Long, String> locationNameMap =
-                performanceLocationRepository.findAllById(
+                performanceLocationRepository.findByIds(
                                 performances.getContent().stream()
                                         .map(Performance::getPerformanceLocationId)
                                         .collect(Collectors.toSet())
@@ -145,7 +145,7 @@ public class PerformanceService {
                 .collect(Collectors.toSet());
 
         Map<Long, String> locationNameMap =
-                performanceLocationRepository.findAllById(locationIds).stream()
+                performanceLocationRepository.findByIds(locationIds).stream()
                         .collect(Collectors.toMap(
                                 PerformanceLocation::getId,
                                 PerformanceLocation::getName
@@ -185,7 +185,7 @@ public class PerformanceService {
                 performanceRepository.findPastPerformances(now, pageable);
 
         Map<Long, String> locationNameMap =
-                performanceLocationRepository.findAllById(
+                performanceLocationRepository.findByIds(
                                 performances.getContent().stream()
                                         .map(Performance::getPerformanceLocationId)
                                         .collect(Collectors.toSet())
@@ -209,12 +209,10 @@ public class PerformanceService {
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
 
         Performance performance = performanceRepository.findDetailById(performanceId)
-                .orElseThrow(() -> new PerformanceNotFoundException());
+                .orElseThrow(PerformanceNotFoundException::new);
 
         PerformanceLocation location =
-                performanceLocationRepository.findById(
-                        performance.getPerformanceLocationId()
-                ).orElseThrow(() -> new PerformanceLocationNotFoundException());
+                performanceLocationRepository.findById(performance.getPerformanceLocationId());
 
         return PerformanceDetailResponse.builder()
                 .performanceId(performance.getId())
