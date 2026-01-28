@@ -2,9 +2,11 @@ package team.unibusk.backend.domain.performance.domain;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface PerformanceRepository {
 
@@ -14,6 +16,8 @@ public interface PerformanceRepository {
 
     Page<Performance> findUpcomingPerformances(LocalDateTime now, Pageable pageable);
 
-    List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
+    List<Performance> findUpcomingPreview(LocalDateTime now);
+
+    Optional<Performance> findDetailById(Long performanceId);
 
 }

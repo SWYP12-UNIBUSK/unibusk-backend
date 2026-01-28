@@ -9,6 +9,7 @@ import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,8 +33,13 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     }
 
     @Override
-    public List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now) {
-        return performanceJpaRepository.findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(now);
+    public List<Performance> findUpcomingPreview(LocalDateTime now) {
+        return performanceJpaRepository.findUpcomingPreview(now);
+    }
+
+    @Override
+    public Optional<Performance> findDetailById(Long performanceId) {
+        return performanceJpaRepository.findDetailById(performanceId);
     }
 
 }

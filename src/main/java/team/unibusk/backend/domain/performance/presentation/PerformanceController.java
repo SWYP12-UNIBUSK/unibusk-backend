@@ -46,7 +46,7 @@ public class PerformanceController implements PerformanceDocsController{
     @GetMapping("/upcoming")
     public ResponseEntity<PageResponse<PerformanceResponse>> getUpcomingPerformances(
             @PageableDefault(
-                    size = 9,
+                    size = 12,
                     sort = "startTime",
                     direction = Sort.Direction.ASC
             ) Pageable pageable
@@ -66,7 +66,7 @@ public class PerformanceController implements PerformanceDocsController{
     @GetMapping("/past")
     public ResponseEntity<PageResponse<PerformanceResponse>> getPastPerformances(
             @PageableDefault(
-                    size = 9,
+                    size = 12,
                     sort = "startTime",
                     direction = Sort.Direction.DESC
             ) Pageable pageable
@@ -76,10 +76,10 @@ public class PerformanceController implements PerformanceDocsController{
         return ResponseEntity.status(200).body(response);
     }
 
-//    @GetMapping("/{performanceId}")
-//    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
-//        PerformanceDetailResponse response = performanceService.getPerformanceDetail();
-//
-//        return ResponseEntity.status(200).body(response);
-//    }
+    @GetMapping("/{performanceId}")
+    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
+        PerformanceDetailResponse response = performanceService.getPerformanceDetail(performanceId);
+
+        return ResponseEntity.status(200).body(response);
+    }
 }

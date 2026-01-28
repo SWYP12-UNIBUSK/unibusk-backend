@@ -9,6 +9,7 @@ import team.unibusk.backend.domain.performance.domain.Performance;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface PerformanceJpaRepository extends JpaRepository<Performance, Long> {
 
@@ -44,6 +45,24 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     )
     Page<Performance> findUpcomingPerformances(@Param("now") LocalDateTime now, Pageable pageable);
 
-    List<Performance> findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(LocalDateTime now);
+    @Query("""
+        select distinct p
+        from Performance p
+        left join fetch p.images
+        left join PerformanceLocation l
+            on p.performanceLocationId = l.id
+        where p.endTime >= :now
+        order by p.startTime asc
+    """)
+    List<Performance> findUpcomingPreview(@Param("now") LocalDateTime now);
+
+    @Query("""
+        select distinct p
+        from Performance p
+        left join fetch p.images
+        left join fetch p.performers
+        where p.id = :performanceId
+    """)
+    Optional<Performance> findDetailById(@Param("performanceId") Long performanceId);
 
 }

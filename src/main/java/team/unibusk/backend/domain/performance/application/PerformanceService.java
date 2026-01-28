@@ -2,7 +2,6 @@ package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +12,18 @@ import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceLocationNotFoundException;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,8 +44,8 @@ public class PerformanceService {
 
         try{
             // 공연자 생성
-            List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
-                    ? List.of()
+            Set<Performer> performers = (request.performers() == null || request.performers().isEmpty())
+                    ? Collections.emptySet()
                     : request.performers().stream()
                     .map(p -> Performer.builder()
                             .name(p.name())
@@ -50,7 +53,7 @@ public class PerformanceService {
                             .phoneNumber(p.phoneNumber())
                             .instagram(p.instagram())
                             .build())
-                    .toList();
+                    .collect(Collectors.toSet());
 
             // 애그리거트 루트 조립
             Performance performance = Performance.builder()
@@ -135,19 +138,29 @@ public class PerformanceService {
         LocalDateTime now = LocalDateTime.now();
 
         List<Performance> performances =
-                performanceRepository.findTop8ByEndTimeGreaterThanEqualOrderByStartTimeAsc(now);
+                performanceRepository.findUpcomingPreview(now);
 
+        Set<Long> locationIds = performances.stream()
+                .map(Performance::getPerformanceLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findAllById(locationIds).stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
 
         return performances.stream()
-                .map(this::toResponse)
+                .map(p -> toResponse(p, locationNameMap))
                 .toList();
     }
 
-    private PerformanceResponse toResponse(Performance performance) {
-        String locationName = performanceLocationRepository
-                .findById(performance.getPerformanceLocationId())
-                .map(PerformanceLocation::getName)
-                .orElse("공연 장소 정보가 없습니다.");
+    private PerformanceResponse toResponse(Performance performance, Map<Long, String> locationNameMap) {
+        String locationName = locationNameMap.getOrDefault(
+                performance.getPerformanceLocationId(),
+                "공연 장소 정보가 없습니다."
+        );
 
         return PerformanceResponse.builder()
                 .performanceId(performance.getId())
@@ -158,7 +171,7 @@ public class PerformanceService {
                 .locationName(locationName)
                 .images(
                         performance.getImages().stream()
-                                .map(image -> image.getImageUrl())
+                                .map(PerformanceImage::getImageUrl)
                                 .toList()
                 )
                 .build();
@@ -192,8 +205,39 @@ public class PerformanceService {
         return PageResponse.from(page);
     }
 
-//    @Transactional(readOnly = true)
-//    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-//
-//    }
+    @Transactional(readOnly = true)
+    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+
+        Performance performance = performanceRepository.findDetailById(performanceId)
+                .orElseThrow(() -> new PerformanceNotFoundException());
+
+        PerformanceLocation location =
+                performanceLocationRepository.findById(
+                        performance.getPerformanceLocationId()
+                ).orElseThrow(() -> new PerformanceLocationNotFoundException());
+
+        return PerformanceDetailResponse.builder()
+                .performanceId(performance.getId())
+                .title(performance.getTitle())
+                .performanceDate(performance.getPerformanceDate())
+                .startTime(performance.getStartTime())
+                .endTime(performance.getEndTime())
+                .locationName(location.getName())
+                .address(location.getAddress())
+                .latitude(location.getLatitude())
+                .longitude(location.getLongitude())
+                .summary(performance.getSummary())
+                .description(performance.getDescription())
+                .images(
+                        performance.getImages().stream()
+                                .map(PerformanceImage::getImageUrl)
+                                .toList()
+                )
+                .performers(
+                        performance.getPerformers().stream()
+                                .map(PerformerResponse::from)
+                                .toList()
+                )
+                .build();
+    }
 }
