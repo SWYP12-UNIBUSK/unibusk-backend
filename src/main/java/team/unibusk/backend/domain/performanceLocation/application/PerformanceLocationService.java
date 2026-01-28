@@ -19,14 +19,20 @@ public class PerformanceLocationService {
     @Transactional(readOnly = true)
     public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable){
 
+        //keyword에 대한 검증
+        validateKeyword(keyword);
+
+        return PerformanceLocationListResponse.from(performanceLocationRepository.searchByKeyword(keyword, pageable));
+    }
+
+    //keyword에 대한 검증. (길이, null 검사)
+    private void validateKeyword(String keyword){
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new EmptyKeywordException();
         }
         if (keyword.length() > 255) {
             throw new InvalidKeywordLengthException();
         }
-
-        return PerformanceLocationListResponse.from(performanceLocationRepository.searchByKeyword(keyword, pageable));
     }
 
 
