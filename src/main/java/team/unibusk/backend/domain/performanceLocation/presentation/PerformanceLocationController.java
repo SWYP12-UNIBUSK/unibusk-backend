@@ -17,19 +17,12 @@ public class PerformanceLocationController {
 
     private final PerformanceLocationService performanceLocationService;
 
-    // 공연 장소 테이블의 name, location 칼럼에 keyword가 포함된 공연 장소 검색
+    // 공연 장소 테이블의 name, address 칼럼에 keyword가 포함된 공연 장소 검색
     @GetMapping("/search")
     public ResponseEntity<PerformanceLocationListResponse> search(
             @RequestParam(value = "keyword") String keyword,
-            @PageableDefault(page=0, size=10) Pageable pageable
+            @PageableDefault(page=0, size=4) Pageable pageable
     ) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new EmptyKeywordException();
-        }
-        if (keyword.length() > 255) {
-            throw new InvalidKeywordLengthException();
-        }
-
         PerformanceLocationListResponse response = performanceLocationService.findByKeyword(keyword, pageable);
 
         return ResponseEntity.status(200).body(response);

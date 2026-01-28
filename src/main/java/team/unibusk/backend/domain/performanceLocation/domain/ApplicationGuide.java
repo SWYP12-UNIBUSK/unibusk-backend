@@ -10,17 +10,18 @@ import team.unibusk.backend.global.domain.BaseTimeEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PerformanceLocationImage extends BaseTimeEntity {
+public class ApplicationGuide extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 512)
-    private String imageUrl;
+    @Column(nullable = false)
+    private String content;
 
     @Builder
-    private PerformanceLocationImage(String imageUrl) {
-        this.imageUrl = imageUrl;
+    private ApplicationGuide(String content) {
+        this.content = content;
     }
+
 }

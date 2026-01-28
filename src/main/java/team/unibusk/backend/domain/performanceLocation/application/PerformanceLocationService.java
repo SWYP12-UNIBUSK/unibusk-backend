@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,13 @@ public class PerformanceLocationService {
 
     @Transactional(readOnly = true)
     public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable){
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new EmptyKeywordException();
+        }
+        if (keyword.length() > 255) {
+            throw new InvalidKeywordLengthException();
+        }
 
         return PerformanceLocationListResponse.from(performanceLocationRepository.searchByKeyword(keyword, pageable));
     }

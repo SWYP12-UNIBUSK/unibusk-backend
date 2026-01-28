@@ -9,9 +9,9 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 
 public interface PerformanceLocationJpaRepository extends JpaRepository<PerformanceLocation, Long> {
 
-    // 키워드로 performanceLocation 테이블의 name, location 칼럼에 keyword가 있는지 조회
+    // 키워드로 performanceLocation 테이블의 name, address 칼럼에 keyword가 있는지 조회
     @Query("SELECT p FROM PerformanceLocation p " +
             "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(p.location) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    Page<PerformanceLocation> searchByNameOrLocation(@Param("keyword") String keyword, Pageable pageable);
+            "OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<PerformanceLocation> searchByNameOrAddress(@Param("keyword") String keyword, Pageable pageable);
 }
