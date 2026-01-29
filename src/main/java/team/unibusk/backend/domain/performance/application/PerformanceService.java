@@ -127,7 +127,10 @@ public class PerformanceService {
         Page<PerformanceResponse> page = performances.map(p ->
                 PerformanceResponse.from(
                         p,
-                        locationNameMap.get(p.getPerformanceLocationId())
+                        locationNameMap.getOrDefault(
+                                p.getPerformanceLocationId(),
+                                "공연 장소 정보가 없습니다."
+                        )
                 )
         );
 
@@ -180,7 +183,10 @@ public class PerformanceService {
         Page<PerformanceResponse> page = performances.map(p ->
                 PerformanceResponse.from(
                         p,
-                        locationNameMap.get(p.getPerformanceLocationId())
+                        locationNameMap.getOrDefault(
+                                p.getPerformanceLocationId(),
+                                "공연 장소 정보가 없습니다."
+                        )
                 )
         );
 
