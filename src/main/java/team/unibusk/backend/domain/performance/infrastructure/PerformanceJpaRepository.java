@@ -55,7 +55,6 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
         select distinct p
         from Performance p
         left join fetch p.images
-        left join fetch p.performers
         where p.id = :performanceId
     """)
     Optional<Performance> findDetailById(@Param("performanceId") Long performanceId);

@@ -45,8 +45,8 @@ public class PerformanceService {
 
         try{
             // 공연자 생성
-            Set<Performer> performers = (request.performers() == null || request.performers().isEmpty())
-                    ? Collections.emptySet()
+            List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
+                    ? Collections.emptyList()
                     : request.performers().stream()
                     .map(p -> Performer.builder()
                             .name(p.name())
@@ -54,7 +54,7 @@ public class PerformanceService {
                             .phoneNumber(p.phoneNumber())
                             .instagram(p.instagram())
                             .build())
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
 
             // 애그리거트 루트 조립
             Performance performance = Performance.builder()

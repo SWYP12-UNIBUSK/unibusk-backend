@@ -55,13 +55,13 @@ public class Performance extends BaseTimeEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id")
-    private Set<Performer> performers = new HashSet<>();
+    private List<Performer> performers = new ArrayList<>();
 
     @Builder
     private Performance(Long memberId, Long performanceLocationId, String title,
                         String summary, String description, LocalDate performanceDate,
                         LocalDateTime startTime, LocalDateTime endTime,
-                        List<PerformanceImage> images, Set<Performer> performers) {
+                        List<PerformanceImage> images, List<Performer> performers) {
         this.memberId = memberId;
         this.performanceLocationId = performanceLocationId;
         this.title = title;
