@@ -1,7 +1,6 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,6 @@ import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
-import team.unibusk.backend.domain.performance.presentation.exception.PerformanceLocationNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;

@@ -17,8 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.member.application.dto.response.MemberNameUpdateResponse;
-import team.unibusk.backend.domain.member.presentation.request.MemberNameUpdateRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
