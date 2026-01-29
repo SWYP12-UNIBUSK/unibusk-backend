@@ -1,31 +1,44 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
+import team.unibusk.backend.global.response.PageResponse;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PerformanceService {
 
     private final PerformanceRepository performanceRepository;
     private final FileUploadService fileUploadService;
+    private final PerformanceLocationRepository performanceLocationRepository;
 
     private static final String PERFORMANCE_FOLDER = "performances";
 
+    @Transactional
     public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request) {
         // 이미지 업로드
         List<PerformanceImage> images = uploadImages(request.images());
@@ -33,7 +46,7 @@ public class PerformanceService {
         try{
             // 공연자 생성
             List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
-                    ? List.of()
+                    ? Collections.emptyList()
                     : request.performers().stream()
                     .map(p -> Performer.builder()
                             .name(p.name())
@@ -41,7 +54,7 @@ public class PerformanceService {
                             .phoneNumber(p.phoneNumber())
                             .instagram(p.instagram())
                             .build())
-                    .toList();
+                    .collect(Collectors.toList());
 
             // 애그리거트 루트 조립
             Performance performance = Performance.builder()
@@ -91,5 +104,126 @@ public class PerformanceService {
             uploaded.forEach(img -> fileUploadService.delete(img.getImageUrl()));
             throw e;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PerformanceResponse> getUpcomingPerformances(Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Performance> performances =
+                performanceRepository.findUpcomingPerformances(now, pageable);
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findByIds(
+                                performances.getContent().stream()
+                                        .map(Performance::getPerformanceLocationId)
+                                        .collect(Collectors.toSet())
+                        ).stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
+
+        Page<PerformanceResponse> page = performances.map(p ->
+                PerformanceResponse.from(
+                        p,
+                        locationNameMap.getOrDefault(
+                                p.getPerformanceLocationId(),
+                                "공연 장소 정보가 없습니다."
+                        )
+                )
+        );
+
+        return PageResponse.from(page);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PerformancePreviewResponse> getUpcomingPerformancesPreview() {
+        LocalDateTime now = LocalDateTime.now();
+
+        Pageable pageable = PageRequest.of(0, 8);
+
+        List<Performance> performances =
+                performanceRepository.findUpcomingPreview(now, pageable);
+
+        Set<Long> locationIds = performances.stream()
+                .map(Performance::getPerformanceLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findByIds(locationIds).stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
+
+        return performances.stream()
+                .map(p -> PerformancePreviewResponse.from(p, locationNameMap))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PerformanceResponse> getPastPerformances(Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Performance> performances =
+                performanceRepository.findPastPerformances(now, pageable);
+
+        Map<Long, String> locationNameMap =
+                performanceLocationRepository.findByIds(
+                                performances.getContent().stream()
+                                        .map(Performance::getPerformanceLocationId)
+                                        .collect(Collectors.toSet())
+                        ).stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                PerformanceLocation::getName
+                        ));
+
+        Page<PerformanceResponse> page = performances.map(p ->
+                PerformanceResponse.from(
+                        p,
+                        locationNameMap.getOrDefault(
+                                p.getPerformanceLocationId(),
+                                "공연 장소 정보가 없습니다."
+                        )
+                )
+        );
+
+        return PageResponse.from(page);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+
+        Performance performance = performanceRepository.findDetailById(performanceId)
+                .orElseThrow(PerformanceNotFoundException::new);
+
+        PerformanceLocation location =
+                performanceLocationRepository.findById(performance.getPerformanceLocationId());
+
+        return PerformanceDetailResponse.builder()
+                .performanceId(performance.getId())
+                .title(performance.getTitle())
+                .performanceDate(performance.getPerformanceDate())
+                .startTime(performance.getStartTime())
+                .endTime(performance.getEndTime())
+                .locationName(location.getName())
+                .address(location.getAddress())
+                .latitude(location.getLatitude())
+                .longitude(location.getLongitude())
+                .summary(performance.getSummary())
+                .description(performance.getDescription())
+                .images(
+                        performance.getImages().stream()
+                                .map(PerformanceImage::getImageUrl)
+                                .toList()
+                )
+                .performers(
+                        performance.getPerformers().stream()
+                                .map(PerformerResponse::from)
+                                .toList()
+                )
+                .build();
     }
 }

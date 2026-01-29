@@ -1,16 +1,19 @@
 package team.unibusk.backend.domain.performance.presentation;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
+import team.unibusk.backend.global.response.PageResponse;
 
 import java.util.List;
 
@@ -37,4 +40,43 @@ public class PerformanceController implements PerformanceDocsController{
 
     }
 
+    @GetMapping("/upcoming")
+    public ResponseEntity<PageResponse<PerformanceResponse>> getUpcomingPerformances(
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/upcoming/preview")
+    public ResponseEntity<List<PerformancePreviewResponse>> getUpcomingPerformancesPreview() {
+        List<PerformancePreviewResponse> response = performanceService.getUpcomingPerformancesPreview();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/past")
+    public ResponseEntity<PageResponse<PerformanceResponse>> getPastPerformances(
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/{performanceId}")
+    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
+        PerformanceDetailResponse response = performanceService.getPerformanceDetail(performanceId);
+
+        return ResponseEntity.status(200).body(response);
+    }
 }

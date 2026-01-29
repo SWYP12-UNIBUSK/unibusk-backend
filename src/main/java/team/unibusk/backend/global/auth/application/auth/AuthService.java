@@ -7,7 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.member.domain.Member;
 import team.unibusk.backend.domain.member.domain.MemberRepository;
 import team.unibusk.backend.global.auth.application.attributes.AuthAttributes;
-import team.unibusk.backend.global.auth.application.dto.response.OauthLoginResultResponse;
+import team.unibusk.backend.global.auth.application.auth.dto.request.AuthCodeExchangeServiceRequest;
+import team.unibusk.backend.global.auth.application.dto.response.LoginResultResponse;
+import team.unibusk.backend.global.auth.application.model.AuthCodePayload;
+import team.unibusk.backend.global.auth.application.model.LoginContext;
 import team.unibusk.backend.global.auth.domain.refreshtoken.RefreshToken;
 import team.unibusk.backend.global.auth.domain.refreshtoken.RefreshTokenRepository;
 import team.unibusk.backend.global.auth.presentation.exception.AlreadyRegisteredMemberException;
@@ -16,24 +19,54 @@ import team.unibusk.backend.global.jwt.generator.JwtTokenGenerator;
 import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.util.RandomNameGenerator;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
     private final MemberRepository memberRepository;
     private final RandomNameGenerator randomNameGenerator;
-    private final JwtTokenGenerator tokenGenerator;
+    private final AuthCodeRedisService authCodeRedisService;
+    private final JwtTokenGenerator jwtTokenGenerator;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProperties tokenProperties;
     private final TokenInjector tokenInjector;
 
     @Transactional
-    public OauthLoginResultResponse handleLoginSuccess(AuthAttributes attributes) {
-        String email = attributes.getEmail();
+    public String generateAuthCode(AuthAttributes attributes) {
+        LoginContext context = resolveMember(attributes);
+        String code = UUID.randomUUID().toString();
 
-        return memberRepository.findByEmail(email)
-                .map(member -> handleExistMember(member, attributes))
-                .orElseGet(() -> handleFirstLogin(attributes));
+        authCodeRedisService.save(code, context.memberId(), context.firstLogin());
+
+        return code;
+    }
+
+    @Transactional
+    public LoginResultResponse issueToken(AuthCodeExchangeServiceRequest request, HttpServletResponse response) {
+        AuthCodePayload payload = authCodeRedisService.consume(request.code());
+
+        String access = jwtTokenGenerator.generateAccessToken(payload.memberId());
+        String refresh = jwtTokenGenerator.generateRefreshToken(payload.memberId());
+
+        RefreshToken entity =
+                refreshTokenRepository.findFirstByMemberIdOrderByIdDesc(payload.memberId())
+                        .orElse(RefreshToken.of(
+                                payload.memberId(),
+                                refresh,
+                                tokenProperties.expirationTime().refreshToken()
+                        ));
+
+        entity.rotate(refresh);
+        refreshTokenRepository.save(entity);
+
+        LoginResultResponse result =
+                new LoginResultResponse(access, refresh, payload.firstLogin());
+
+        tokenInjector.injectTokensToCookie(result, response);
+
+        return result;
     }
 
     @Transactional
@@ -44,40 +77,29 @@ public class AuthService {
         refreshTokenRepository.deleteByMemberId(memberId);
     }
 
-    private OauthLoginResultResponse handleExistMember(Member member, AuthAttributes attributes) {
+    private LoginContext resolveMember(AuthAttributes attributes) {
+        String email = attributes.getEmail();
+
+        return memberRepository.findByEmail(email)
+                .map(member -> validateProvider(member, attributes))
+                .orElseGet(() -> registerNewMember(attributes));
+    }
+
+    private LoginContext validateProvider(Member member, AuthAttributes attributes) {
         if (member.hasDifferentProviderWithEmail(attributes.getEmail(), attributes.getExternalId())) {
             throw new AlreadyRegisteredMemberException();
         }
 
-        return generateLoginResult(member, false);
+        return new LoginContext(member.getId(), false);
     }
 
-    private OauthLoginResultResponse handleFirstLogin(AuthAttributes attributes) {
-        Member newMember = saveNewMember(attributes);
-
-        return generateLoginResult(newMember, true);
-    }
-
-    private OauthLoginResultResponse generateLoginResult(Member member, boolean firstLogin) {
-        String accessToken = tokenGenerator.generateAccessToken(member.getId());
-        String refreshToken = tokenGenerator.generateRefreshToken(member.getId());
-
-        RefreshToken refreshTokenEntity = refreshTokenRepository.findFirstByMemberIdOrderByIdDesc(member.getId())
-                .orElse(RefreshToken.of(member.getId(), refreshToken, tokenProperties.expirationTime().refreshToken()));
-
-        refreshTokenEntity.rotate(refreshToken);
-        refreshTokenRepository.save(refreshTokenEntity);
-
-        return new OauthLoginResultResponse(accessToken, refreshToken, firstLogin, member.getId());
-    }
-
-    private Member saveNewMember(AuthAttributes attributes) {
+    private LoginContext registerNewMember(AuthAttributes attributes) {
         Member member = Member.from(attributes);
         memberRepository.save(member);
-        member.generateName(
-                randomNameGenerator.generate() + member.getId()
-        );
-        return member;
+
+        member.generateName(randomNameGenerator.generate() + member.getId());
+
+        return new LoginContext(member.getId(), true);
     }
 
 }
