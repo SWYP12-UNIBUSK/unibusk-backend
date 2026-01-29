@@ -16,6 +16,7 @@ import java.util.Set;
 public class PerformanceLocationRepositoryImpl implements PerformanceLocationRepository {
 
     private final PerformanceLocationJpaRepository performanceLocationJpaRepository;
+    private final PerformanceLocationQueryDslRepository performanceLocationQueryDslRepository;
 
     @Override
     public Page<PerformanceLocation> searchByKeyword(String keyword, Pageable pageable){
@@ -41,6 +42,16 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     public PerformanceLocation findById(Long id) {
         return performanceLocationJpaRepository.findById(id)
                 .orElseThrow(PerformanceLocationNotFoundException::new);
+    }
+
+    @Override
+    public List<PerformanceLocation> findInMapBounds(
+            Double north,
+            Double south,
+            Double east,
+            Double west
+    ) {
+        return performanceLocationQueryDslRepository.findInMapBounds(north, south, east, west);
     }
 
 }

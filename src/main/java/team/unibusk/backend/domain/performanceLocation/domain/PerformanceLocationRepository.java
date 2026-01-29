@@ -21,4 +21,6 @@ public interface PerformanceLocationRepository {
 
     PerformanceLocation findById(Long id);
 
+    List<PerformanceLocation> findInMapBounds(Double north, Double south, Double east, Double west);
+
 }
