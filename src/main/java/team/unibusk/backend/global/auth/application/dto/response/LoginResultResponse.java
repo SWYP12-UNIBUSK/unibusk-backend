@@ -7,7 +7,9 @@ public record LoginResultResponse(
 
         String accessToken,
 
-        String refreshToken
+        String refreshToken,
+
+        boolean firstLogin
 
 ) implements TokenResult {
 }
