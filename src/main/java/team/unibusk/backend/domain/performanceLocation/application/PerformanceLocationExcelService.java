@@ -8,10 +8,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performanceLocation.application.dto.ExcelDto;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationExcelResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.ApplicationGuide;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyExcelFileException;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidExcelFormatException;
 import team.unibusk.backend.global.kakaoMap.application.KakaoMapService;
 import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
 
@@ -26,7 +29,7 @@ public class PerformanceLocationExcelService {
     private final PerformanceLocationRepository performanceLocationRepository;
     private final KakaoMapService kakaoMapService;
 
-    public int uploadPerformanceLocationExcelData(MultipartFile file) throws IOException {
+    public PerformanceLocationExcelResponse uploadPerformanceLocationExcelData(MultipartFile file) throws IOException {
 
         //엑셀 파일 검증
         validateExcelFile(file);
@@ -35,16 +38,18 @@ public class PerformanceLocationExcelService {
         List<ExcelDto> dtos = getExcelDtoFromExcel(file);
 
         List<String> failedLogs = new ArrayList<>(); //실패 기록용 로그
-        int successCount = 0;                          //성공
+        int successCount = 0;                         //성공 개수 기록
 
         for (int i = 0; i < dtos.size(); i++) {
+
             ExcelDto dto = dtos.get(i);
-            int currentRowNum = i + 2;
+
+            int currentRowNum = i + 2; //현재 행
 
             try{
                 //필수 컬럼내용이 비었는지 확인
                 validateRequiredFields(dto.getName(), dto.getAddress(), dto.getOperatorName(), dto.getOperatorPhoneNumber());
-                //name, address 가 이미 존재하는지 확인
+                //name 이미 존재하는지 확인
                 validateName(dto.getName());
 
                 //카카오 api로 위도 경도 계산
@@ -55,36 +60,35 @@ public class PerformanceLocationExcelService {
                 saveExcelDto(dto, coordinate);
                 successCount++;
 
-
-
             }catch (DataIntegrityViolationException e) {
-                // ✅ 경합 조건 발생 시 DB 제약 조건에 의해 여기서 걸러짐
                 log.error("Row {} 중복 데이터 충돌: {}", currentRowNum, e.getMessage());
                 failedLogs.add(String.format("[Row %d], [장소: %s], [실패 원인: 데이터베이스 제약 조건 위반(중복 데이터)]", currentRowNum, dto.getName()));
             }catch (Exception e) {
-                //실패 시 로그 기록 및 리스트 추가
                 String reason = e.getMessage() != null ? e.getMessage() : "알 수 없는 에러";
-                log.error("Row {} 저장 실패: {}", currentRowNum, reason);
                 failedLogs.add(String.format("[Row %d], [장소 이름 : %s], [장소: %s],  [실패 원인: %s]", currentRowNum, dto.getName(), dto.getAddress(), reason));
             }
         }
         // 결과 리포트 출력
         printFinalReport(successCount, failedLogs);
 
-        return failedLogs.size();
+        return PerformanceLocationExcelResponse.builder()
+                .successCount(successCount)
+                .failCount(failedLogs.size())
+                .failedLogList(failedLogs)
+                .build();
     }
 
     //엑셀 파일 검증
     private void validateExcelFile(MultipartFile file) throws IOException{
         //  파일 존재 여부 확인
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("업로드된 파일이 비어 있습니다.");
+            throw new EmptyExcelFileException();
         }
 
         //  확장자 확인
         String fileName = file.getOriginalFilename();
         if (fileName == null || !fileName.toLowerCase().endsWith(".xlsx")) {
-            throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. .xlsx 확장자만 가능합니다.");
+            throw new InvalidExcelFormatException();
         }
     }
     //데이터 엑셀 파일로부터 추출
