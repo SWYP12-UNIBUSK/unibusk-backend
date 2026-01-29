@@ -16,16 +16,14 @@ import java.util.concurrent.Semaphore;
 public class KakaoMapService {
 
     private final WebClient kakaoWebClient;
-    // 전역적으로 초당 요청 수를 제어하기 위해 static으로 선언하거나 Bean으로 관리하는 것이 좋습니다.
+    //너무 많은 요청 동시에 보내면 카카오에서 429 에러 발생시켜서 세마포 사용
     private final Semaphore semaphore = new Semaphore(1);
 
     public Optional<Coordinate> getCoordinateByAddress(String address) {
         try {
             semaphore.acquire();
-            // 간격을 좀 더 넉넉하게 200ms로 조절해 보세요.
             Thread.sleep(200);
 
-            // ⚠️ 여기서 block()은 통신이 끝날 때까지 현재 스레드를 붙잡아둡니다.
             Map body = kakaoWebClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/v2/local/search/address.json")

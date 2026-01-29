@@ -6,7 +6,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performanceLocation.application.dto.ExcelDto;
 import team.unibusk.backend.domain.performanceLocation.domain.ApplicationGuide;
@@ -18,7 +17,6 @@ import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Service
