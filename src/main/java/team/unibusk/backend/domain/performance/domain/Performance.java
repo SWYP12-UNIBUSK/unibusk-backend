@@ -9,10 +9,7 @@ import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -56,7 +53,7 @@ public class Performance extends BaseTimeEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id")
-    private Set<Performer> performers = Collections.emptySet();
+    private Set<Performer> performers = new HashSet<>();
 
     @Builder
     private Performance(Long memberId, Long performanceLocationId, String title,

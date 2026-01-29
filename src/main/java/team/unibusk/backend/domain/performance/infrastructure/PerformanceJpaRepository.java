@@ -49,12 +49,10 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
         select distinct p
         from Performance p
         left join fetch p.images
-        left join PerformanceLocation l
-            on p.performanceLocationId = l.id
         where p.endTime >= :now
         order by p.startTime asc
     """)
-    List<Performance> findUpcomingPreview(@Param("now") LocalDateTime now);
+    List<Performance> findUpcomingPreview(@Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("""
         select distinct p

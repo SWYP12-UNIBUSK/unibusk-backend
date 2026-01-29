@@ -1,7 +1,9 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,11 +136,13 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public List<PerformanceResponse> getUpcomingPerformancesPreview() {
+    public List<PerformancePreviewResponse> getUpcomingPerformancesPreview() {
         LocalDateTime now = LocalDateTime.now();
 
+        Pageable pageable = PageRequest.of(0, 8);
+
         List<Performance> performances =
-                performanceRepository.findUpcomingPreview(now);
+                performanceRepository.findUpcomingPreview(now, pageable);
 
         Set<Long> locationIds = performances.stream()
                 .map(Performance::getPerformanceLocationId)
@@ -152,29 +156,8 @@ public class PerformanceService {
                         ));
 
         return performances.stream()
-                .map(p -> toResponse(p, locationNameMap))
+                .map(p -> PerformancePreviewResponse.from(p, locationNameMap))
                 .toList();
-    }
-
-    private PerformanceResponse toResponse(Performance performance, Map<Long, String> locationNameMap) {
-        String locationName = locationNameMap.getOrDefault(
-                performance.getPerformanceLocationId(),
-                "공연 장소 정보가 없습니다."
-        );
-
-        return PerformanceResponse.builder()
-                .performanceId(performance.getId())
-                .title(performance.getTitle())
-                .performanceDate(performance.getPerformanceDate())
-                .startTime(performance.getStartTime())
-                .endTime(performance.getEndTime())
-                .locationName(locationName)
-                .images(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
-                )
-                .build();
     }
 
     @Transactional(readOnly = true)

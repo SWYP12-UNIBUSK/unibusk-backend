@@ -16,7 +16,7 @@ public interface PerformanceRepository {
 
     Page<Performance> findUpcomingPerformances(LocalDateTime now, Pageable pageable);
 
-    List<Performance> findUpcomingPreview(LocalDateTime now);
+    List<Performance> findUpcomingPreview(LocalDateTime now, Pageable pageable);
 
     Optional<Performance> findDetailById(Long performanceId);
 

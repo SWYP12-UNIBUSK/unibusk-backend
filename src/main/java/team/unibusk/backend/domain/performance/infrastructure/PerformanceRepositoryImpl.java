@@ -33,8 +33,8 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     }
 
     @Override
-    public List<Performance> findUpcomingPreview(LocalDateTime now) {
-        return performanceJpaRepository.findUpcomingPreview(now);
+    public List<Performance> findUpcomingPreview(LocalDateTime now, Pageable pageable) {
+        return performanceJpaRepository.findUpcomingPreview(now, pageable);
     }
 
     @Override

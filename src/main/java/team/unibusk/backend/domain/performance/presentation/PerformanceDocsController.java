@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.member.application.dto.response.MemberNameUpdateResponse;
 import team.unibusk.backend.domain.member.presentation.request.MemberNameUpdateRequest;
-import team.unibusk.backend.domain.performance.application.dto.response.PageResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.annotation.SwaggerBody;
@@ -79,7 +76,7 @@ public interface PerformanceDocsController{
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
     @GetMapping("/upcoming/preview")
-    ResponseEntity<List<PerformanceResponse>> getUpcomingPerformancesPreview();
+    ResponseEntity<List<PerformancePreviewResponse>> getUpcomingPerformancesPreview();
 
     @Operation(summary = "지난 공연 목록 조회", description = "지난 공연을 모두 조회합니다.")
     @ApiResponses({

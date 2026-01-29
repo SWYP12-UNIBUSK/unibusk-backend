@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
-import team.unibusk.backend.domain.performance.application.dto.response.PageResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
-import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 
@@ -57,8 +54,8 @@ public class PerformanceController implements PerformanceDocsController{
     }
 
     @GetMapping("/upcoming/preview")
-    public ResponseEntity<List<PerformanceResponse>> getUpcomingPerformancesPreview() {
-        List<PerformanceResponse> response = performanceService.getUpcomingPerformancesPreview();
+    public ResponseEntity<List<PerformancePreviewResponse>> getUpcomingPerformancesPreview() {
+        List<PerformancePreviewResponse> response = performanceService.getUpcomingPerformancesPreview();
 
         return ResponseEntity.status(200).body(response);
     }
