@@ -55,6 +55,7 @@ public class Performance extends BaseTimeEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id")
+    @BatchSize(size = 10)
     private List<Performer> performers = new ArrayList<>();
 
     @Builder
