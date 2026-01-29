@@ -70,7 +70,7 @@ public class PerformanceLocationService {
     }
 
     private static void validateOrder(Double north, Double south, Double east, Double west) {
-        if (north < south || east < west) {
+        if (north <= south || east <= west) {
             throw new InvalidMapBoundsException();
         }
     }
