@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.application.dto.response;
+package team.unibusk.backend.global.response;
 
 import org.springframework.data.domain.Page;
 
