@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -49,6 +50,7 @@ public class Performance extends BaseTimeEntity {
     // 애그리거트 루트를 통해서만 자식의 생명주기가 관리됨
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id") // 자식 테이블에 FK 생성
+    @BatchSize(size = 10)
     private List<PerformanceImage> images = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

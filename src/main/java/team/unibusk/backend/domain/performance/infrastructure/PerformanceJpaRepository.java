@@ -17,7 +17,6 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
         value = """
             select distinct p
             from Performance p
-            left join fetch p.images
             where p.endTime < :now
             order by p.startTime desc
         """,
@@ -33,7 +32,6 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
         value = """
             select distinct p
             from Performance p
-            left join fetch p.images
             where p.endTime >= :now
             order by p.startTime asc
         """,
@@ -48,7 +46,6 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     @Query("""
         select distinct p
         from Performance p
-        left join fetch p.images
         where p.endTime >= :now
         order by p.startTime asc
     """)
