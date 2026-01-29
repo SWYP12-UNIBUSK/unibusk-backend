@@ -14,8 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "uk_performance_location_name", columnNames = "name"),
-        @UniqueConstraint(name = "uk_performance_location_address", columnNames = "address")
+        @UniqueConstraint(name = "uk_performance_location_name", columnNames = "name")
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -53,8 +53,7 @@ dependencies {
 
     //엑셀 파일 처리용
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-}
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'}
 
 tasks.named('test') {
     useJUnitPlatform()

@@ -1,87 +1,63 @@
 package team.unibusk.backend.global.kakaoMap.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
 import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
-import team.unibusk.backend.global.kakaoMap.presentation.exception.CoordinateNotFoundException;
-import team.unibusk.backend.global.kakaoMap.presentation.exception.KakaoMapApiConnectionException;
-import team.unibusk.backend.global.kakaoMap.presentation.exception.KakaoMapParseException;
 
 import java.util.Map;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Semaphore;
 
 @Service
 @RequiredArgsConstructor
 public class KakaoMapService {
 
-    @Value("${kakao.api.key}")
-    private String apiKey;
+    private final WebClient kakaoWebClient;
+    // 전역적으로 초당 요청 수를 제어하기 위해 static으로 선언하거나 Bean으로 관리하는 것이 좋습니다.
+    private final Semaphore semaphore = new Semaphore(1);
 
-    @Value("${kakao.api.url}")
-    private String apiUrl;
+    public Optional<Coordinate> getCoordinateByAddress(String address) {
+        try {
+            semaphore.acquire();
+            // 간격을 좀 더 넉넉하게 200ms로 조절해 보세요.
+            Thread.sleep(200);
 
-    private final RestTemplate restTemplate; //
+            // ⚠️ 여기서 block()은 통신이 끝날 때까지 현재 스레드를 붙잡아둡니다.
+            Map body = kakaoWebClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/v2/local/search/address.json")
+                            .queryParam("query", address)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
 
-    public Coordinate getCoordinateByAddress(String address) {
-        //헤더 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + apiKey);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+            return Optional.ofNullable(extractCoordinate(body));
 
-        //URL 생성
-        String targetUrl = UriComponentsBuilder.fromUriString(apiUrl)
-                .queryParam("query", address)
-                .build()
-                .toUriString();
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            semaphore.release();
+        }
+    }
 
-        ResponseEntity<Map> response;
+    private Coordinate extractCoordinate(Map<String, Object> body) {
+        // 여기서는 데이터 추출만 집중 (세마포어 로직 제거)
+        if (body == null) return null;
 
         try {
-            //응답 요청
-            response = restTemplate.exchange(targetUrl, HttpMethod.GET, entity, Map.class);
-        } catch (Exception e) {
-            //응답이 안오면 예외 처리
-            //throw new KakaoMapApiConnectionException();
-            return null;
-        }
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> body = response.getBody();
-
-            //응답 body가 빈 경우
-            if (body == null) {
-                // throw new KakaoMapParseException(); // 필요시 전용 예외 발생
-                return null;
-            }
-
             List<Map<String, Object>> documents = (List<Map<String, Object>>) body.get("documents");
+            if (documents == null || documents.isEmpty()) return null;
 
-            if (documents == null || documents.isEmpty()) {
-                //throw new CoordinateNotFoundException();
-                return null;
-            }
-
-            try {
-                Map<String, Object> firstResult = documents.get(0);
-                double latitude = Double.parseDouble((String) firstResult.get("y"));
-                double longitude = Double.parseDouble((String) firstResult.get("x"));
-
-                return Coordinate.builder()
-                        .latitude(latitude)
-                        .longitude(longitude)
-                        .build();
-            } catch (NullPointerException | NumberFormatException e) {
-                //데이터를 받았으나 데이터에서 에러가 난 경우
-                //throw new KakaoMapParseException();
-                return null;
-            }
-        } else {
-            //서버로 받은 응답이 200 ok 가 아닌 경우
-            //throw new KakaoMapApiConnectionException();
+            Map<String, Object> first = documents.get(0);
+            return Coordinate.builder()
+                    .latitude(Double.parseDouble(String.valueOf(first.get("y"))))
+                    .longitude(Double.parseDouble(String.valueOf(first.get("x"))))
+                    .build();
+        } catch (Exception e) {
             return null;
         }
     }

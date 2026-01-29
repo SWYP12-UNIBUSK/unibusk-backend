@@ -18,6 +18,7 @@ import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Service
@@ -46,15 +47,17 @@ public class PerformanceLocationExcelService {
                 //필수 컬럼내용이 비었는지 확인
                 validateRequiredFields(dto.getName(), dto.getAddress(), dto.getOperatorName(), dto.getOperatorPhoneNumber());
                 //name, address 가 이미 존재하는지 확인
-                validateNameAndAddress(dto.getName(), dto.getAddress());
+                validateName(dto.getName());
 
                 //카카오 api로 위도 경도 계산
-                Coordinate coordinate = kakaoMapService.getCoordinateByAddress(dto.getAddress());
-                if (coordinate == null) throw new RuntimeException("좌표를 가져오지 못했습니다.");
+                Coordinate coordinate = kakaoMapService.getCoordinateByAddress(dto.getAddress())
+                        .orElseThrow(() -> new RuntimeException("좌표를 가져오지 못했습니다."));
 
                 // DB에 저장
                 saveExcelDto(dto, coordinate);
                 successCount++;
+
+
 
             }catch (DataIntegrityViolationException e) {
                 // ✅ 경합 조건 발생 시 DB 제약 조건에 의해 여기서 걸러짐
@@ -86,8 +89,6 @@ public class PerformanceLocationExcelService {
             throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. .xlsx 확장자만 가능합니다.");
         }
     }
-
-
     //데이터 엑셀 파일로부터 추출
     private List<ExcelDto> getExcelDtoFromExcel(MultipartFile file) throws IOException{
         List<ExcelDto> dtos = new ArrayList<>();
@@ -131,14 +132,12 @@ public class PerformanceLocationExcelService {
             default -> "";
         };
     }
-    //DB에 name, address 이미 존재하는지 확인
-    private void validateNameAndAddress(String name, String address){
+    //DB에 name 이미 존재하는지 확인
+    private void validateName(String name){
         if (performanceLocationRepository.existsByName(name)) {
             throw new RuntimeException("이미 존재하는 장소 이름입니다. (입력값(name): " + name + ")");
         }
-        if (performanceLocationRepository.existsByAddress(address)) {
-            throw new RuntimeException("이미 존재하는 장소 주소입니다. (입력값(address): " + address + ")");
-        }
+
     }
     //저장할 엑셀 행에 필수적인 값 누락 없는지 검증
     private void validateRequiredFields(String name, String address, String operatorName, String operatorPhoneNumber) {
