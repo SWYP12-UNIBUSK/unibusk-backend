@@ -23,6 +23,14 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     }
 
     @Override
+    public PerformanceLocation save(PerformanceLocation performanceLocation){
+        return performanceLocationJpaRepository.save(performanceLocation);
+    }
+
+    @Override
+    public boolean existsByName(String name){
+        return performanceLocationJpaRepository.existsByName(name);
+
     public List<PerformanceLocation> findByIds(Set<Long> locationIds) {
         return performanceLocationJpaRepository.findByIdIn(locationIds);
     }

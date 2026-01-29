@@ -51,6 +51,10 @@ dependencies {
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:url-connection-client'
 
+    //엑셀 파일 처리용
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'}
+
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.apache.commons:commons-lang3:3.19.0'
 }
