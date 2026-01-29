@@ -18,4 +18,14 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
         return performanceLocationJpaRepository.searchByNameOrAddress(keyword, pageable);
     }
 
+    @Override
+    public PerformanceLocation save(PerformanceLocation performanceLocation){
+        return performanceLocationJpaRepository.save(performanceLocation);
+    }
+
+    @Override
+    public boolean existsByName(String name){
+        return performanceLocationJpaRepository.existsByName(name);
+    }
+
 }
