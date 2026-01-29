@@ -20,6 +20,9 @@ public class SwaggerConfig {
     @Value("${swagger.server.local}")
     private String localUrl;
 
+    @Value("${swagger.server.dev}")
+    private String devUrl;
+
     @Value("${swagger.server.prod}")
     private String prodUrl;
 
@@ -37,6 +40,7 @@ public class SwaggerConfig {
     private List<Server> initializeServers() {
         return List.of(
                 openApiServer(localUrl, "UNIBUSK API LOCAL"),
+                openApiServer(devUrl, "UNIBUSK API DEV"),
                 openApiServer(prodUrl, "UNIBUSK API PROD")
         );
     }
