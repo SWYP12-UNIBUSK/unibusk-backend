@@ -6,9 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
+import team.unibusk.backend.global.auth.application.dto.response.LoginResultResponse;
+import team.unibusk.backend.global.auth.presentation.request.AuthCodeExchangeRequest;
 
 @RequiredArgsConstructor
 @RequestMapping("/auths")
@@ -20,6 +23,15 @@ public class AuthController implements AuthDocsController{
     @GetMapping("/login")
     public String login() {
         return "redirect:/oauth2/authorization/kakao";
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<LoginResultResponse> exchangeCode(
+            @RequestBody AuthCodeExchangeRequest request,
+            HttpServletResponse response
+    ) {
+        LoginResultResponse result = authService.issueToken(request.toServiceRequest(), response);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/logout")
