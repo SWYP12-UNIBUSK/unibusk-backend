@@ -33,9 +33,9 @@ public interface PerformanceLocationDocsController {
             }
     )
     ResponseEntity<PerformanceLocationMapListResponse> getLocationsInMap(
-            @Parameter(description = "북쪽 경도", required = true) @RequestParam("north") Double north,
-            @Parameter(description = "남쪽 경도", required = true) @RequestParam("south") Double south,
-            @Parameter(description = "동쪽 위도", required = true) @RequestParam("east") Double east,
-            @Parameter(description = "서쪽 위도", required = true) @RequestParam("west") Double west
+            @Parameter(description = "북쪽 위도", required = true) @RequestParam("north") Double north,
+            @Parameter(description = "남쪽 위도", required = true) @RequestParam("south") Double south,
+            @Parameter(description = "동쪽 경도", required = true) @RequestParam("east") Double east,
+            @Parameter(description = "서쪽 경도", required = true) @RequestParam("west") Double west
     );
 }
