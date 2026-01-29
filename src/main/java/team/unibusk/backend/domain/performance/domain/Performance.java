@@ -10,7 +10,9 @@ import team.unibusk.backend.global.domain.BaseTimeEntity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -54,13 +56,13 @@ public class Performance extends BaseTimeEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "performance_id")
-    private List<Performer> performers = new ArrayList<>();
+    private Set<Performer> performers = Collections.emptySet();
 
     @Builder
     private Performance(Long memberId, Long performanceLocationId, String title,
                         String summary, String description, LocalDate performanceDate,
                         LocalDateTime startTime, LocalDateTime endTime,
-                        List<PerformanceImage> images, List<Performer> performers) {
+                        List<PerformanceImage> images, Set<Performer> performers) {
         this.memberId = memberId;
         this.performanceLocationId = performanceLocationId;
         this.title = title;

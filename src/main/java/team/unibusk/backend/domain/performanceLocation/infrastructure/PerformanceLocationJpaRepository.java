@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
+import java.util.List;
+import java.util.Set;
+
 public interface PerformanceLocationJpaRepository extends JpaRepository<PerformanceLocation, Long> {
 
     // 키워드로 performanceLocation 테이블의 name, address 칼럼에 keyword가 있는지 조회
@@ -14,4 +17,7 @@ public interface PerformanceLocationJpaRepository extends JpaRepository<Performa
             "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<PerformanceLocation> searchByNameOrAddress(@Param("keyword") String keyword, Pageable pageable);
+
+    List<PerformanceLocation> findByIdIn(Set<Long> ids);
+
 }
