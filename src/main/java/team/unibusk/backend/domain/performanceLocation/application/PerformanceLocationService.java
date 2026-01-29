@@ -9,8 +9,7 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.response.
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.*;
 
 import java.util.List;
 
@@ -19,6 +18,11 @@ import java.util.List;
 public class PerformanceLocationService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
+
+    private static final double MIN_LATITUDE = -90.0;
+    private static final double MAX_LATITUDE = 90.0;
+    private static final double MIN_LONGITUDE = -180.0;
+    private static final double MAX_LONGITUDE = 180.0;
 
     @Transactional(readOnly = true)
     public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable){
@@ -36,6 +40,8 @@ public class PerformanceLocationService {
             Double east,
             Double west
     ) {
+        validateAll(north, south, east, west);
+
         List<PerformanceLocation> performanceLocations = performanceLocationRepository.findInMapBounds(north, south, east, west);
 
         return PerformanceLocationMapListResponse.from(performanceLocations);
@@ -51,6 +57,31 @@ public class PerformanceLocationService {
         }
     }
 
+    public static void validateAll(Double north, Double south, Double east, Double west) {
+        validateNotNull(north, south, east, west);
+        validateOrder(north, south, east, west);
+        validateRange(north, south, east, west);
+    }
 
+    private static void validateNotNull(Double north, Double south, Double east, Double west) {
+        if (north == null || south == null || east == null || west == null) {
+            throw new NullMapBoundsException();
+        }
+    }
+
+    private static void validateOrder(Double north, Double south, Double east, Double west) {
+        if (north < south || east < west) {
+            throw new InvalidMapBoundsException();
+        }
+    }
+
+    private static void validateRange(Double north, Double south, Double east, Double west) {
+        if (north > MAX_LATITUDE || south < MIN_LATITUDE) {
+            throw new OutOfRangeLatitudeException();
+        }
+        if (east > MAX_LONGITUDE || west < MIN_LONGITUDE) {
+            throw new OutOfRangeLongitudeException();
+        }
+    }
 
 }
