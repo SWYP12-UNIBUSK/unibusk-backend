@@ -1,6 +1,7 @@
 package team.unibusk.backend.global.auth.presentation;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,7 +28,7 @@ public class AuthController implements AuthDocsController{
 
     @PostMapping("/token")
     public ResponseEntity<LoginResultResponse> exchangeCode(
-            @RequestBody AuthCodeExchangeRequest request,
+            @Valid @RequestBody AuthCodeExchangeRequest request,
             HttpServletResponse response
     ) {
         LoginResultResponse result = authService.issueToken(request.toServiceRequest(), response);
