@@ -28,9 +28,11 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     }
 
     @Override
-    public boolean existsByName(String name){
+    public boolean existsByName(String name) {
         return performanceLocationJpaRepository.existsByName(name);
+    }
 
+    @Override
     public List<PerformanceLocation> findByIds(Set<Long> locationIds) {
         return performanceLocationJpaRepository.findByIdIn(locationIds);
     }
