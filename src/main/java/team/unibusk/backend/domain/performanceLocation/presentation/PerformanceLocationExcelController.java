@@ -19,16 +19,13 @@ public class PerformanceLocationExcelController {
     private final PerformanceLocationExcelService performanceLocationExcelService;
 
     @PostMapping("/excel-upload")
-    public ResponseEntity<String> uploadExcel(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("rowCnt") int rowCnt //엑셀 파일의 행 개수
+    public void uploadExcel(
+            @RequestParam("file") MultipartFile file
     ) throws IOException {
 
         // 서비스 호출
-        //파일과
-        int failedSize = performanceLocationExcelService.uploadPerformanceLocationExcelData(file, rowCnt);
+        int failedSize = performanceLocationExcelService.uploadPerformanceLocationExcelData(file);
 
-        String message = String.format("%d건 성공, %d건 실패. 엑셀 데이터 처리가 완료되었습니다.",rowCnt-failedSize-1, failedSize);
-        return ResponseEntity.ok(message);
+        return;
     }
 }

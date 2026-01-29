@@ -51,6 +51,13 @@ public class KakaoMapService {
 
         if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, Object> body = response.getBody();
+
+            //응답 body가 빈 경우
+            if (body == null) {
+                // throw new KakaoMapParseException(); // 필요시 전용 예외 발생
+                return null;
+            }
+
             List<Map<String, Object>> documents = (List<Map<String, Object>>) body.get("documents");
 
             if (documents == null || documents.isEmpty()) {

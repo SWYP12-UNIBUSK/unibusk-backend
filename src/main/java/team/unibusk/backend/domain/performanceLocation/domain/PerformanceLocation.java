@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_performance_location_name", columnNames = "name"),
+        @UniqueConstraint(name = "uk_performance_location_address", columnNames = "address")
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PerformanceLocation extends BaseTimeEntity {
