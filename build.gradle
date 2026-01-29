@@ -50,6 +50,9 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.41.5')
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:url-connection-client'
+
+    //엑셀 파일 처리용
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
 }
 
 tasks.named('test') {
