@@ -41,6 +41,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/actuator/**",
             "/auths/login",
+            "/auths/token",
             "/oauth2/**",
     };
 

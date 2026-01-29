@@ -26,6 +26,7 @@ public class RefreshTokenReissueService {
         LoginResultResponse result = LoginResultResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshTokenStr)
+                .firstLogin(false)
                 .build();
 
         tokenInjector.injectTokensToCookie(result, response);

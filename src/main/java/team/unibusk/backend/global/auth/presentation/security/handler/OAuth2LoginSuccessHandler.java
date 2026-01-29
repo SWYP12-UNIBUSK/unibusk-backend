@@ -9,10 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
-import team.unibusk.backend.global.auth.application.dto.response.OauthLoginResultResponse;
 import team.unibusk.backend.global.auth.domain.user.CustomOAuth2User;
-import team.unibusk.backend.global.auth.presentation.exception.AlreadyRegisteredMemberException;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.injector.TokenInjector;
 
@@ -24,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static team.unibusk.backend.global.auth.presentation.exception.AuthExceptionCode.ALREADY_REGISTERED_MEMBER;
 import static team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter.STATE_COOKIE_NAME;
 
 @Slf4j
@@ -49,33 +47,32 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication
     ) throws IOException {
-        try {
-            OauthLoginResultResponse result = resolveLoginResultFromAuthentication(authentication);
-            tokenInjector.injectTokensToCookie(result, response);
-            redirectToSuccessUrl(request, response);
-        } catch (AlreadyRegisteredMemberException e) {
-            handleAlreadyExistUser(response);
-        }
+
+        CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
+
+        String code = authService.generateAuthCode(user.getAuthAttributes());
+
+        redirectWithCode(request, response, code);
     }
 
-    private OauthLoginResultResponse resolveLoginResultFromAuthentication(Authentication authentication) {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User)authentication.getPrincipal();
-        return authService.handleLoginSuccess(oAuth2User.getAuthAttributes());
-    }
-
-    private void redirectToSuccessUrl(
+    private void redirectWithCode(
             HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletResponse response,
+            String code
     ) throws IOException {
 
         String stateCookieValue = getStateCookie(request);
-        log.info("[OAuth2Success] state cookie (encoded)={}", stateCookieValue);
 
         String target = determineTargetUrl(stateCookieValue);
-        log.info("[OAuth2Success] final redirect target={}", target);
 
         tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
-        response.sendRedirect(target);
+
+        String redirectUrl = UriComponentsBuilder.fromUriString(target)
+                .queryParam("code", code)
+                .build()
+                .encode()
+                .toUriString();
+        response.sendRedirect(redirectUrl);
     }
 
     private String getStateCookie(HttpServletRequest request) {
@@ -100,13 +97,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
         log.warn("[OAuth2Success] fallback redirect used");
         return securityProperties.oAuthUrl().redirectUrl();
-    }
-
-    private void handleAlreadyExistUser(HttpServletResponse response) throws IOException {
-        response.sendRedirect(
-                securityProperties.oAuthUrl().loginUrl()
-                        + "?error=true&exception=" + ALREADY_REGISTERED_MEMBER
-        );
     }
 
     private boolean isValidRedirectUrl(String url) {
