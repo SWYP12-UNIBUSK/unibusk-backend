@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/performance-locations")
 @RequiredArgsConstructor
-public class PerformanceLocationController {
+public class PerformanceLocationController implements PerformanceLocationDocsController{
 
     private final PerformanceLocationService performanceLocationService;
 
