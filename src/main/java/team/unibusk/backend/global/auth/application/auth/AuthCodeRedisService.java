@@ -28,13 +28,16 @@ public class AuthCodeRedisService {
 
     public AuthCodePayload consume(String code) {
         String key = "OAUTH:" + code;
-        String value = redisTemplate.opsForValue().get(key);
+        String value = redisTemplate.opsForValue().getAndDelete(key);
 
-        validateNullCheck(value);
-
-        redisTemplate.delete(key);
+        if (value == null) {
+            throw new InvalidAuthCodeException();
+        }
 
         String[] split = value.split(":");
+        if (split.length < 2) {
+            throw new InvalidAuthCodeException();
+        }
 
         return AuthCodePayload.builder()
                 .memberId(Long.valueOf(split[0]))
