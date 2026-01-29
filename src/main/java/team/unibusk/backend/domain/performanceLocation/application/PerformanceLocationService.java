@@ -20,11 +20,6 @@ public class PerformanceLocationService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
 
-    private static final double MIN_LATITUDE = -90.0;
-    private static final double MAX_LATITUDE = 90.0;
-    private static final double MIN_LONGITUDE = -180.0;
-    private static final double MAX_LONGITUDE = 180.0;
-
     @Transactional(readOnly = true)
     public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable) {
 
