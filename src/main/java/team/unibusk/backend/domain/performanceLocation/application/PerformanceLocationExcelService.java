@@ -29,6 +29,8 @@ public class PerformanceLocationExcelService {
     private final PerformanceLocationRepository performanceLocationRepository;
     private final KakaoMapService kakaoMapService;
 
+    private static final DataFormatter FORMATTER = new DataFormatter();
+
     public PerformanceLocationExcelResponse uploadPerformanceLocationExcelData(MultipartFile file) throws IOException {
 
         //엑셀 파일 검증
@@ -40,11 +42,9 @@ public class PerformanceLocationExcelService {
         List<String> failedLogs = new ArrayList<>(); //실패 기록용 로그
         int successCount = 0;                         //성공 개수 기록
 
-        for (int i = 0; i < dtos.size(); i++) {
+        for (ExcelDto dto : dtos) {
 
-            ExcelDto dto = dtos.get(i);
-
-            int currentRowNum = i + 2; //현재 행
+            int actualRowNum = dto.getRowNum();
 
             try{
                 //필수 컬럼내용이 비었는지 확인
@@ -61,11 +61,11 @@ public class PerformanceLocationExcelService {
                 successCount++;
 
             }catch (DataIntegrityViolationException e) {
-                log.error("Row {} 중복 데이터 충돌: {}", currentRowNum, e.getMessage());
-                failedLogs.add(String.format("[Row %d], [장소: %s], [실패 원인: 데이터베이스 제약 조건 위반(중복 데이터)]", currentRowNum, dto.getName()));
+                log.error("Row {} 중복 데이터 충돌: {}", actualRowNum, e.getMessage());
+                failedLogs.add(String.format("[Row %d], [장소: %s], [실패 원인: 데이터베이스 제약 조건 위반(중복 데이터)]", actualRowNum, dto.getName()));
             }catch (Exception e) {
                 String reason = e.getMessage() != null ? e.getMessage() : "알 수 없는 에러";
-                failedLogs.add(String.format("[Row %d], [장소 이름 : %s], [장소: %s],  [실패 원인: %s]", currentRowNum, dto.getName(), dto.getAddress(), reason));
+                failedLogs.add(String.format("[Row %d], [장소 이름 : %s], [장소: %s],  [실패 원인: %s]", actualRowNum, dto.getName(), dto.getAddress(), reason));
             }
         }
         // 결과 리포트 출력
@@ -91,9 +91,12 @@ public class PerformanceLocationExcelService {
             throw new InvalidExcelFormatException();
         }
     }
+
     //데이터 엑셀 파일로부터 추출
     private List<ExcelDto> getExcelDtoFromExcel(MultipartFile file) throws IOException{
         List<ExcelDto> dtos = new ArrayList<>();
+
+        DataFormatter formatter = new DataFormatter();
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -106,16 +109,17 @@ public class PerformanceLocationExcelService {
                 if (row == null || isRowEmpty(row)) continue;
 
                 ExcelDto dto = ExcelDto.builder()
-                        .name(getCellValue(row, 0))
-                        .address(getCellValue(row, 1))
-                        .operatorName(getCellValue(row, 2))
-                        .operatorPhoneNumber(getCellValue(row, 3))
-                        .availableHours(getCellValue(row, 4))
-                        .operatorUrl(getCellValue(row, 5))
-                        .imageUrl(getCellValue(row, 6))
-                        .guide1(getCellValue(row, 7))
-                        .guide2(getCellValue(row, 8))
-                        .guide3(getCellValue(row, 9))
+                        .rowNum(row.getRowNum() + 1)
+                        .name(getCellValue(row, 0, formatter))
+                        .address(getCellValue(row, 1, formatter))
+                        .operatorName(getCellValue(row, 2, formatter))
+                        .operatorPhoneNumber(getCellValue(row, 3, formatter))
+                        .availableHours(getCellValue(row, 4, formatter))
+                        .operatorUrl(getCellValue(row, 5, formatter))
+                        .imageUrl(getCellValue(row, 6, formatter))
+                        .guide1(getCellValue(row, 7, formatter))
+                        .guide2(getCellValue(row, 8, formatter))
+                        .guide3(getCellValue(row, 9, formatter))
                         .build();
 
                 dtos.add(dto);
@@ -125,14 +129,18 @@ public class PerformanceLocationExcelService {
 
     }
     //엑셀에서 cell 값 가져오기
-    private String getCellValue(Row row, int index) {
+    private String getCellValue(Row row, int index, DataFormatter formatter) {
         Cell cell = row.getCell(index);
-        if (cell == null) return "";
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue().trim();
-            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
-            default -> "";
-        };
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            return "";
+        }
+        // String 타입은 기존처럼 trim 처리하여 반환
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue().trim();
+        }
+
+        // NUMERIC, DATE, FORMULA 등은 엑셀에 표시된 포맷 그대로 문자열로 변환
+        return formatter.formatCellValue(cell).trim();
     }
     //DB에 name 이미 존재하는지 확인
     private void validateName(String name){
@@ -203,13 +211,26 @@ public class PerformanceLocationExcelService {
     }
     //행의 모든 셀을 검사하여 실제로 내용이 하나라도 있는지 확인
     private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+
+        // 행의 첫 번째 셀부터 마지막 셀까지 검사
         for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
             Cell cell = row.getCell(c);
-            if (cell != null && cell.getCellType() != CellType.BLANK && !getCellValue(row, c).isEmpty()) {
-                return false; // 하나라도 내용이 있으면 빈 행이 아님
+
+            // 셀이 존재하고, 비어있지 않으며, 데이터가 들어있는 경우
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+
+                // 만약 셀 타입이 문자열이라면 공백만 있는지도 체크
+                if (cell.getCellType() == CellType.STRING) {
+                    if (!cell.getStringCellValue().trim().isEmpty()) {
+                        return false; // 실제 텍스트 내용이 있으면 빈 행 아님
+                    }
+                } else {
+                    return false; // 숫자나 수식 등 다른 타입의 데이터가 있으면 빈 행 아님
+                }
             }
         }
-        return true; // 모든 셀이 비어있으면 빈 행으로 간주
+        return true; // 모든 셀을 검사했으나 데이터가 없으면 빈 행으로 간주
     }
 
 

@@ -28,8 +28,4 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
         return performanceLocationJpaRepository.existsByName(name);
     }
 
-    @Override
-    public boolean existsByAddress(String address){
-        return performanceLocationJpaRepository.existsByAddress(address);
-    }
 }

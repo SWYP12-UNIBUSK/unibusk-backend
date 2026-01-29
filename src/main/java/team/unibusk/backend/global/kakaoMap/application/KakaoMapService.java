@@ -20,8 +20,11 @@ public class KakaoMapService {
     private final Semaphore semaphore = new Semaphore(1);
 
     public Optional<Coordinate> getCoordinateByAddress(String address) {
+        boolean acquired = false; // 세마포어 획득 여부 추적
         try {
             semaphore.acquire();
+            acquired = true; // 획득 성공 시 플래그 설정
+
             Thread.sleep(200);
 
             Map body = kakaoWebClient.get()
@@ -35,10 +38,18 @@ public class KakaoMapService {
 
             return Optional.ofNullable(extractCoordinate(body));
 
+        } catch (InterruptedException e) {
+            // 인터럽트 상태 복구
+            Thread.currentThread().interrupt();
+            return Optional.empty();
         } catch (Exception e) {
+            // 기존의 다른 예외 발생 시 빈 Optional 반환 유지
             return Optional.empty();
         } finally {
-            semaphore.release();
+            // 획득에 성공했을 때만 반납하여 Permit 인플레이션 방지
+            if (acquired) {
+                semaphore.release();
+            }
         }
     }
 

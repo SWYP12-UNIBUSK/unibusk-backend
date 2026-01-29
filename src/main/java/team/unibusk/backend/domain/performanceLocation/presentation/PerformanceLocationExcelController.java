@@ -27,6 +27,6 @@ public class PerformanceLocationExcelController {
         // 서비스 호출
         PerformanceLocationExcelResponse response = performanceLocationExcelService.uploadPerformanceLocationExcelData(file);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(200).body(response);
     }
 }
