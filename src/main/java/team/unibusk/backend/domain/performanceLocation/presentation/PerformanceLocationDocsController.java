@@ -2,12 +2,17 @@ package team.unibusk.backend.domain.performanceLocation.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.global.exception.ExceptionResponse;

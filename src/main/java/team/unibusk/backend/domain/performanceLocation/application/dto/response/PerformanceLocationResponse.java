@@ -1,5 +1,6 @@
 package team.unibusk.backend.domain.performanceLocation.application.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
