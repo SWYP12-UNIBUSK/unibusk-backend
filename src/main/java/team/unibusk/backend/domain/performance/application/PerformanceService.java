@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PerformanceService {
@@ -239,10 +238,12 @@ public class PerformanceService {
         );
 
         List<PerformanceImage> newImages = uploadImages(request.images());
-        log.info("newImages: {}", newImages);
 
         if (!newImages.isEmpty()) {
             List<String> deleteTargetUrls = performance.getImages().stream()
+                    .map(PerformanceImage::getImageUrl)
+                    .toList();
+            List<String> newImageUrls = newImages.stream()
                     .map(PerformanceImage::getImageUrl)
                     .toList();
 
@@ -254,6 +255,13 @@ public class PerformanceService {
                         @Override
                         public void afterCommit() {
                             deleteTargetUrls.forEach(fileUploadService::delete);
+                        }
+
+                        @Override
+                        public void afterCompletion(int status) {
+                            if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                                newImageUrls.forEach(fileUploadService::delete);
+                            }
                         }
                     }
             );
