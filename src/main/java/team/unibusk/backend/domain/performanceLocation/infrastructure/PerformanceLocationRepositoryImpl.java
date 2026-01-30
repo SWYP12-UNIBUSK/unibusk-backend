@@ -54,4 +54,9 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
         return performanceLocationQueryDslRepository.findInMapBounds(north, south, east, west);
     }
 
+    @Override
+    public List<PerformanceLocation> searchByNameOrAddress(String keyword) {
+        return performanceLocationQueryDslRepository.searchByNameOrAddress(keyword);
+    }
+
 }

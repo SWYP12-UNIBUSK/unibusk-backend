@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
 
@@ -40,6 +41,16 @@ public class PerformanceLocationController implements PerformanceLocationDocsCon
     ) {
         PerformanceLocationMapListResponse response =
                 performanceLocationService.findInMapBoundsResponse(north, south, east, west);
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/search/list")
+    public ResponseEntity<PerformanceLocationSearchListResponse> searchList(
+            @RequestParam("keyword") String keyword
+    ) {
+        PerformanceLocationSearchListResponse response =
+                performanceLocationService.searchByNameOrAddress(keyword);
+
         return ResponseEntity.status(200).body(response);
     }
 

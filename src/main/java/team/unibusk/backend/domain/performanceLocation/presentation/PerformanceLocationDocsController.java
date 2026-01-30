@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.global.exception.ExceptionResponse;
 
 @Tag(name = "Performance Location", description = "버스킹 장소 관련 API")
@@ -38,4 +39,27 @@ public interface PerformanceLocationDocsController {
             @Parameter(description = "동쪽 경도", required = true) @RequestParam("east") Double east,
             @Parameter(description = "서쪽 경도", required = true) @RequestParam("west") Double west
     );
+
+    @Operation(
+            summary = "버스킹 장소 검색 (리스트)",
+            description = "공연 장소의 이름(name) 또는 주소(address)에 keyword가 포함된 모든 장소를 리스트로 조회합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = PerformanceLocationSearchListResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 에러",
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+            }
+    )
+    ResponseEntity<PerformanceLocationSearchListResponse> searchList(
+            @Parameter(description = "검색 키워드", required = true) @RequestParam("keyword") String keyword
+    );
+
 }
