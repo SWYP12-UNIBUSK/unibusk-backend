@@ -226,7 +226,7 @@ public class PerformanceService {
         );
 
         performance.clearPerformers();
-        if (request.performers() != null && request.performers().isEmpty()) {
+        if (request.performers() != null && !request.performers().isEmpty()) {
             request.performers().forEach(p ->
                     performance.addPerformer(
                             Performer.builder()
