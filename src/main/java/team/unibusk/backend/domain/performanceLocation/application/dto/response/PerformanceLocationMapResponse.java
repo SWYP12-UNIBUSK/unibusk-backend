@@ -20,16 +20,16 @@ public record PerformanceLocationMapResponse(
         @Schema(description = "주소", example = "서울특별시 마포구 홍익로")
         String address,
 
-        @Schema(description = "운영자 이름", example = "홍길동")
+        @Schema(description = "운영기관", example = "마포구청")
         String operatorName,
 
-        @Schema(description = "운영자 연락처", example = "010-1234-5678")
+        @Schema(description = "운영기관 번호", example = "3111-1111")
         String operatorPhoneNumber,
 
         @Schema(description = "운영 가능 시간", example = "10:00~22:00")
         String availableHours,
 
-        @Schema(description = "운영자 신청 URL", example = "https://busking.example.com")
+        @Schema(description = "운영기관 신청 URL", example = "https://busking.example.com")
         String operatorUrl,
 
         @Schema(description = "위도", example = "37.5563")
