@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationDetailResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.global.exception.ExceptionResponse;
@@ -61,5 +63,29 @@ public interface PerformanceLocationDocsController {
     ResponseEntity<PerformanceLocationSearchListResponse> searchList(
             @Parameter(description = "검색 키워드", required = true) @RequestParam("keyword") String keyword
     );
+
+    @Operation(
+            summary = "버스킹 장소 상세 조회",
+            description = "performanceLocationId를 통해 특정 버스킹 장소의 상세 정보를 조회합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = PerformanceLocationDetailResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "존재하지 않는 장소",
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "서버 에러",
+                            content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+            }
+    )
+    ResponseEntity<PerformanceLocationDetailResponse> getPerformanceLocationDetail(
+            @Parameter(description = "버스킹 장소 ID", required = true)
+            @PathVariable Long performanceLocationId
+    );
+
 
 }
