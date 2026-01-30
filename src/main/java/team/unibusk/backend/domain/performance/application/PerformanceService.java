@@ -1,11 +1,14 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
@@ -16,7 +19,6 @@ import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
-import team.unibusk.backend.domain.performance.presentation.exception.PerformanceUpdateFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
@@ -30,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PerformanceService {
@@ -236,15 +239,24 @@ public class PerformanceService {
         );
 
         List<PerformanceImage> newImages = uploadImages(request.images());
-        try {
-            performance.getImages().forEach(img ->
-                    fileUploadService.delete(img.getImageUrl())
-            );
+        log.info("newImages: {}", newImages);
+
+        if (!newImages.isEmpty()) {
+            List<String> deleteTargetUrls = performance.getImages().stream()
+                    .map(PerformanceImage::getImageUrl)
+                    .toList();
+
             performance.clearImages();
             newImages.forEach(performance::addImage);
-        } catch (Exception e) {
-            newImages.forEach(img -> fileUploadService.delete(img.getImageUrl()));
-            throw new PerformanceUpdateFailedException();
+
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            deleteTargetUrls.forEach(fileUploadService::delete);
+                        }
+                    }
+            );
         }
 
         PerformanceLocation location =
