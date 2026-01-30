@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.domain.performanceLocation.domain.MapBounds;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -41,6 +42,15 @@ public class PerformanceLocationService {
         List<PerformanceLocation> performanceLocations = performanceLocationRepository.findInMapBounds(north, south, east, west);
 
         return PerformanceLocationMapListResponse.from(performanceLocations);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceLocationSearchListResponse searchByNameOrAddress(String keyword) {
+        validateKeyword(keyword);
+
+        List<PerformanceLocation> locations = performanceLocationRepository.searchByNameOrAddress(keyword);
+
+        return PerformanceLocationSearchListResponse.from(locations);
     }
 
     //keyword에 대한 검증. (길이, null 검사)

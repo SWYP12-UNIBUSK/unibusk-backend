@@ -23,4 +23,6 @@ public interface PerformanceLocationRepository {
 
     List<PerformanceLocation> findInMapBounds(Double north, Double south, Double east, Double west);
 
+    List<PerformanceLocation> searchByNameOrAddress(String keyword);
+
 }

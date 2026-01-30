@@ -24,4 +24,17 @@ public class PerformanceLocationQueryDslRepository {
                 .fetch();
     }
 
+    public List<PerformanceLocation> searchByNameOrAddress(String keyword) {
+        QPerformanceLocation location = QPerformanceLocation.performanceLocation;
+
+        return queryFactory
+                .selectFrom(location)
+                .where(
+                        location.name.containsIgnoreCase(keyword)
+                                .or(location.address.containsIgnoreCase(keyword))
+                )
+                .fetch();
+    }
+
+
 }
