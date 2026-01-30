@@ -6,6 +6,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationDetailResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
@@ -51,6 +52,15 @@ public class PerformanceLocationController implements PerformanceLocationDocsCon
         PerformanceLocationSearchListResponse response =
                 performanceLocationService.searchByNameOrAddress(keyword);
 
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/{performanceLocationId}")
+    public ResponseEntity<PerformanceLocationDetailResponse> getPerformanceLocationDetail(
+            @PathVariable Long performanceLocationId
+    ) {
+        PerformanceLocationDetailResponse response =
+                performanceLocationService.getPerformanceLocationDetail(performanceLocationId);
         return ResponseEntity.status(200).body(response);
     }
 
