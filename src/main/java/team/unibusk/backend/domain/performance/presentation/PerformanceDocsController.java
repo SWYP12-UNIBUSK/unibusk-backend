@@ -103,12 +103,16 @@ public interface PerformanceDocsController{
     @Operation(summary = "공연 수정", description = "공연 정보를 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "공연 수정 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "403", description = "공연 수정 권한 없음",
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
     })
-    @PatchMapping("/{performanceId}")
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "request", contentType = MediaType.APPLICATION_JSON_VALUE)))
+    @PatchMapping(value = "/{performanceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<PerformanceDetailResponse> updatePerformance(
             @PathVariable Long performanceId,
             @RequestPart("request") @Valid PerformanceUpdateRequest request,
@@ -119,6 +123,8 @@ public interface PerformanceDocsController{
     @Operation(summary = "공연 삭제", description = "공연을 삭제합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "공연 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "403", description = "공연 삭제 권한 없음",
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음",
