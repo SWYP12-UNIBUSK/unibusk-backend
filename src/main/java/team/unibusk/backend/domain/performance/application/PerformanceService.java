@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
@@ -15,6 +16,7 @@ import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceUpdateFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
@@ -195,35 +197,59 @@ public class PerformanceService {
 
     @Transactional(readOnly = true)
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-
         Performance performance = performanceRepository.findDetailById(performanceId)
                 .orElseThrow(PerformanceNotFoundException::new);
 
         PerformanceLocation location =
                 performanceLocationRepository.findById(performance.getPerformanceLocationId());
 
-        return PerformanceDetailResponse.builder()
-                .performanceId(performance.getId())
-                .title(performance.getTitle())
-                .performanceDate(performance.getPerformanceDate())
-                .startTime(performance.getStartTime())
-                .endTime(performance.getEndTime())
-                .locationName(location.getName())
-                .address(location.getAddress())
-                .latitude(location.getLatitude())
-                .longitude(location.getLongitude())
-                .summary(performance.getSummary())
-                .description(performance.getDescription())
-                .images(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
+        return PerformanceDetailResponse.from(performance, location);
+    }
+
+    @Transactional
+    public PerformanceDetailResponse updatePerformance(PerformanceUpdateServiceRequest request) {
+        Performance performance = performanceRepository.findDetailById(request.performanceId())
+                .orElseThrow(PerformanceNotFoundException::new);
+
+        performance.validateOwner(request.memberId());
+
+        performance.updateBasicInfo(
+                request.title(),
+                request.performanceDate(),
+                request.startTime(),
+                request.endTime(),
+                request.summary(),
+                request.description(),
+                request.performanceLocationId()
+        );
+
+        performance.clearPerformers();
+        request.performers().forEach(p ->
+                performance.addPerformer(
+                        Performer.builder()
+                                .name(p.name())
+                                .email(p.email())
+                                .phoneNumber(p.phoneNumber())
+                                .instagram(p.instagram())
+                                .build()
                 )
-                .performers(
-                        performance.getPerformers().stream()
-                                .map(PerformerResponse::from)
-                                .toList()
-                )
-                .build();
+        );
+
+        List<PerformanceImage> newImages = uploadImages(request.images());
+        try {
+            performance.getImages().forEach(img ->
+                    fileUploadService.delete(img.getImageUrl())
+            );
+            performance.clearImages();
+            newImages.forEach(performance::addImage);
+        } catch (Exception e) {
+            newImages.forEach(img -> fileUploadService.delete(img.getImageUrl()));
+            throw new PerformanceUpdateFailedException();
+        }
+
+        PerformanceLocation location =
+                performanceLocationRepository.findById(performance.getPerformanceLocationId());
+
+        return PerformanceDetailResponse.from(performance, location);
     }
 }
