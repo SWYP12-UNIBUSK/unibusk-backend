@@ -42,4 +42,14 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
         return performanceJpaRepository.findDetailById(performanceId);
     }
 
+    @Override
+    public Optional<Performance> findById(Long id) {
+        return performanceJpaRepository.findById(id);
+    }
+
+    @Override
+    public void delete(Performance performance) {
+        performanceJpaRepository.delete(performance);
+    }
+
 }

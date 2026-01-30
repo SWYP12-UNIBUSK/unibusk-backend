@@ -252,4 +252,18 @@ public class PerformanceService {
 
         return PerformanceDetailResponse.from(performance, location);
     }
+
+    @Transactional
+    public void deletePerformance(Long performanceId, Long memberId) {
+        Performance performance = performanceRepository.findById(performanceId)
+                .orElseThrow(PerformanceNotFoundException::new);
+
+        performance.validateOwner(memberId);
+
+        performance.getImages().forEach(img ->
+                fileUploadService.delete(img.getImageUrl())
+        );
+
+        performanceRepository.delete(performance);
+    }
 }

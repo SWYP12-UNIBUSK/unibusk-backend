@@ -92,4 +92,14 @@ public class PerformanceController implements PerformanceDocsController{
 
         return ResponseEntity.status(200).body(response);
     }
+
+    @DeleteMapping("/{performanceId}")
+    public ResponseEntity<Void> deletePerformance(
+            @PathVariable Long performanceId,
+            @MemberId Long memberId
+    ) {
+        performanceService.deletePerformance(performanceId, memberId);
+
+        return ResponseEntity.status(204).build();
+    }
 }

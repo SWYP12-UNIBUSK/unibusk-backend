@@ -14,7 +14,7 @@ public enum PerformanceExceptionCode implements ExceptionCode {
     PERFORMANCE_NOT_FOUND(NOT_FOUND, "공연이 존재하지 않습니다."),
     PERFORMANCE_LOCATION_NOT_FOUND(NOT_FOUND, "공연 장소가 존재하지 않습니다."),
     PERFORMANCE_UPDATE_FAILED(INTERNAL_SERVER_ERROR, "공연 정보를 수정하는 중 오류가 발생했습니다."),
-    PERFORMANCE_ACCESS_DENIED(FORBIDDEN, "공연 수정 권한이 없습니다."),
+    PERFORMANCE_ACCESS_DENIED(FORBIDDEN, "공연 수정/삭제 권한이 없습니다."),
     ;
 
     private final HttpStatus status;
