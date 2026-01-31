@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.util.ArrayList;
@@ -52,17 +51,13 @@ public class PerformanceLocation extends BaseTimeEntity {
     @JoinColumn(name = "performance_location_id") // 자식 테이블에 FK 생성
     private List<PerformanceLocationImage> images = new ArrayList<>();
 
-    // 애그리거트 루트를 통해서만 자식의 생명주기가 관리됨
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "performance_location_id") // 자식 테이블에 FK 생성
-    private List<ApplicationGuide> applicationGuides = new ArrayList<>();
-
     @Builder
-    private PerformanceLocation(String name, String address, String operatorName, String operatorPhoneNumber,
-                                String availableHours, String operatorUrl,
-                                Double latitude, Double longitude,
-                                List<PerformanceLocationImage> images,
-                                List<ApplicationGuide> applicationGuides) {
+    private PerformanceLocation(
+            String name, String address, String operatorName, String operatorPhoneNumber,
+            String availableHours, String operatorUrl,
+            Double latitude, Double longitude,
+            List<PerformanceLocationImage> images
+    ) {
         this.name = name;
         this.address = address;
         this.operatorName = operatorName;
@@ -73,7 +68,6 @@ public class PerformanceLocation extends BaseTimeEntity {
         this.longitude = longitude;
 
         if (images != null) this.images.addAll(images);
-        if (applicationGuides != null) this.applicationGuides.addAll(applicationGuides);
     }
 
 }
