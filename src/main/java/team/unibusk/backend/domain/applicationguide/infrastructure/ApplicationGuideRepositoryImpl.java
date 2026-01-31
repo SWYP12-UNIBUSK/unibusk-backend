@@ -18,4 +18,9 @@ public class ApplicationGuideRepositoryImpl implements ApplicationGuideRepositor
         applicationGuideJpaRepository.saveAll(applicationGuides);
     }
 
+    @Override
+    public List<ApplicationGuide> findAllByPerformanceLocationId(Long performanceLocationId) {
+        return applicationGuideJpaRepository.findAllByPerformanceLocationIdOrderById(performanceLocationId);
+    }
+
 }

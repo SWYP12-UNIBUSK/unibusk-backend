@@ -6,4 +6,6 @@ public interface ApplicationGuideRepository {
 
     void saveAll(List<ApplicationGuide> applicationGuides);
 
+    List<ApplicationGuide> findAllByPerformanceLocationId(Long performanceLocationId);
+
 }
