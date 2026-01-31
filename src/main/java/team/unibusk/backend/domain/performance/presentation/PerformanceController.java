@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
+import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.response.PageResponse;
 
@@ -78,5 +79,27 @@ public class PerformanceController implements PerformanceDocsController{
         PerformanceDetailResponse response = performanceService.getPerformanceDetail(performanceId);
 
         return ResponseEntity.status(200).body(response);
+    }
+
+    @PatchMapping(value = "/{performanceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PerformanceDetailResponse> updatePerformance(
+            @PathVariable Long performanceId,
+            @RequestPart("request") @Valid PerformanceUpdateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @MemberId Long memberId
+            ) {
+        PerformanceDetailResponse response = performanceService.updatePerformance(request.toServiceRequest(performanceId, memberId, images));
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @DeleteMapping("/{performanceId}")
+    public ResponseEntity<Void> deletePerformance(
+            @PathVariable Long performanceId,
+            @MemberId Long memberId
+    ) {
+        performanceService.deletePerformance(performanceId, memberId);
+
+        return ResponseEntity.status(204).build();
     }
 }
