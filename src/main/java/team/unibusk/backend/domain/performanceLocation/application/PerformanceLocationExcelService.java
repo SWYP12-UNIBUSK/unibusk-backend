@@ -7,9 +7,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuideRepository;
 import team.unibusk.backend.domain.performanceLocation.application.dto.ExcelDto;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationExcelResponse;
-import team.unibusk.backend.domain.performanceLocation.domain.ApplicationGuide;
+import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -27,6 +28,7 @@ import java.util.*;
 public class PerformanceLocationExcelService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
+    private final ApplicationGuideRepository applicationGuideRepository;
     private final KakaoMapService kakaoMapService;
 
     private static final DataFormatter FORMATTER = new DataFormatter();
@@ -172,14 +174,6 @@ public class PerformanceLocationExcelService {
             images.add(PerformanceLocationImage.builder().imageUrl(dto.getImageUrl()).build());
         }
 
-        List<ApplicationGuide> guides = new ArrayList<>();
-        String[] contents = {dto.getGuide1(), dto.getGuide2(), dto.getGuide3()};
-        for (String content : contents) {
-            if (content != null && !content.isEmpty()) {
-                guides.add(ApplicationGuide.builder().content(content).build());
-            }
-        }
-
         // 엔티티 생성 및 저장
         PerformanceLocation location = PerformanceLocation.builder()
                 .name(dto.getName())
@@ -191,10 +185,18 @@ public class PerformanceLocationExcelService {
                 .latitude(coordinate.latitude())
                 .longitude(coordinate.longitude())
                 .images(images)
-                .applicationGuides(guides)
                 .build();
 
         performanceLocationRepository.save(location);
+
+        String[] contents = {dto.getGuide1(), dto.getGuide2(), dto.getGuide3()};
+
+        List<ApplicationGuide> guides = Arrays.stream(contents)
+                .filter(content -> content != null && !content.isBlank())
+                .map(content -> ApplicationGuide.create(content, location))
+                .toList();
+
+        applicationGuideRepository.saveAll(guides);
     }
     //결과 출력
     private void printFinalReport(int successCount, List<String> failedLogs) {
