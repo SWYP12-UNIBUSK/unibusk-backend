@@ -1,12 +1,11 @@
 package team.unibusk.backend.domain.performanceLocation.domain;
 
-
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.util.ArrayList;
@@ -73,8 +72,8 @@ public class PerformanceLocation extends BaseTimeEntity {
         this.latitude = latitude;
         this.longitude = longitude;
 
-        if(images != null) this.images.addAll(images);
-        if(applicationGuides != null) this.applicationGuides.addAll(applicationGuides);
+        if (images != null) this.images.addAll(images);
+        if (applicationGuides != null) this.applicationGuides.addAll(applicationGuides);
     }
 
 }
