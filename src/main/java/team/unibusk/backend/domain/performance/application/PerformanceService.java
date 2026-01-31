@@ -231,18 +231,16 @@ public class PerformanceService {
         );
 
         performance.clearPerformers();
-        if (request.performers() != null && !request.performers().isEmpty()) {
-            request.performers().forEach(p ->
-                    performance.addPerformer(
-                            Performer.builder()
-                                    .name(p.name())
-                                    .email(p.email())
-                                    .phoneNumber(p.phoneNumber())
-                                    .instagram(p.instagram())
-                                    .build()
-                    )
-            );
-        }
+        request.performers().forEach(p ->
+                performance.addPerformer(
+                        Performer.builder()
+                                .name(p.name())
+                                .email(p.email())
+                                .phoneNumber(p.phoneNumber())
+                                .instagram(p.instagram())
+                                .build()
+                )
+        );
 
         List<PerformanceImage> newImages = uploadImages(request.images());
 
