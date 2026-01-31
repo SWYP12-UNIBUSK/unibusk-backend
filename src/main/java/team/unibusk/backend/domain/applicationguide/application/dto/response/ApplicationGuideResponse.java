@@ -9,7 +9,7 @@ import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
 public record ApplicationGuideResponse(
 
         @Schema(description = "신청 가이드 ID", example = "1")
-        Long applicationGuidId,
+        Long applicationGuideId,
 
         @Schema(description = "버스킹 장소 ID", example = "10")
         Long performanceLocationId,
@@ -21,7 +21,7 @@ public record ApplicationGuideResponse(
 
     public static ApplicationGuideResponse from(ApplicationGuide applicationGuide) {
         return ApplicationGuideResponse.builder()
-                .applicationGuidId(applicationGuide.getId())
+                .applicationGuideId(applicationGuide.getId())
                 .performanceLocationId(applicationGuide.getPerformanceLocation().getId())
                 .content(applicationGuide.getContent())
                 .build();
