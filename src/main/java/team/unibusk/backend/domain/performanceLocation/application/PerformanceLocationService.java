@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationDetailResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
@@ -51,6 +52,13 @@ public class PerformanceLocationService {
         List<PerformanceLocation> locations = performanceLocationRepository.searchByNameOrAddress(keyword);
 
         return PerformanceLocationSearchListResponse.from(locations);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceLocationDetailResponse getPerformanceLocationDetail(Long performanceLocationId) {
+        PerformanceLocation performanceLocation = performanceLocationRepository.findById(performanceLocationId);
+
+        return PerformanceLocationDetailResponse.from(performanceLocation);
     }
 
     //keyword에 대한 검증. (길이, null 검사)
