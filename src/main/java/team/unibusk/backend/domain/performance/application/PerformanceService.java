@@ -199,8 +199,7 @@ public class PerformanceService {
 
     @Transactional(readOnly = true)
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-        Performance performance = performanceRepository.findDetailById(performanceId)
-                .orElseThrow(PerformanceNotFoundException::new);
+        Performance performance = performanceRepository.findDetailById(performanceId);
 
         PerformanceLocation location =
                 performanceLocationRepository.findById(performance.getPerformanceLocationId());
@@ -210,8 +209,7 @@ public class PerformanceService {
 
     @Transactional
     public PerformanceDetailResponse updatePerformance(PerformanceUpdateServiceRequest request) {
-        Performance performance = performanceRepository.findDetailById(request.performanceId())
-                .orElseThrow(PerformanceNotFoundException::new);
+        Performance performance = performanceRepository.findDetailById(request.performanceId());
 
         performance.validateOwner(request.memberId());
 
@@ -277,8 +275,7 @@ public class PerformanceService {
 
     @Transactional
     public void deletePerformance(Long performanceId, Long memberId) {
-        Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(PerformanceNotFoundException::new);
+        Performance performance = performanceRepository.findById(performanceId);
 
         performance.validateOwner(memberId);
 

@@ -6,10 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,13 +38,15 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     }
 
     @Override
-    public Optional<Performance> findDetailById(Long performanceId) {
-        return performanceJpaRepository.findDetailById(performanceId);
+    public Performance findDetailById(Long performanceId) {
+        return performanceJpaRepository.findDetailById(performanceId)
+                .orElseThrow(PerformanceNotFoundException::new);
     }
 
     @Override
-    public Optional<Performance> findById(Long id) {
-        return performanceJpaRepository.findById(id);
+    public Performance findById(Long id) {
+        return performanceJpaRepository.findById(id)
+                .orElseThrow(PerformanceNotFoundException::new);
     }
 
     @Override

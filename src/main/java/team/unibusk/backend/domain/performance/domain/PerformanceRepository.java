@@ -18,9 +18,9 @@ public interface PerformanceRepository {
 
     List<Performance> findUpcomingPreview(LocalDateTime now, Pageable pageable);
 
-    Optional<Performance> findDetailById(Long performanceId);
+    Performance findDetailById(Long performanceId);
 
-    Optional<Performance> findById(Long id);
+    Performance findById(Long id);
 
     void delete(Performance performance);
 
