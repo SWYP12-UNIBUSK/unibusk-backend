@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceAccessDeniedException;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -75,6 +76,46 @@ public class Performance extends BaseTimeEntity {
 
         if (images != null) this.images.addAll(images);
         if (performers != null) this.performers.addAll(performers);
+    }
+
+    public void updateBasicInfo(
+            String title,
+            LocalDate performanceDate,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            String summary,
+            String description,
+            Long performanceLocationId
+    ) {
+        this.title = title;
+        this.performanceDate = performanceDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.summary = summary;
+        this.description = description;
+        this.performanceLocationId = performanceLocationId;
+    }
+
+    public void addPerformer(Performer performer) {
+        this.performers.add(performer);
+    }
+
+    public void addImage(PerformanceImage image) {
+        this.images.add(image);
+    }
+
+    public void clearPerformers() {
+        this.performers.clear();
+    }
+
+    public void clearImages() {
+        this.images.clear();
+    }
+
+    public void validateOwner(Long memberId) {
+        if (!Objects.equals(this.memberId, memberId)) {
+            throw new PerformanceAccessDeniedException();
+        }
     }
 
 }

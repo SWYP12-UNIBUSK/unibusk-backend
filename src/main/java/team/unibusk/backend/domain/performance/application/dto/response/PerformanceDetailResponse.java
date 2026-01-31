@@ -2,6 +2,9 @@ package team.unibusk.backend.domain.performance.application.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import team.unibusk.backend.domain.performance.domain.Performance;
+import team.unibusk.backend.domain.performance.domain.PerformanceImage;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,4 +56,34 @@ public record PerformanceDetailResponse (
         Double longitude
 
 ){
+        public static PerformanceDetailResponse from(
+                Performance performance,
+                PerformanceLocation location
+        ) {
+                return PerformanceDetailResponse.builder()
+                        .performanceId(performance.getId())
+                        .title(performance.getTitle())
+                        .performanceDate(performance.getPerformanceDate())
+                        .startTime(performance.getStartTime())
+                        .endTime(performance.getEndTime())
+                        .summary(performance.getSummary())
+                        .description(performance.getDescription())
+                        .locationName(location.getName())
+                        .address(location.getAddress())
+                        .latitude(location.getLatitude())
+                        .longitude(location.getLongitude())
+                        .summary(performance.getSummary())
+                        .description(performance.getDescription())
+                        .images(
+                                performance.getImages().stream()
+                                        .map(PerformanceImage::getImageUrl)
+                                        .toList()
+                        )
+                        .performers(
+                                performance.getPerformers().stream()
+                                        .map(PerformerResponse::from)
+                                        .toList()
+                        )
+                        .build();
+        }
 }

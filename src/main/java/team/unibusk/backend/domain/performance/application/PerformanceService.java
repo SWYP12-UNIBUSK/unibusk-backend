@@ -1,13 +1,20 @@
 package team.unibusk.backend.domain.performance.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
+import team.unibusk.backend.domain.member.domain.Member;
+import team.unibusk.backend.domain.member.domain.MemberRepository;
+import team.unibusk.backend.domain.member.infrastructure.MemberJpaRepository;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
+import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
@@ -16,6 +23,7 @@ import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
+import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.global.response.PageResponse;
@@ -32,8 +40,9 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class PerformanceService {
 
-    private final PerformanceRepository performanceRepository;
+    private final MemberRepository memberRepository;
     private final FileUploadService fileUploadService;
+    private final PerformanceRepository performanceRepository;
     private final PerformanceLocationRepository performanceLocationRepository;
 
     private static final String PERFORMANCE_FOLDER = "performances";
@@ -195,35 +204,92 @@ public class PerformanceService {
 
     @Transactional(readOnly = true)
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-
-        Performance performance = performanceRepository.findDetailById(performanceId)
-                .orElseThrow(PerformanceNotFoundException::new);
+        Performance performance = performanceRepository.findDetailById(performanceId);
 
         PerformanceLocation location =
                 performanceLocationRepository.findById(performance.getPerformanceLocationId());
 
-        return PerformanceDetailResponse.builder()
-                .performanceId(performance.getId())
-                .title(performance.getTitle())
-                .performanceDate(performance.getPerformanceDate())
-                .startTime(performance.getStartTime())
-                .endTime(performance.getEndTime())
-                .locationName(location.getName())
-                .address(location.getAddress())
-                .latitude(location.getLatitude())
-                .longitude(location.getLongitude())
-                .summary(performance.getSummary())
-                .description(performance.getDescription())
-                .images(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
+        return PerformanceDetailResponse.from(performance, location);
+    }
+
+    @Transactional
+    public PerformanceDetailResponse updatePerformance(PerformanceUpdateServiceRequest request) {
+        Performance performance = performanceRepository.findDetailById(request.performanceId());
+
+        Member member = memberRepository.findByMemberId(request.memberId());
+
+        performance.validateOwner(member.getId());
+
+        performance.updateBasicInfo(
+                request.title(),
+                request.performanceDate(),
+                request.startTime(),
+                request.endTime(),
+                request.summary(),
+                request.description(),
+                request.performanceLocationId()
+        );
+
+        performance.clearPerformers();
+        request.performers().forEach(p ->
+                performance.addPerformer(
+                        Performer.builder()
+                                .name(p.name())
+                                .email(p.email())
+                                .phoneNumber(p.phoneNumber())
+                                .instagram(p.instagram())
+                                .build()
                 )
-                .performers(
-                        performance.getPerformers().stream()
-                                .map(PerformerResponse::from)
-                                .toList()
-                )
-                .build();
+        );
+
+        List<PerformanceImage> newImages = uploadImages(request.images());
+
+        if (!newImages.isEmpty()) {
+            List<String> deleteTargetUrls = performance.getImages().stream()
+                    .map(PerformanceImage::getImageUrl)
+                    .toList();
+            List<String> newImageUrls = newImages.stream()
+                    .map(PerformanceImage::getImageUrl)
+                    .toList();
+
+            performance.clearImages();
+            newImages.forEach(performance::addImage);
+
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            deleteTargetUrls.forEach(fileUploadService::delete);
+                        }
+
+                        @Override
+                        public void afterCompletion(int status) {
+                            if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                                newImageUrls.forEach(fileUploadService::delete);
+                            }
+                        }
+                    }
+            );
+        }
+
+        PerformanceLocation location =
+                performanceLocationRepository.findById(performance.getPerformanceLocationId());
+
+        return PerformanceDetailResponse.from(performance, location);
+    }
+
+    @Transactional
+    public void deletePerformance(Long performanceId, Long memberId) {
+        Performance performance = performanceRepository.findById(performanceId);
+
+        Member member = memberRepository.findByMemberId(memberId);
+
+        performance.validateOwner(member.getId());
+
+        performance.getImages().forEach(img ->
+                fileUploadService.delete(img.getImageUrl())
+        );
+
+        performanceRepository.delete(performance);
     }
 }
