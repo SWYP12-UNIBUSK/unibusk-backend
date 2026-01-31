@@ -6,9 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
+import team.unibusk.backend.domain.performanceLocation.domain.MapBounds;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
+import team.unibusk.backend.domain.performanceLocation.presentation.exception.*;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +22,7 @@ public class PerformanceLocationService {
     private final PerformanceLocationRepository performanceLocationRepository;
 
     @Transactional(readOnly = true)
-    public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable){
+    public PerformanceLocationListResponse findByKeyword(String keyword, Pageable pageable) {
 
         //keyword에 대한 검증
         validateKeyword(keyword);
@@ -25,8 +30,31 @@ public class PerformanceLocationService {
         return PerformanceLocationListResponse.from(performanceLocationRepository.searchByKeyword(keyword, pageable));
     }
 
+    @Transactional(readOnly = true)
+    public PerformanceLocationMapListResponse findInMapBoundsResponse(
+            Double north,
+            Double south,
+            Double east,
+            Double west
+    ) {
+        MapBounds bounds = new MapBounds(north, south, east, west);
+
+        List<PerformanceLocation> performanceLocations = performanceLocationRepository.findInMapBounds(north, south, east, west);
+
+        return PerformanceLocationMapListResponse.from(performanceLocations);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceLocationSearchListResponse searchByNameOrAddress(String keyword) {
+        validateKeyword(keyword);
+
+        List<PerformanceLocation> locations = performanceLocationRepository.searchByNameOrAddress(keyword);
+
+        return PerformanceLocationSearchListResponse.from(locations);
+    }
+
     //keyword에 대한 검증. (길이, null 검사)
-    private void validateKeyword(String keyword){
+    private void validateKeyword(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new EmptyKeywordException();
         }
@@ -34,7 +62,5 @@ public class PerformanceLocationService {
             throw new InvalidKeywordLengthException();
         }
     }
-
-
 
 }

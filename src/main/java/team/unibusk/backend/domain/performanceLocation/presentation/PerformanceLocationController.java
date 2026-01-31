@@ -7,13 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
+import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
 import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/performance-locations")
 @RequiredArgsConstructor
-public class PerformanceLocationController {
+public class PerformanceLocationController implements PerformanceLocationDocsController{
 
     private final PerformanceLocationService performanceLocationService;
 
@@ -24,6 +28,28 @@ public class PerformanceLocationController {
             @PageableDefault(page=0, size=4) Pageable pageable
     ) {
         PerformanceLocationListResponse response = performanceLocationService.findByKeyword(keyword, pageable);
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/map")
+    public ResponseEntity<PerformanceLocationMapListResponse> getLocationsInMap(
+            @RequestParam(value = "north") Double north,
+            @RequestParam(value = "south") Double south,
+            @RequestParam(value = "east") Double east,
+            @RequestParam(value = "west") Double west
+    ) {
+        PerformanceLocationMapListResponse response =
+                performanceLocationService.findInMapBoundsResponse(north, south, east, west);
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/search/list")
+    public ResponseEntity<PerformanceLocationSearchListResponse> searchList(
+            @RequestParam("keyword") String keyword
+    ) {
+        PerformanceLocationSearchListResponse response =
+                performanceLocationService.searchByNameOrAddress(keyword);
 
         return ResponseEntity.status(200).body(response);
     }

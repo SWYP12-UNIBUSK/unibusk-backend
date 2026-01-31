@@ -25,5 +25,4 @@ public record PerformanceLocationListResponse(
                 .hasNext(page.hasNext())
                 .build();
     }
-
 }
