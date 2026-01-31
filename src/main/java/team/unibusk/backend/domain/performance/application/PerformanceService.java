@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
+import team.unibusk.backend.domain.member.domain.Member;
+import team.unibusk.backend.domain.member.domain.MemberRepository;
+import team.unibusk.backend.domain.member.infrastructure.MemberJpaRepository;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
@@ -20,6 +23,7 @@ import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
+import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.global.response.PageResponse;
@@ -36,8 +40,9 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class PerformanceService {
 
-    private final PerformanceRepository performanceRepository;
+    private final MemberRepository memberRepository;
     private final FileUploadService fileUploadService;
+    private final PerformanceRepository performanceRepository;
     private final PerformanceLocationRepository performanceLocationRepository;
 
     private static final String PERFORMANCE_FOLDER = "performances";
@@ -211,7 +216,9 @@ public class PerformanceService {
     public PerformanceDetailResponse updatePerformance(PerformanceUpdateServiceRequest request) {
         Performance performance = performanceRepository.findDetailById(request.performanceId());
 
-        performance.validateOwner(request.memberId());
+        Member member = memberRepository.findByMemberId(request.memberId());
+
+        performance.validateOwner(member.getId());
 
         performance.updateBasicInfo(
                 request.title(),
@@ -277,7 +284,9 @@ public class PerformanceService {
     public void deletePerformance(Long performanceId, Long memberId) {
         Performance performance = performanceRepository.findById(performanceId);
 
-        performance.validateOwner(memberId);
+        Member member = memberRepository.findByMemberId(memberId);
+
+        performance.validateOwner(member.getId());
 
         performance.getImages().forEach(img ->
                 fileUploadService.delete(img.getImageUrl())
