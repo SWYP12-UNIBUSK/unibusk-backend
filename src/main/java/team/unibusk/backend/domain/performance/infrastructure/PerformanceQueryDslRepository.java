@@ -13,10 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
-import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
-import team.unibusk.backend.domain.performance.domain.QPerformance;
-import team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation;
 
 import static team.unibusk.backend.domain.performance.domain.QPerformance.performance;
 import static team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation.performanceLocation;

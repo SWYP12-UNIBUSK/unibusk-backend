@@ -1,22 +1,13 @@
 package team.unibusk.backend.domain.performance.infrastructure;
 
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
-import team.unibusk.backend.domain.performance.domain.QPerformance;
-import team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 
 import java.time.LocalDateTime;
