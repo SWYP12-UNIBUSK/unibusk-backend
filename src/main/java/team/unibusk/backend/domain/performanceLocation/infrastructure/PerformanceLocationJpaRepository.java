@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PerformanceLocationJpaRepository extends JpaRepository<PerformanceLocation, Long> {
@@ -19,9 +20,8 @@ public interface PerformanceLocationJpaRepository extends JpaRepository<Performa
     Page<PerformanceLocation> searchByNameOrAddress(@Param("keyword") String keyword, Pageable pageable);
 
     // 이름과 주소가 모두 일치하는 데이터가 있는지 확인
-    boolean existsByName(String name);
+    Optional<PerformanceLocation> findByName(String name);
 
-    boolean existsByAddress(String address);
 
     List<PerformanceLocation> findByIdIn(Set<Long> ids);
 

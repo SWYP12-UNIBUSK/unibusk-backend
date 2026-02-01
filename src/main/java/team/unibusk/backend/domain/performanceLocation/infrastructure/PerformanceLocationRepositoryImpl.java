@@ -9,6 +9,7 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -29,8 +30,8 @@ public class PerformanceLocationRepositoryImpl implements PerformanceLocationRep
     }
 
     @Override
-    public boolean existsByName(String name) {
-        return performanceLocationJpaRepository.existsByName(name);
+    public Optional<PerformanceLocation> findByName(String name) {
+        return performanceLocationJpaRepository.findByName(name);
     }
 
     @Override
