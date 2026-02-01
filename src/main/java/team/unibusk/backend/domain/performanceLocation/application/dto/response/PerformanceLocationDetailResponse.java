@@ -29,6 +29,9 @@ public record PerformanceLocationDetailResponse(
         @Schema(description = "운영 가능 시간", example = "10:00~22:00")
         String availableHours,
 
+        @Schema(description = "신청 사이트 주소", example = "https://example.com")
+        String operatorUrl,
+
         @Schema(description = "위도", example = "37.5563")
         Double latitude,
 
@@ -50,6 +53,7 @@ public record PerformanceLocationDetailResponse(
                 .operatorName(performanceLocation.getOperatorName())
                 .operatorPhoneNumber(performanceLocation.getOperatorPhoneNumber())
                 .availableHours(performanceLocation.getAvailableHours())
+                .operatorUrl(performanceLocation.getOperatorUrl())
                 .latitude(performanceLocation.getLatitude())
                 .longitude(performanceLocation.getLongitude())
                 .imageUrls(
