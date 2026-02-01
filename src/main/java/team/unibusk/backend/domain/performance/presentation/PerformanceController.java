@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
+import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
@@ -101,5 +102,43 @@ public class PerformanceController implements PerformanceDocsController{
         performanceService.deletePerformance(performanceId, memberId);
 
         return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/upcoming/search")
+    public ResponseEntity<PageResponse<PerformanceResponse>> searchUpcomingPerformances(
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.ASC
+            )
+            Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+                PerformanceStatus.UPCOMING,
+                keyword,
+                pageable
+        );
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/past/search")
+    public ResponseEntity<PageResponse<PerformanceResponse>> searchPastPerformances(
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+                PerformanceStatus.PAST,
+                keyword,
+                pageable
+        );
+
+        return ResponseEntity.status(200).body(response);
     }
 }

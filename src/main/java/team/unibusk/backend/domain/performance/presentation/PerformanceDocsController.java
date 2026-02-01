@@ -135,4 +135,36 @@ public interface PerformanceDocsController{
             @PathVariable Long performanceId,
             @MemberId Long memberId
     );
+
+    @Operation(summary = "다가오는 공연 검색", description = "다가오는 공연을 키워드로 검색합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "공연 검색 성공 (결과가 없으면 빈 리스트 반환)"),
+    })
+    @GetMapping("/upcoming/search")
+    ResponseEntity<PageResponse<PerformanceResponse>> searchUpcomingPerformances(
+            @Parameter(description = "검색할 키워드 (예: '홍대', '신촌')")
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.ASC
+            )
+            Pageable pageable
+    );
+
+    @Operation(summary = "지난 공연 검색", description = "지난 공연을 키워드로 검색합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "공연 검색 성공 (결과가 없으면 빈 리스트 반환)"),
+    })
+    @GetMapping("/past/search")
+    ResponseEntity<PageResponse<PerformanceResponse>> searchPastPerformances(
+            @Parameter(description = "검색할 키워드 (예: '홍대', '신촌')")
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    );
 }
