@@ -2,6 +2,7 @@ package team.unibusk.backend.domain.performance.domain;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
@@ -23,5 +24,11 @@ public interface PerformanceRepository {
     Performance findById(Long id);
 
     void delete(Performance performance);
+
+    Page<PerformanceResponse> searchByCondition(
+            PerformanceStatus status,
+            String keyword,
+            Pageable pageable
+    );
 
 }

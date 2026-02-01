@@ -16,10 +16,7 @@ import team.unibusk.backend.domain.member.infrastructure.MemberJpaRepository;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceRegisterServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
-import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceImage;
-import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
-import team.unibusk.backend.domain.performance.domain.Performer;
+import team.unibusk.backend.domain.performance.domain.*;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -294,4 +291,17 @@ public class PerformanceService {
 
         performanceRepository.delete(performance);
     }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PerformanceResponse> searchPerformances(
+            PerformanceStatus status,
+            String keyword,
+            Pageable pageable
+    ) {
+
+        Page<PerformanceResponse> page = performanceRepository.searchByCondition(status, keyword, pageable);
+
+        return PageResponse.from(page);
+    }
 }
+
