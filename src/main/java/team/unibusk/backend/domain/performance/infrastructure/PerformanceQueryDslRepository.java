@@ -13,7 +13,9 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
+import team.unibusk.backend.domain.performance.domain.QPerformance;
 
 import static team.unibusk.backend.domain.performance.domain.QPerformance.performance;
 import static team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation.performanceLocation;
@@ -55,6 +57,51 @@ public class PerformanceQueryDslRepository {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
+    public List<Performance> findUpcomingByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+        QPerformance p = QPerformance.performance;
+
+        return queryFactory
+                .selectFrom(p)
+                .where(
+                        upcomingAtPerformanceLocation(p, performanceLocationId),
+                        cursorCondition(p, cursorTime, cursorId)
+                )
+                .orderBy(
+                        p.startTime.asc(),
+                        p.id.asc()
+                )
+                .limit(size + 1)
+                .fetch();
+    }
+
+    private BooleanExpression upcomingAtPerformanceLocation(
+            QPerformance p,
+            Long performanceLocationId
+    ) {
+        return p.performanceLocationId.eq(performanceLocationId)
+                .and(p.startTime.goe(LocalDateTime.now()));
+    }
+
+    private BooleanExpression cursorCondition(
+            QPerformance p,
+            LocalDateTime cursorTime,
+            Long cursorId
+    ) {
+        if (cursorTime == null || cursorId == null) {
+            return null;
+        }
+
+        return p.startTime.gt(cursorTime)
+                .or(
+                        p.startTime.eq(cursorTime)
+                                .and(p.id.gt(cursorId))
+                );
+    }
 
     private BooleanExpression filterByStatus(PerformanceStatus status) {
         if (status == null) {
@@ -94,4 +141,5 @@ public class PerformanceQueryDslRepository {
                 ? performance.startTime.asc()
                 : performance.startTime.desc();
     }
+
 }

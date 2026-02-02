@@ -15,8 +15,10 @@ import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
+import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -141,4 +143,23 @@ public class PerformanceController implements PerformanceDocsController{
 
         return ResponseEntity.status(200).body(response);
     }
+
+    @GetMapping("/locations/{performanceLocationId}/upcoming")
+    public ResponseEntity<CursorResponse<PerformanceCursorResponse>> getUpcomingByLocationWithCursor(
+            @PathVariable Long performanceLocationId,
+            @RequestParam(required = false) LocalDateTime cursorTime,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CursorResponse<PerformanceCursorResponse> response =
+                performanceService.getUpcomingByLocationWithCursor(
+                        performanceLocationId,
+                        cursorTime,
+                        cursorId,
+                        size
+                );
+
+        return ResponseEntity.ok(response);
+    }
+
 }

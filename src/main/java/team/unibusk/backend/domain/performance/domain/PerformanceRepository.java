@@ -31,4 +31,11 @@ public interface PerformanceRepository {
             Pageable pageable
     );
 
+    List<Performance> findUpcomingByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    );
+
 }
