@@ -159,7 +159,25 @@ public class PerformanceController implements PerformanceDocsController{
                         size
                 );
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/locations/{performanceLocationId}/past")
+    public ResponseEntity<CursorResponse<PerformanceCursorResponse>> getPastByLocationWithCursor(
+            @PathVariable Long performanceLocationId,
+            @RequestParam(required = false) LocalDateTime cursorTime,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CursorResponse<PerformanceCursorResponse> response =
+                performanceService.getPastByLocationWithCursor(
+                        performanceLocationId,
+                        cursorTime,
+                        cursorId,
+                        size
+                );
+
+        return ResponseEntity.status(200).body(response);
     }
 
 }

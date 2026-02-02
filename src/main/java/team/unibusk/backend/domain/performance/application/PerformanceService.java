@@ -312,7 +312,7 @@ public class PerformanceService {
                         performanceLocationId,
                         cursorTime,
                         cursorId,
-                        size + 1
+                        size
                 );
 
         boolean hasNext = performances.size() > size;
@@ -342,5 +342,50 @@ public class PerformanceService {
                 hasNext
         );
     }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<PerformanceCursorResponse> getPastByLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+
+        List<Performance> performances =
+                performanceRepository.findPastByPerformanceLocationWithCursor(
+                        performanceLocationId,
+                        cursorTime,
+                        cursorId,
+                        size
+                );
+
+        boolean hasNext = performances.size() > size;
+
+        if (hasNext) {
+            performances.remove(size);
+        }
+
+        List<PerformanceCursorResponse> contents =
+                performances.stream()
+                        .map(PerformanceCursorResponse::from)
+                        .toList();
+
+        LocalDateTime nextCursorTime = null;
+        Long nextCursorId = null;
+
+        if (hasNext && !performances.isEmpty()) {
+            Performance last = performances.get(performances.size() - 1);
+            nextCursorTime = last.getStartTime();
+            nextCursorId = last.getId();
+        }
+
+        return CursorResponse.of(
+                contents,
+                nextCursorTime,
+                nextCursorId,
+                hasNext
+        );
+    }
+
 }
 

@@ -79,6 +79,29 @@ public class PerformanceQueryDslRepository {
                 .fetch();
     }
 
+    public List<Performance> findPastByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+        QPerformance p = QPerformance.performance;
+
+        return queryFactory
+                .selectFrom(p)
+                .where(
+                        pastAtPerformanceLocation(p, performanceLocationId),
+                        pastCursorCondition(p, cursorTime, cursorId)
+                )
+                .orderBy(
+                        p.endTime.desc(),
+                        p.id.desc()
+                )
+                .limit(size + 1)
+                .fetch();
+    }
+
+
     private BooleanExpression upcomingAtPerformanceLocation(
             QPerformance p,
             Long performanceLocationId
@@ -86,6 +109,15 @@ public class PerformanceQueryDslRepository {
         return p.performanceLocationId.eq(performanceLocationId)
                 .and(p.startTime.goe(LocalDateTime.now()));
     }
+
+    private BooleanExpression pastAtPerformanceLocation(
+            QPerformance p,
+            Long performanceLocationId
+    ) {
+        return p.performanceLocationId.eq(performanceLocationId)
+                .and(p.endTime.lt(LocalDateTime.now()));
+    }
+
 
     private BooleanExpression cursorCondition(
             QPerformance p,
@@ -102,6 +134,23 @@ public class PerformanceQueryDslRepository {
                                 .and(p.id.gt(cursorId))
                 );
     }
+
+    private BooleanExpression pastCursorCondition(
+            QPerformance p,
+            LocalDateTime cursorTime,
+            Long cursorId
+    ) {
+        if (cursorTime == null || cursorId == null) {
+            return null;
+        }
+
+        return p.endTime.lt(cursorTime)
+                .or(
+                        p.endTime.eq(cursorTime)
+                                .and(p.id.lt(cursorId))
+                );
+    }
+
 
     private BooleanExpression filterByStatus(PerformanceStatus status) {
         if (status == null) {
