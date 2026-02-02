@@ -62,4 +62,15 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
         return performanceQueryDslRepository.searchByCondition(status, keyword, pageable);
     }
 
+    @Override
+    public List<Performance> findUpcomingByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+        return performanceQueryDslRepository
+                .findUpcomingByPerformanceLocationWithCursor(performanceLocationId, cursorTime, cursorId, size);
+    }
+
 }

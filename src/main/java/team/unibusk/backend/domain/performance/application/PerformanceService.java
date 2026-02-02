@@ -19,6 +19,7 @@ import team.unibusk.backend.domain.performance.presentation.exception.Performanc
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
+import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 
 import java.time.LocalDateTime;
@@ -296,6 +297,50 @@ public class PerformanceService {
         Page<PerformanceResponse> page = performanceRepository.searchByCondition(status, keyword, pageable);
 
         return PageResponse.from(page);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<PerformanceCursorResponse> getUpcomingByLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+
+        List<Performance> performances =
+                performanceRepository.findUpcomingByPerformanceLocationWithCursor(
+                        performanceLocationId,
+                        cursorTime,
+                        cursorId,
+                        size + 1
+                );
+
+        boolean hasNext = performances.size() > size;
+
+        if (hasNext) {
+            performances.remove(size);
+        }
+
+        List<PerformanceCursorResponse> contents =
+                performances.stream()
+                        .map(PerformanceCursorResponse::from)
+                        .toList();
+
+        LocalDateTime nextCursorTime = null;
+        Long nextCursorId = null;
+
+        if (hasNext && !performances.isEmpty()) {
+            Performance last = performances.get(performances.size() - 1);
+            nextCursorTime = last.getStartTime();
+            nextCursorId = last.getId();
+        }
+
+        return CursorResponse.of(
+                contents,
+                nextCursorTime,
+                nextCursorId,
+                hasNext
+        );
     }
 }
 
