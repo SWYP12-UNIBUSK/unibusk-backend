@@ -1,7 +1,6 @@
 package team.unibusk.backend.domain.performanceLocation.application.dto;
 
 import lombok.Builder;
-import lombok.Getter;
 
 @Builder
 public record UploadDto(
