@@ -19,7 +19,7 @@ public interface PerformanceLocationJpaRepository extends JpaRepository<Performa
             "OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<PerformanceLocation> searchByNameOrAddress(@Param("keyword") String keyword, Pageable pageable);
 
-    // 이름과 주소가 모두 일치하는 데이터가 있는지 확인
+    // 이름 일치하는 데이터가 있는지 확인
     Optional<PerformanceLocation> findByName(String name);
 
 

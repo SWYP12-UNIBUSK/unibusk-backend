@@ -15,8 +15,6 @@ import team.unibusk.backend.domain.performanceLocation.domain.ApplicationGuide;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.excelException.EmptyExcelFileException;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.excelException.InvalidExcelFormatException;
 import team.unibusk.backend.global.file.application.FileUploadService;
 import team.unibusk.backend.global.kakaoMap.application.KakaoMapService;
 import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
@@ -36,7 +34,6 @@ public class PerformanceLocationExcelService {
 
     private static final String PERFORMANCELOCATION_FOLDER = "performanceLocations";
     private static final DataFormatter FORMATTER = new DataFormatter();
-
 
     @Transactional
     public PerformanceLocationExcelResponse uploadPerformanceLocationExcelData(MultipartFile excelFile, List<MultipartFile> images) throws IOException {
@@ -95,10 +92,15 @@ public class PerformanceLocationExcelService {
     // --- 유틸리티 메서드 영역 ---
 
     private void validateExcelFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) throw new EmptyExcelFileException();
+        // 1. 파일 존재 여부 및 비어있는지 확인
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("업로드된 엑셀 파일이 없거나 비어 있습니다.");
+        }
+
+        // 2. 파일 확장자 확인
         String fileName = file.getOriginalFilename();
         if (fileName == null || !fileName.toLowerCase().endsWith(".xlsx")) {
-            throw new InvalidExcelFormatException();
+            throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. .xlsx 확장자 파일만 업로드 가능합니다.");
         }
     }
 

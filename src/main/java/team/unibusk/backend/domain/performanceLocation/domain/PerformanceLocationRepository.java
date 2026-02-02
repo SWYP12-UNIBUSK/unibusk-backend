@@ -15,7 +15,7 @@ public interface PerformanceLocationRepository {
     //공연 장소 등록
     PerformanceLocation save(PerformanceLocation performanceLocation);
 
-    // 이름이 일치하는 데이터가 있는지 확인
+    // 이름 일치하는 데이터가 있는지 확인
     Optional<PerformanceLocation> findByName(String name);
 
     List<PerformanceLocation> findByIds(Set<Long> locationIds);
