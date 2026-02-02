@@ -11,6 +11,7 @@ import team.unibusk.backend.domain.performanceLocation.application.PerformanceLo
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationExcelResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("performance-locations")
@@ -19,14 +20,17 @@ public class PerformanceLocationExcelController {
 
     private final PerformanceLocationExcelService performanceLocationExcelService;
 
-    @PostMapping("/excel-upload")
+    @PostMapping("/excels")
     public ResponseEntity<PerformanceLocationExcelResponse> uploadExcel(
-            @RequestParam("file") MultipartFile file
+            @RequestParam("file") MultipartFile excelFile,
+            @RequestParam("images") List<MultipartFile> images
     ) throws IOException {
 
         // 서비스 호출
-        PerformanceLocationExcelResponse response = performanceLocationExcelService.uploadPerformanceLocationExcelData(file);
+        PerformanceLocationExcelResponse response = performanceLocationExcelService.uploadPerformanceLocationExcelData(excelFile, images);
 
         return ResponseEntity.status(200).body(response);
     }
+
+
 }
