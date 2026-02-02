@@ -145,9 +145,13 @@ public class PerformanceLocationExcelService {
     }
 
     private MultipartFile getMatchedImageFile(String imageUrl, Map<String, MultipartFile> imageMap) {
-        MultipartFile file = imageMap.get(imageUrl);
-        if (file == null) throw new RuntimeException("폴더 내에 '" + imageUrl + "' 파일이 없습니다.");
-        return file;
+        for (Map.Entry<String, MultipartFile> entry : imageMap.entrySet()) {
+            String fileName = entry.getKey();
+            if (fileName.startsWith(imageUrl)) {
+                return entry.getValue();
+            }
+        }
+        throw new RuntimeException("폴더 내에 '" + imageUrl + "' 파일이 없습니다.");
     }
 
     private void validateRequiredFields(UploadDto dto) {
