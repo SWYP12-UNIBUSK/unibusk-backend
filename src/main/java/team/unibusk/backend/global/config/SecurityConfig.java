@@ -3,6 +3,7 @@ package team.unibusk.backend.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -97,7 +98,15 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorize ->
                 authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-                        .anyRequest().authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/performances").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
+
+                        .requestMatchers("/members/**").authenticated()
+                        .requestMatchers("/auths/logout").authenticated()
+
+                        .anyRequest().permitAll()
         );
     }
 
