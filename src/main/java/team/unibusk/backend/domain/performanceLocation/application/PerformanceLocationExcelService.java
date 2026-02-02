@@ -50,23 +50,23 @@ public class PerformanceLocationExcelService {
 
         // 각 행별 순차 처리
         for (UploadDto dto : dtos) {
-            int actualRowNum = dto.getRowNum();
+            int actualRowNum = dto.rowNum();
 
             try {
                 // [검증 1] 필수 필드 체크
                 validateRequiredFields(dto);
 
                 // [검증 2] 이름 중복 체크
-                checkAlreadyExists(dto.getName());
+                checkAlreadyExists(dto.name());
 
                 // [데이터 변환] 주소 -> 좌표(위경도) 변환
-                Coordinate coordinate = kakaoMapService.getCoordinateByAddress(dto.getAddress())
+                Coordinate coordinate = kakaoMapService.getCoordinateByAddress(dto.address())
                         .orElseThrow(() -> new RuntimeException("주소에 해당하는 좌표를 찾을 수 없습니다."));
 
                 // [이미지 처리] 엑셀 파일명에 맞는 이미지 찾기 및 S3 업로드
                 String s3Url = null;
-                if (StringUtils.hasText(dto.getImageUrl())) {
-                    MultipartFile matchedImage = getMatchedImageFile(dto.getImageUrl(), imageMap);
+                if (StringUtils.hasText(dto.imageUrl())) {
+                    MultipartFile matchedImage = getMatchedImageFile(dto.imageUrl(), imageMap);
                     s3Url = fileUploadService.upload(matchedImage, PERFORMANCELOCATION_FOLDER);
                 }
 
@@ -75,10 +75,10 @@ public class PerformanceLocationExcelService {
                 successCount++;
 
             } catch (DataIntegrityViolationException e) {
-                failedLogs.add(String.format("[Row %d] [장소: %s] 실패: DB 제약 조건 위반(중복 가능성)", actualRowNum, dto.getName()));
+                failedLogs.add(String.format("[Row %d] [장소: %s] 실패: DB 제약 조건 위반(중복 가능성)", actualRowNum, dto.name()));
             } catch (Exception e) {
                 String reason = e.getMessage() != null ? e.getMessage() : "알 수 없는 에러";
-                failedLogs.add(String.format("[Row %d] [장소: %s] 실패: %s", actualRowNum, dto.getName(), reason));
+                failedLogs.add(String.format("[Row %d] [장소: %s] 실패: %s", actualRowNum, dto.name(), reason));
             }
         }
 
@@ -151,10 +151,10 @@ public class PerformanceLocationExcelService {
     }
 
     private void validateRequiredFields(UploadDto dto) {
-        if (!StringUtils.hasText(dto.getName())) throw new IllegalArgumentException("장소명이 비어있습니다.");
-        if (!StringUtils.hasText(dto.getAddress())) throw new IllegalArgumentException("주소가 비어있습니다.");
-        if (!StringUtils.hasText(dto.getOperatorName())) throw new IllegalArgumentException("운영기관명이 비어있습니다.");
-        if (!StringUtils.hasText(dto.getOperatorPhoneNumber())) throw new IllegalArgumentException("연락처가 비어있습니다.");
+        if (!StringUtils.hasText(dto.name())) throw new IllegalArgumentException("장소명이 비어있습니다.");
+        if (!StringUtils.hasText(dto.address())) throw new IllegalArgumentException("주소가 비어있습니다.");
+        if (!StringUtils.hasText(dto.operatorName())) throw new IllegalArgumentException("운영기관명이 비어있습니다.");
+        if (!StringUtils.hasText(dto.operatorPhoneNumber())) throw new IllegalArgumentException("연락처가 비어있습니다.");
     }
 
     private void checkAlreadyExists(String name) {
@@ -170,12 +170,12 @@ public class PerformanceLocationExcelService {
         }
 
         PerformanceLocation location = PerformanceLocation.builder()
-                .name(dto.getName())
-                .address(dto.getAddress())
-                .operatorName(dto.getOperatorName())
-                .operatorPhoneNumber(dto.getOperatorPhoneNumber())
-                .availableHours(dto.getAvailableHours())
-                .operatorUrl(dto.getOperatorUrl())
+                .name(dto.name())
+                .address(dto.address())
+                .operatorName(dto.operatorName())
+                .operatorPhoneNumber(dto.operatorPhoneNumber())
+                .availableHours(dto.availableHours())
+                .operatorUrl(dto.operatorUrl())
                 .latitude(coordinate.latitude())
                 .longitude(coordinate.longitude())
                 .images(images)
@@ -184,7 +184,7 @@ public class PerformanceLocationExcelService {
         PerformanceLocation savedLocation = performanceLocationRepository.save(location);
 
         List<ApplicationGuide> guides = new ArrayList<>();
-        String[] contents = {dto.getGuide1(), dto.getGuide2(), dto.getGuide3()};
+        String[] contents = {dto.guide1(), dto.guide2(), dto.guide3()};
 
         for (String content : contents) {
             if (StringUtils.hasText(content)) {
