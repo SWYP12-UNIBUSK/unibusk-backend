@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
+import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
+import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
+import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -79,4 +83,83 @@ public class PerformanceController implements PerformanceDocsController{
 
         return ResponseEntity.status(200).body(response);
     }
+
+    @PatchMapping(value = "/{performanceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PerformanceDetailResponse> updatePerformance(
+            @PathVariable Long performanceId,
+            @RequestPart("request") @Valid PerformanceUpdateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @MemberId Long memberId
+            ) {
+        PerformanceDetailResponse response = performanceService.updatePerformance(request.toServiceRequest(performanceId, memberId, images));
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @DeleteMapping("/{performanceId}")
+    public ResponseEntity<Void> deletePerformance(
+            @PathVariable Long performanceId,
+            @MemberId Long memberId
+    ) {
+        performanceService.deletePerformance(performanceId, memberId);
+
+        return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/upcoming/search")
+    public ResponseEntity<PageResponse<PerformanceResponse>> searchUpcomingPerformances(
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.ASC
+            )
+            Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+                PerformanceStatus.UPCOMING,
+                keyword,
+                pageable
+        );
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/past/search")
+    public ResponseEntity<PageResponse<PerformanceResponse>> searchPastPerformances(
+            @RequestParam String keyword,
+            @PageableDefault(
+                    size = 12,
+                    sort = "startTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+                PerformanceStatus.PAST,
+                keyword,
+                pageable
+        );
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/locations/{performanceLocationId}/upcoming")
+    public ResponseEntity<CursorResponse<PerformanceCursorResponse>> getUpcomingByLocationWithCursor(
+            @PathVariable Long performanceLocationId,
+            @RequestParam(required = false) LocalDateTime cursorTime,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CursorResponse<PerformanceCursorResponse> response =
+                performanceService.getUpcomingByLocationWithCursor(
+                        performanceLocationId,
+                        cursorTime,
+                        cursorId,
+                        size
+                );
+
+        return ResponseEntity.ok(response);
+    }
+
 }

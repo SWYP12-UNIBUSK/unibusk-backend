@@ -4,18 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
+import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
+import team.unibusk.backend.domain.performance.presentation.exception.PerformanceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class PerformanceRepositoryImpl implements PerformanceRepository {
 
     private final PerformanceJpaRepository performanceJpaRepository;
+    private final PerformanceQueryDslRepository performanceQueryDslRepository;
 
     @Override
     public Performance save(Performance performance) {
@@ -38,8 +41,36 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
     }
 
     @Override
-    public Optional<Performance> findDetailById(Long performanceId) {
-        return performanceJpaRepository.findDetailById(performanceId);
+    public Performance findDetailById(Long performanceId) {
+        return performanceJpaRepository.findDetailById(performanceId)
+                .orElseThrow(PerformanceNotFoundException::new);
+    }
+
+    @Override
+    public Performance findById(Long id) {
+        return performanceJpaRepository.findById(id)
+                .orElseThrow(PerformanceNotFoundException::new);
+    }
+
+    @Override
+    public void delete(Performance performance) {
+        performanceJpaRepository.delete(performance);
+    }
+
+    @Override
+    public Page<PerformanceResponse> searchByCondition(PerformanceStatus status, String keyword, Pageable pageable) {
+        return performanceQueryDslRepository.searchByCondition(status, keyword, pageable);
+    }
+
+    @Override
+    public List<Performance> findUpcomingByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+        return performanceQueryDslRepository
+                .findUpcomingByPerformanceLocationWithCursor(performanceLocationId, cursorTime, cursorId, size);
     }
 
 }

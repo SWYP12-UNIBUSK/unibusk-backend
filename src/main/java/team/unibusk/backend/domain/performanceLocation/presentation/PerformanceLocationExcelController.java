@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("performance-locations/excels")
+@RequestMapping("performance-locations")
 @RequiredArgsConstructor
 public class PerformanceLocationExcelController {
 
     private final PerformanceLocationExcelService performanceLocationExcelService;
 
-    @PostMapping("/excel-upload")
+    @PostMapping("/excels")
     public ResponseEntity<PerformanceLocationExcelResponse> uploadExcel(
             @RequestParam("file") MultipartFile excelFile,
             @RequestParam("images") List<MultipartFile> images

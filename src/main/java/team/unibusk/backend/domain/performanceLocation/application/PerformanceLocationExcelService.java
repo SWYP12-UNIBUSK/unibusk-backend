@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
+import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuideRepository;
 import team.unibusk.backend.domain.performanceLocation.application.dto.UploadDto;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationExcelResponse;
-import team.unibusk.backend.domain.performanceLocation.domain.ApplicationGuide;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class PerformanceLocationExcelService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
+    private final ApplicationGuideRepository applicationGuideRepository;
     private final KakaoMapService kakaoMapService;
     private final FileUploadService fileUploadService;
 
@@ -167,14 +169,6 @@ public class PerformanceLocationExcelService {
             images.add(PerformanceLocationImage.builder().imageUrl(s3Url).build());
         }
 
-        List<ApplicationGuide> guides = new ArrayList<>();
-        String[] contents = {dto.getGuide1(), dto.getGuide2(), dto.getGuide3()};
-        for (String content : contents) {
-            if (StringUtils.hasText(content)) {
-                guides.add(ApplicationGuide.builder().content(content).build());
-            }
-        }
-
         PerformanceLocation location = PerformanceLocation.builder()
                 .name(dto.getName())
                 .address(dto.getAddress())
@@ -185,10 +179,24 @@ public class PerformanceLocationExcelService {
                 .latitude(coordinate.latitude())
                 .longitude(coordinate.longitude())
                 .images(images)
-                .applicationGuides(guides)
                 .build();
 
-        performanceLocationRepository.save(location);
+        PerformanceLocation savedLocation = performanceLocationRepository.save(location);
+
+        List<ApplicationGuide> guides = new ArrayList<>();
+        String[] contents = {dto.getGuide1(), dto.getGuide2(), dto.getGuide3()};
+
+        for (String content : contents) {
+            if (StringUtils.hasText(content)) {
+                // 정의하신 create 정적 팩토리 메서드 활용
+                guides.add(ApplicationGuide.create(content, savedLocation));
+            }
+        }
+
+        // 리스트가 비어있지 않을 때만 일괄 저장
+        if (!guides.isEmpty()) {
+            applicationGuideRepository.saveAll(guides);
+        }
     }
 
     private void printFinalReport(int successCount, List<String> failedLogs) {
