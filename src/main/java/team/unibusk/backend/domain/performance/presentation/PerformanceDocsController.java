@@ -198,4 +198,32 @@ public interface PerformanceDocsController{
             @RequestParam(defaultValue = "10") int size
     );
 
+    @Operation(
+            summary = "공연 장소별 지난 공연 커서 조회",
+            description = """
+            특정 공연 장소의 지난 공연을 커서 기반으로 조회합니다.
+
+            최초 호출 시 cursorTime, cursorId 없이 요청합니다.
+
+            다음 페이지 요청 시 응답으로 받은 nextCursorTime, nextCursorId 를 그대로 전달하면 됩니다.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "공연 목록 조회 성공"),
+    })
+    @GetMapping("/locations/{performanceLocationId}/past")
+    ResponseEntity<CursorResponse<PerformanceCursorResponse>> getPastByLocationWithCursor(
+            @Parameter(description = "공연 장소 ID", example = "1")
+            @PathVariable Long performanceLocationId,
+
+            @Parameter(description = "다음 페이지 커서 시간 (응답값 그대로 사용)", example = "2026-02-02T19:05:15.716")
+            @RequestParam(required = false) LocalDateTime cursorTime,
+
+            @Parameter(description = "다음 페이지 커서 ID (응답값 그대로 사용)", example = "15")
+            @RequestParam(required = false) Long cursorId,
+
+            @Parameter(description = "조회 개수", example = "10")
+            @RequestParam(defaultValue = "10") int size
+    );
+
 }

@@ -73,4 +73,15 @@ public class PerformanceRepositoryImpl implements PerformanceRepository {
                 .findUpcomingByPerformanceLocationWithCursor(performanceLocationId, cursorTime, cursorId, size);
     }
 
+    @Override
+    public List<Performance> findPastByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    ) {
+        return performanceQueryDslRepository
+                .findPastByPerformanceLocationWithCursor(performanceLocationId, cursorTime, cursorId, size);
+    }
+
 }

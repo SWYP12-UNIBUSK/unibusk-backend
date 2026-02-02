@@ -38,4 +38,11 @@ public interface PerformanceRepository {
             int size
     );
 
+    List<Performance> findPastByPerformanceLocationWithCursor(
+            Long performanceLocationId,
+            LocalDateTime cursorTime,
+            Long cursorId,
+            int size
+    );
+
 }
