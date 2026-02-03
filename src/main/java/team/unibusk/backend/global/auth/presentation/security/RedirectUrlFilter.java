@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
@@ -18,7 +17,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class RedirectUrlFilter extends OncePerRequestFilter {
@@ -54,14 +52,10 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
 
             String state = request.getParameter(STATE_PARAM);
 
-            log.info("[RedirectUrlFilter] requestUri={}", requestUri);
-            log.info("[RedirectUrlFilter] raw state param={}", state);
-
             tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
 
             if (StringUtils.hasText(state) && isValidRedirectUrl(state)) {
                 String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
-                log.info("[RedirectUrlFilter] encoded state={}", encodedState);
 
                 tokenInjector.addCookie(
                         STATE_COOKIE_NAME,
@@ -69,8 +63,6 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
                         3600,
                         response
                 );
-            } else {
-                log.warn("[RedirectUrlFilter] invalid or empty state={}", state);
             }
         }
 
