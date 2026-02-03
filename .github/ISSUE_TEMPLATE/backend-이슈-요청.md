@@ -9,10 +9,14 @@ assignees: ''
 
 ---
 name: 이슈 요청
+
 about: BE 이슈 템플릿
-title: ''
-labels: ''
-assignees: ''
+
+title: 
+
+labels: 
+
+assignees: 
 
 ---
 
@@ -26,6 +30,8 @@ assignees: ''
 - [ ] Fix: 버그 수정
 - [ ] Docs: 문서화 작업
 - [ ] Setting: setting
+- [ ] Infra: 서버 관련 작업
+- [ ] Test: 테스트 관련 작업
 
 ## #️⃣ 작업 상세 내용
 
