@@ -45,4 +45,10 @@ public interface PerformanceRepository {
             int size
     );
 
+    List<Performance> findMyPerformancesWithCursor(
+            Long memberId,
+            Long cursorId,
+            int size
+    );
+
 }

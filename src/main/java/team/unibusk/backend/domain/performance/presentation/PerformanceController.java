@@ -180,4 +180,13 @@ public class PerformanceController implements PerformanceDocsController{
         return ResponseEntity.status(200).body(response);
     }
 
+    @GetMapping("/me")
+    public CursorResponse<MyPerformanceSummaryResponse> myPerformances(
+            @MemberId Long memberId,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return performanceService.getMyPerformances(memberId, cursorId, size);
+    }
+
 }
