@@ -16,6 +16,7 @@ import team.unibusk.backend.domain.performance.application.dto.response.Performa
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.domain.QPerformance;
+import team.unibusk.backend.domain.performance.domain.QPerformanceImage;
 
 import static team.unibusk.backend.domain.performance.domain.QPerformance.performance;
 import static team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation.performanceLocation;
@@ -101,6 +102,30 @@ public class PerformanceQueryDslRepository {
                 .fetch();
     }
 
+    public List<Performance> findMyPerformancesWithCursor(
+            Long memberId,
+            Long cursorId,
+            int size
+    ) {
+        QPerformance p = QPerformance.performance;
+        QPerformanceImage i = QPerformanceImage.performanceImage;
+
+        return queryFactory
+                .selectDistinct(p)
+                .from(p)
+                .leftJoin(p.images, i).fetchJoin()
+                .where(
+                        p.memberId.eq(memberId),
+                        cursorIdLt(p, cursorId)
+                )
+                .orderBy(p.id.desc())
+                .limit(size + 1)
+                .fetch();
+    }
+
+    private BooleanExpression cursorIdLt(QPerformance p, Long cursorId) {
+        return cursorId == null ? null : p.id.lt(cursorId);
+    }
 
     private BooleanExpression upcomingAtPerformanceLocation(
             QPerformance p,

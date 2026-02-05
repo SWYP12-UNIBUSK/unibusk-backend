@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -382,6 +383,59 @@ public class PerformanceService {
         return CursorResponse.of(
                 contents,
                 nextCursorTime,
+                nextCursorId,
+                hasNext
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<MyPerformanceSummaryResponse> getMyPerformances(
+            Long memberId,
+            Long cursorId,
+            int size
+    ) {
+        List<Performance> performances =
+                performanceRepository.findMyPerformancesWithCursor(
+                        memberId,
+                        cursorId,
+                        size
+                );
+
+        boolean hasNext = performances.size() > size;
+
+        if (hasNext) {
+            performances = performances.subList(0, size);
+        }
+
+        Set<Long> locationIds = performances.stream()
+                .map(Performance::getPerformanceLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, PerformanceLocation> locationMap =
+                performanceLocationRepository.findByIds(locationIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                PerformanceLocation::getId,
+                                Function.identity()
+                        ));
+
+        List<MyPerformanceSummaryResponse> content =
+                performances.stream()
+                        .map(p ->
+                                MyPerformanceSummaryResponse.from(
+                                        p,
+                                        locationMap.get(p.getPerformanceLocationId())
+                                )
+                        )
+                        .toList();
+
+        Long nextCursorId = hasNext
+                ? performances.get(performances.size() - 1).getId()
+                : null;
+
+        return CursorResponse.of(
+                content,
+                null,
                 nextCursorId,
                 hasNext
         );

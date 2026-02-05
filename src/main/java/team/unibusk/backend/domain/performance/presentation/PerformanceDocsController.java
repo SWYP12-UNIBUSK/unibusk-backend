@@ -226,4 +226,31 @@ public interface PerformanceDocsController{
             @RequestParam(defaultValue = "10") int size
     );
 
+    @Operation(
+            summary = "내 공연 목록 커서 조회",
+            description = """
+            로그인한 사용자가 등록한 공연 목록을 커서 기반으로 조회합니다.
+
+            최초 호출 시 cursorId 없이 요청합니다.
+
+            다음 페이지 요청 시 응답으로 받은 nextCursorId 를 그대로 전달하면 됩니다.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "내 공연 목록 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))
+    })
+    @GetMapping("/me")
+    CursorResponse<MyPerformanceSummaryResponse> myPerformances(
+            @Parameter(hidden = true)
+            @MemberId Long memberId,
+
+            @Parameter(description = "다음 페이지 커서 ID (응답값 그대로 사용)", example = "23")
+            @RequestParam(required = false) Long cursorId,
+
+            @Parameter(description = "조회 개수", example = "10")
+            @RequestParam(defaultValue = "10") int size
+    );
+
 }
