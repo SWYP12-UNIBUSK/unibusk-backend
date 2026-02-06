@@ -18,6 +18,7 @@ import team.unibusk.backend.global.file.presentation.exception.InvalidFileUrlExc
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -31,6 +32,8 @@ public class S3FileStorageAdapter implements FileStoragePort {
 
     @Value("${cloud.aws.s3.public-url:https://%s.s3.amazonaws.com}")
     private String publicUrlFormat;
+
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png");
 
     @Override
     public String upload(MultipartFile file, String folder) {
@@ -83,7 +86,15 @@ public class S3FileStorageAdapter implements FileStoragePort {
         if (filename == null || !filename.contains(".") || filename.endsWith(".")) {
             throw new InvalidFileTypeException();
         }
-        return filename.substring(filename.lastIndexOf('.') + 1);
+
+        String extension = filename.substring(filename.lastIndexOf('.') + 1)
+                .toLowerCase();
+
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            throw new InvalidFileTypeException();
+        }
+
+        return extension;
     }
 
     private String getPublicUrl(String key) {
