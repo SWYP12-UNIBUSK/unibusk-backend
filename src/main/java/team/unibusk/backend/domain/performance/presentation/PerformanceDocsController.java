@@ -41,9 +41,9 @@ public interface PerformanceDocsController{
             @ApiResponse(responseCode = "201", description = "공연 등록 성공"),
             @ApiResponse(responseCode = "400", description = """
                     잘못된 입력 값:
-                    - INVALID_PERFORMANCE_START_TIME: 공연 시작 시간이 현재보다 과거일 때
-                    - INVALID_PERFORMANCE_TIME_RANGE: 종료 시간이 시작 시간보다 빠를 때
                     - 기타 유효성 검사 실패 (제목 누락, 이메일 형식 등)
+                    - 공연 시작 시간이 현재보다 과거일 때
+                    - 종료 시간이 시작 시간보다 빠를 때
                     """,
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",

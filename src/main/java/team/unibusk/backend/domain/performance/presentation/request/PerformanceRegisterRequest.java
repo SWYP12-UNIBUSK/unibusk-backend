@@ -63,14 +63,6 @@ public record PerformanceRegisterRequest (
             String instagram
     ) {}
 
-//    @AssertTrue(message = "공연 시작 시간은 종료 시간보다 빨라야 합니다.")
-//    public boolean isValidTimeRange() {
-//        if (startTime == null || endTime == null) {
-//            return true;
-//        }
-//        return startTime.isBefore(endTime);
-//    }
-
     public PerformanceRegisterServiceRequest toServiceRequest(Long memberId, List<MultipartFile> images) {
         List<MultipartFile> safeImages = (images == null) ? List.of() : images;
         return PerformanceRegisterServiceRequest.builder()
