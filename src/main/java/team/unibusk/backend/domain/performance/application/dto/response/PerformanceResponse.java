@@ -40,23 +40,6 @@ public record PerformanceResponse(
 
 ) {
 
-        public PerformanceResponse(Performance performance, String locationName) {
-                this(
-                        performance.getId(),
-                        performance.getTitle(),
-                        performance.getPerformanceDate(),
-                        performance.getStartTime(),
-                        performance.getEndTime(),
-                        locationName,
-
-                        performance.getImages() != null
-                                ? performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .collect(Collectors.toList())
-                                : Collections.emptyList()
-                );
-        }
-
         public static PerformanceResponse from(
                 Performance performance,
                 String locationName
