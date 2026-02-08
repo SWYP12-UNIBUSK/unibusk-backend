@@ -15,6 +15,8 @@ import team.unibusk.backend.domain.performance.application.dto.request.Performan
 import team.unibusk.backend.domain.performance.application.dto.request.PerformanceUpdateServiceRequest;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.*;
+import team.unibusk.backend.domain.performance.presentation.exception.InvalidPerformanceStartTimeException;
+import team.unibusk.backend.domain.performance.presentation.exception.InvalidPerformanceTimeRangeException;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceRegistrationFailedException;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
@@ -44,6 +46,9 @@ public class PerformanceService {
 
     @Transactional
     public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request) {
+        //공연 시간 검증
+        validatePerformanceTime(request.startTime(), request.endTime());
+
         // 이미지 업로드
         List<PerformanceImage> images = uploadImages(request.images());
 
@@ -84,6 +89,20 @@ public class PerformanceService {
             //실패하면 저장됐던 이미지 삭제
             images.forEach(img -> fileUploadService.delete(img.getImageUrl()));
             throw new PerformanceRegistrationFailedException();
+        }
+    }
+
+    private void validatePerformanceTime(LocalDateTime start, LocalDateTime end) {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 시작 시간이 현재보다 과거인지 검증
+        if (start.isBefore(now)) {
+            throw new InvalidPerformanceStartTimeException();
+        }
+
+        // 종료 시간이 시작 시간보다 빠른지 검증
+        if (end.isBefore(start)) {
+            throw new InvalidPerformanceTimeRangeException();
         }
     }
 
