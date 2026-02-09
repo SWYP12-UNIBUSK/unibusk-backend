@@ -3,6 +3,7 @@ package team.unibusk.backend.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final SecurityProperties securityProperties;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final CorsProperties corsProperties;
 
     private static final String[] PERMIT_ALL_PATTERNS = {
             "/swagger-ui/**",
@@ -40,7 +42,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/actuator/**",
             "/auths/login",
-            "/oauth2/**"
+            "/auths/token",
+            "/oauth2/**",
     };
 
     @Bean
@@ -69,9 +72,9 @@ public class SecurityConfig {
     private void configureCorsPolicy(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
-            corsConfiguration.setAllowedOrigins(List.of(
-                    "http://localhost:8080"
-            ));
+            corsConfiguration.setAllowedOrigins(
+                    corsProperties.allowedOrigins()
+            );
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
             corsConfiguration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
@@ -95,7 +98,15 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorize ->
                 authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-                        .anyRequest().authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/performances").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
+
+                        .requestMatchers("/members/**").authenticated()
+                        .requestMatchers("/auths/logout").authenticated()
+
+                        .anyRequest().permitAll()
         );
     }
 

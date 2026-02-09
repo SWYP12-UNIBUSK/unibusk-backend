@@ -23,15 +23,18 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
 
     private final TokenInjector tokenInjector;
 
-    public static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
-    public static final String REDIRECT_URL_COOKIE_NAME = "redirect_url";
+    public static final String STATE_PARAM = "state";
+    public static final String STATE_COOKIE_NAME = "oauth_state";
 
     private static final List<String> REDIRECT_URL_INJECTION_PATTERNS = List.of(
-            "/oauth2/authorization/**"
+            "/api/auths/login"
     );
 
     private static final List<String> ALLOWED_REDIRECT_HOSTS = List.of(
-            "localhost"
+            "localhost",
+            "unibusk.site",
+            "www.unibusk.site",
+            "dev.unibusk.site"
     );
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -43,13 +46,23 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (isRedirectRequest(request)) {
-            tokenInjector.invalidateCookie(REDIRECT_URL_COOKIE_NAME, response);
+        String requestUri = request.getRequestURI();
 
-            String redirectUri = request.getParameter(REDIRECT_URL_QUERY_PARAM);
-            if (StringUtils.hasText(redirectUri) && isValidRedirectUrl(redirectUri)) {
-                String encodedUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
-                tokenInjector.addCookie(REDIRECT_URL_COOKIE_NAME, encodedUri, 3600, response);
+        if (pathMatcher.match("/api/auths/login", requestUri)) {
+
+            String state = request.getParameter(STATE_PARAM);
+
+            tokenInjector.invalidateCookie(STATE_COOKIE_NAME, response);
+
+            if (StringUtils.hasText(state) && isValidRedirectUrl(state)) {
+                String encodedState = URLEncoder.encode(state, StandardCharsets.UTF_8);
+
+                tokenInjector.addCookie(
+                        STATE_COOKIE_NAME,
+                        encodedState,
+                        3600,
+                        response
+                );
             }
         }
 
@@ -65,9 +78,11 @@ public class RedirectUrlFilter extends OncePerRequestFilter {
     private boolean isValidRedirectUrl(String url) {
         try {
             URI uri = URI.create(url);
-            if (uri.getHost() == null) {
-                return true;
+
+            if (!uri.isAbsolute()) {
+                return false;
             }
+
             return ALLOWED_REDIRECT_HOSTS.contains(uri.getHost());
         } catch (Exception e) {
             return false;

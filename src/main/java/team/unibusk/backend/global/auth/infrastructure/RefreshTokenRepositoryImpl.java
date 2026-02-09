@@ -28,4 +28,9 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
         return refreshTokenJpaRepository.findFirstByMemberIdOrderByIdDesc(id);
     }
 
+    @Override
+    public void deleteByMemberId(Long memberId) {
+        refreshTokenJpaRepository.deleteByMemberId(memberId);
+    }
+
 }

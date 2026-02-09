@@ -23,6 +23,8 @@ public class MemberService {
 
         return MemberNameUpdateResponse.builder()
                 .memberId(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
                 .build();
     }
 

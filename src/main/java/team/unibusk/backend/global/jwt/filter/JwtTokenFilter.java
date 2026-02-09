@@ -23,6 +23,7 @@ import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
