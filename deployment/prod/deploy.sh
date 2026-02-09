@@ -42,14 +42,19 @@ if [ ! -f "$APP_ENV_FILE" ]; then
   exit 1
 fi
 
-if docker ps --filter "name=unibusk-blue" --filter "status=running" | grep unibusk-blue >/dev/null; then
-  CURRENT="blue"
-  NEXT="green"
-  PORT=8082
+if docker ps --filter "name=unibusk-blue" --filter "status=running" | grep -q unibusk-blue; then
+    CURRENT="blue"
+    NEXT="green"
+    PORT=8082
+elif docker ps --filter "name=unibusk-green" --filter "status=running" | grep -q unibusk-green; then
+    CURRENT="green"
+    NEXT="blue"
+    PORT=8081
 else
-  CURRENT="green"
-  NEXT="blue"
-  PORT=8081
+    log "No running container found. Initial deployment — rollback disabled."
+    CURRENT=""
+    NEXT="blue"
+    PORT=8081
 fi
 
 log "Deploy: $CURRENT → $NEXT"
