@@ -80,12 +80,12 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script_stop: true
           envs: DOCKER_USERNAME,IMAGE_NAME,IMAGE_TAG
+          script: |
+            cd ~/deployment/prod
+            chmod +x deploy.sh
+            ./deploy.sh
+            docker image prune -af --filter "until=24h"
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
           IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
-        script: |
-          cd ~/deployment/prod
-          chmod +x deploy.sh
-          ./deploy.sh
-          docker image prune -af --filter "until=24h"
