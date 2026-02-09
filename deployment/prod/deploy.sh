@@ -13,12 +13,20 @@ log() {
   echo "[$(date +"%T")] $1"
 }
 
+CURRENT=""
+NEXT=""
+
 rollback() {
+  trap - ERR
   log "ROLLBACK triggered"
 
+  if [ -z "$CURRENT" ]; then
+      log "CURRENT not set, cannot rollback nginx config"
+      exit 1
+  fi
+
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
-  sudo nginx -t
-  sudo nginx -s reload
+  sudo nginx -t && sudo nginx -s reload || log "nginx reload failed during rollback"
 
   docker compose -f "$COMPOSE" up -d $CURRENT
 
