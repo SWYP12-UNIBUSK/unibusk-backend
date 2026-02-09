@@ -1,3 +1,4 @@
+#!/bin/bash
 set -Eeuo pipefail
 
 BASE_DIR="$HOME/deployment/prod"
