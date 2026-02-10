@@ -67,7 +67,7 @@ docker compose -f "$COMPOSE" up -d $NEXT
 sleep 10
 
 COUNT=0
-until curl -sf http://127.0.0.1:$PORT/actuator/health >/dev/null; do
+until curl -sf http://127.0.0.1:$PORT/api/actuator/health >/dev/null; do
   COUNT=$((COUNT+1))
   [ $COUNT -ge $MAX_RETRY ] && exit 1
   sleep $INTERVAL
