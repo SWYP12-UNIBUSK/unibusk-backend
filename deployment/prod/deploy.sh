@@ -79,7 +79,9 @@ sudo cp "$NGINX_DIR/unibusk-$NEXT.conf" /etc/nginx/conf.d/default.conf
 sudo nginx -t
 sudo nginx -s reload
 
-docker compose -f "$COMPOSE" stop $CURRENT || true
-docker compose -f "$COMPOSE" rm -f $CURRENT || true
+if [ -n "$CURRENT" ]; then
+    docker compose -f "$COMPOSE" stop $CURRENT || true
+    docker compose -f "$COMPOSE" rm -f $CURRENT || true
+fi
 
 log "Deploy success: $NEXT live"
