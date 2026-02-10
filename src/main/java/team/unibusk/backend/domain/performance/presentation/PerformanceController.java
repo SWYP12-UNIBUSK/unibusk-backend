@@ -191,7 +191,7 @@ public class PerformanceController implements PerformanceDocsController{
 
     @GetMapping("/success")
     public String success() {
-        return "BLUE/GREEN TEST SUCCESS";
+        return "FINAL BLUE/GREEN TEST SUCCESS";
     }
 
 }
