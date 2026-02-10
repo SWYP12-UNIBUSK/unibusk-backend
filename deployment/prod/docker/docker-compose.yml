@@ -13,6 +13,12 @@ services:
     restart: always
     networks:
       - unibusk-bluegreen
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
 
   green:
     image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -26,6 +32,12 @@ services:
     restart: always
     networks:
       - unibusk-bluegreen
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
 
 networks:
   unibusk-bluegreen:
