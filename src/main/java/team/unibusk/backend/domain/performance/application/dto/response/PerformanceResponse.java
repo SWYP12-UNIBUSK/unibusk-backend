@@ -7,9 +7,7 @@ import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 public record PerformanceResponse(
