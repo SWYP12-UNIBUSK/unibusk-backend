@@ -56,6 +56,10 @@ public record PerformanceRegisterRequest (
             String email,
 
             @NotBlank(message = "전화번호는 필수 입력 항목입니다.")
+            @Pattern(
+                    regexp = "^\\d{3}-\\d{3,4}-\\d{4}$",
+                    message = "전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)"
+            )
             @Size(max = 20, message = "공연자 전화번호는 최대 20자 입니다.")
             String phoneNumber,
 
@@ -63,13 +67,39 @@ public record PerformanceRegisterRequest (
             String instagram
     ) {}
 
-    @AssertTrue(message = "공연 시작 시간은 종료 시간보다 빨라야 합니다.")
-    public boolean isValidTimeRange() {
-        if (startTime == null || endTime == null) {
+    @AssertTrue(message = "공연 시작 시간은 현재 시간 이후여야 합니다.")
+    public boolean isStartTimeAfterNow() {
+        if (startTime == null) return true;
+        return startTime.isAfter(LocalDateTime.now());
+    }
+
+    @AssertTrue(message = "공연 종료 시간은 시작 시간 이후여야 합니다.")
+    public boolean isEndTimeAfterStartTime() {
+        if (startTime == null || endTime == null) return true;
+        return endTime.isAfter(startTime);
+    }
+
+    @AssertTrue(message = "공연 날짜는 현재 날짜 이후여야 합니다.")
+    public boolean isValidPerformanceDate() {
+        if (performanceDate == null) {
             return true;
         }
-        return startTime.isBefore(endTime);
+        return !performanceDate.isBefore(LocalDate.now());
     }
+
+    @AssertTrue(message = "공연 날짜와 공연 시작 시간, 공연 종료 시간의 날짜가 일치하지 않습니다.")
+    public boolean isSameDate() {
+        if (performanceDate == null || startTime == null || endTime == null) {
+            return true;
+        }
+
+        // startTime과 endTime에서 날짜 부분(LocalDate)만 추출하여 비교
+        boolean isStartDayMatch = performanceDate.equals(startTime.toLocalDate());
+        boolean isEndDayMatch = performanceDate.equals(endTime.toLocalDate());
+
+        return isStartDayMatch && isEndDayMatch;
+    }
+
 
     public PerformanceRegisterServiceRequest toServiceRequest(Long memberId, List<MultipartFile> images) {
         List<MultipartFile> safeImages = (images == null) ? List.of() : images;

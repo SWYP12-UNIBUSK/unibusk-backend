@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  blue:
+    image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    container_name: unibusk-blue
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8081:8080"
+    env_file:
+      - ../.env
+    restart: always
+    networks:
+      - unibusk-bluegreen
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  green:
+    image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    container_name: unibusk-green
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8082:8080"
+    env_file:
+      - ../.env
+    restart: always
+    networks:
+      - unibusk-bluegreen
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+networks:
+  unibusk-bluegreen:
+    external: true
