@@ -76,3 +76,4 @@ docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop $CURRENT
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $CURRENT
 
 log "Deploy success: $NEXT live"
+
