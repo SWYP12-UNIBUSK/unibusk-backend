@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  blue:
+    image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    container_name: unibusk-blue
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "127.0.0.1:8081:8080"
+    env_file:
+      - /opt/unibusk/env/prod.env
+    restart: always
+    networks:
+      - unibusk-bluegreen
+
+  green:
+    image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+    container_name: unibusk-green
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "127.0.0.1:8082:8080"
+    env_file:
+      - /opt/unibusk/env/prod.env
+    restart: always
+    networks:
+      - unibusk-bluegreen
+
+networks:
+  unibusk-bluegreen:
+    external: true

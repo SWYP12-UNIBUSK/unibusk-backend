@@ -1,4 +1,4 @@
-name: Deploy Spring Boot (prod)
+name: Blue-Green Deploy PROD
 
 on:
   push:
@@ -51,30 +51,41 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/unibusk_server:latest
 
-  run-docker-image-on-ec2:
+      - name: Clean up sensitive files
+        if: always()
+        run: |
+          rm -f src/main/resources/application-prod.yml
+
+  deploy:
+    runs-on: ubuntu-latest
     needs: build-docker-image
-    runs-on: prod
-
     steps:
-      - name: docker pull image
-        run: |
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/unibusk_server:latest
+      - uses: actions/checkout@v4
 
-      - name: stop & remove containers
-        run: |
-          sudo docker stop unibusk || true
-          sudo docker rm unibusk || true
+      - name: Copy deployment files to EC2
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "./deployment/prod/"
+          target: ~/
+          overwrite: true
 
-      - name: run spring boot container
-        run: |
-          sudo docker run -d \
-            --name unibusk \
-            -m 768m \
-            --memory-swap=768m \
-            -e JAVA_OPTS="-Xms128m -Xmx384m" \
-            -e SPRING_PROFILES_ACTIVE=prod \
-            -p 8080:8080 \
-            ${{ secrets.DOCKERHUB_USERNAME }}/unibusk_server:latest
-
-      - name: prune unused docker data
-        run: sudo docker system prune -f
+      - name: Run Blue-Green Deploy Script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script_stop: true
+          envs: DOCKER_USERNAME,IMAGE_NAME,IMAGE_TAG
+          script: |
+            cd ~/deployment/prod
+            chmod +x deploy.sh
+            ./deploy.sh
+            docker image prune -af --filter "until=24h"
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+          IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
