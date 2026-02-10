@@ -7,7 +7,7 @@ COMPOSE="$BASE_DIR/docker/docker-compose.yml"
 
 MAX_RETRY=15
 INTERVAL=3
-APP_ENV_FILE="/opt/unibusk/env/prod.env"
+APP_ENV_FILE="$BASE_DIR/.env"
 
 log() {
   echo "[$(date +"%T")] $1"
