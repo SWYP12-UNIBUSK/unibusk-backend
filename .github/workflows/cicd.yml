@@ -83,8 +83,8 @@ jobs:
           script: |
             cd ~/deployment/prod
             chmod +x deploy.sh
-            sudo ./deploy.sh
-            sudo docker image prune -af --filter "until=24h"
+            ./deploy.sh
+            docker image prune -af --filter "until=24h"
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
