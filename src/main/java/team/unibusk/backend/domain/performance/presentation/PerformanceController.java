@@ -189,4 +189,9 @@ public class PerformanceController implements PerformanceDocsController{
         return performanceService.getMyPerformances(memberId, cursorId, size);
     }
 
+    @GetMapping("/success")
+    public String success() {
+        return "BLUE/GREEN TEST SUCCESS";
+    }
+
 }
