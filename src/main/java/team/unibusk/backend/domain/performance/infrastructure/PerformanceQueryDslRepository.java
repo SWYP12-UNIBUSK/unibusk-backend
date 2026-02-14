@@ -1,7 +1,7 @@
 package team.unibusk.backend.domain.performance.infrastructure;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.QPerformanceResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.domain.QPerformance;
@@ -31,11 +32,11 @@ public class PerformanceQueryDslRepository {
     private final JPAQueryFactory queryFactory;
 
     public Page<PerformanceResponse> searchByCondition(PerformanceStatus status, String keyword, Pageable pageable) {
-        List<Tuple> results = queryFactory
-                .select(
+        List<PerformanceResponse> content = queryFactory
+                .select(new QPerformanceResponse(
                         performance,
                         performanceLocation.name
-                )
+                ))
                 .from(performance)
                 .join(performanceLocation).on(performance.performanceLocationId.eq(performanceLocation.id))
                 .where(
@@ -46,15 +47,6 @@ public class PerformanceQueryDslRepository {
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifier(pageable))
                 .fetch();
-
-        List<PerformanceResponse> content = results.stream()
-                .map(tuple -> {
-                    Performance p = tuple.get(performance);
-                    String locName = tuple.get(performanceLocation.name);
-
-                    return PerformanceResponse.from(p, locName);
-                })
-                .toList();
 
         JPAQuery<Long> countQuery = queryFactory
                 .select(performance.count())
