@@ -1,6 +1,5 @@
 package team.unibusk.backend.global.auth.presentation.security.handler;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +30,19 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     ) throws IOException {
         log.warn("Authentication failure: {}", exception.getMessage());
 
-        String exceptionParam = URLEncoder.encode(String.valueOf(AUTHENTICATION_REQUIRED), StandardCharsets.UTF_8);
-        String failureUrl = securityProperties.oAuthUrl().loginUrl() + "?error=true&exception=" + exceptionParam;
+        String exceptionParam = URLEncoder.encode(
+                String.valueOf(AUTHENTICATION_REQUIRED),
+                StandardCharsets.UTF_8
+        );
+
+        String contextPath = request.getContextPath();
+        String loginUrl = securityProperties.oAuthUrl().loginUrl();
+
+        String cleanLoginUrl = loginUrl.startsWith(contextPath)
+                ? loginUrl.substring(contextPath.length())
+                : loginUrl;
+
+        String failureUrl = cleanLoginUrl + "?error=true&exception=" + exceptionParam;
 
         getRedirectStrategy().sendRedirect(request, response, failureUrl);
     }
