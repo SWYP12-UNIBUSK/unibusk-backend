@@ -91,8 +91,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private void handleExpiredAccessToken(HttpServletRequest request, HttpServletResponse response) {
         log.debug("Access token expired, attempting reissue");
         try {
-            String newToken = reissueAccessToken(request, response);
+            String newToken = reissueAccessTokenIfRefreshExists(request, response);
             setAuthentication(request, newToken);
+        } catch (AuthenticationRequiredException e) {
+            handleMissingAuthentication(response);
         } catch (RefreshTokenNotValidException e) {
             handleInvalidRefreshToken(response);
         } catch (ExpiredJwtException e) {
