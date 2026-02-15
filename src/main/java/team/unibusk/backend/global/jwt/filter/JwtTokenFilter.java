@@ -62,7 +62,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private String getValidToken(HttpServletRequest request, HttpServletResponse response) {
         return jwtTokenResolver.resolveTokenFromRequest(request)
-                .orElseGet(() -> reissueAccessToken(request, response));
+                .orElseThrow(AuthenticationRequiredException::new);
     }
 
     private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
