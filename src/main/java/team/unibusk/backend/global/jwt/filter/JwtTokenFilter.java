@@ -62,7 +62,22 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private String getValidToken(HttpServletRequest request, HttpServletResponse response) {
         return jwtTokenResolver.resolveTokenFromRequest(request)
-                .orElseThrow(AuthenticationRequiredException::new);
+                .orElseGet(() -> reissueAccessTokenIfRefreshExists(request, response));
+    }
+
+    private String reissueAccessTokenIfRefreshExists(HttpServletRequest request, HttpServletResponse response) {
+        validateRefreshTokenExists(request);
+        return reissueAccessToken(request, response);
+    }
+
+    private void validateRefreshTokenExists(HttpServletRequest request) {
+        if (isRefreshTokenMissing(request)) {
+            throw new AuthenticationRequiredException();
+        }
+    }
+
+    private boolean isRefreshTokenMissing(HttpServletRequest request) {
+        return jwtTokenResolver.resolveRefreshTokenFromRequest(request).isEmpty();
     }
 
     private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
