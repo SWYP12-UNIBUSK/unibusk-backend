@@ -23,7 +23,6 @@ import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String token = getValidToken(request, response);
             setAuthentication(request, token);
         } catch (ExpiredJwtException e) {
-            handleExpiredToken(request, response);
+            handleExpiredAccessToken(request, response);
         } catch (RefreshTokenNotValidException e) {
             handleInvalidRefreshToken(response);
         } catch (AuthenticationRequiredException e) {
@@ -67,7 +66,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private String reissueAccessTokenIfRefreshExists(HttpServletRequest request, HttpServletResponse response) {
         validateRefreshTokenExists(request);
-        return reissueAccessToken(request, response);
+        return reissueAccessTokenSafely(request, response);
+    }
+
+    private String reissueAccessTokenSafely(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            return reissueAccessToken(request, response);
+        } catch (ExpiredJwtException e) {
+            log.debug("Refresh token expired during token reissue attempt");
+            throw new RefreshTokenNotValidException();
+        }
     }
 
     private void validateRefreshTokenExists(HttpServletRequest request) {
@@ -80,12 +88,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         return jwtTokenResolver.resolveRefreshTokenFromRequest(request).isEmpty();
     }
 
-    private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response) {
+    private void handleExpiredAccessToken(HttpServletRequest request, HttpServletResponse response) {
         log.debug("Access token expired, attempting reissue");
         try {
             String newToken = reissueAccessToken(request, response);
             setAuthentication(request, newToken);
         } catch (RefreshTokenNotValidException e) {
+            handleInvalidRefreshToken(response);
+        } catch (ExpiredJwtException e) {
+            log.debug("Refresh token also expired during reissue");
             handleInvalidRefreshToken(response);
         } catch (Exception e) {
             handleTokenReissueFailure(response, e);
