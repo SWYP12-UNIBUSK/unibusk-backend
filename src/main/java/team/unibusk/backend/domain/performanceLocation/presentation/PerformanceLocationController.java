@@ -11,8 +11,6 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.response.
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/performance-locations")
 @RequiredArgsConstructor
@@ -61,5 +59,4 @@ public class PerformanceLocationController implements PerformanceLocationDocsCon
                 performanceLocationService.getPerformanceLocationDetail(performanceLocationId);
         return ResponseEntity.status(200).body(response);
     }
-
 }
