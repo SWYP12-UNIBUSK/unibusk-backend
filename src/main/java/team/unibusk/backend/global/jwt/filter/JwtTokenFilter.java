@@ -23,7 +23,6 @@ import team.unibusk.backend.global.jwt.injector.TokenInjector;
 import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,30 +40,89 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        processTokenAuthentication(request, response);
+        authenticateRequest(request, response);
         filterChain.doFilter(request, response);
     }
 
-    private void processTokenAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    private void authenticateRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
-            String token = resolveTokenFromRequest(request, response);
-            setAuthentication(request, getUserDetails(token));
-        } catch (ExpiredJwtException | AuthenticationRequiredException e) {
-            log.debug("Failed to authenticate", e);
-            invalidateCookie(TokenType.ACCESS, response);
+            String token = getValidToken(request, response);
+            setAuthentication(request, token);
+        } catch (ExpiredJwtException e) {
+            handleExpiredAccessToken(request, response);
         } catch (RefreshTokenNotValidException e) {
-            log.warn("Failed to authenticate", e);
-            invalidateCookie(TokenType.ACCESS, response);
-            invalidateCookie(TokenType.REFRESH, response);
+            handleInvalidRefreshToken(response);
+        } catch (AuthenticationRequiredException e) {
+            handleMissingAuthentication(response);
         } catch (Exception e) {
-            log.error("Failed to authenticate", e);
-            invalidateCookie(TokenType.ACCESS, response);
+            handleUnexpectedError(response, e);
         }
     }
 
-    private String resolveTokenFromRequest(HttpServletRequest request, HttpServletResponse response) {
+    private String getValidToken(HttpServletRequest request, HttpServletResponse response) {
         return jwtTokenResolver.resolveTokenFromRequest(request)
-                .orElseGet(() -> reissueAccessToken(request, response));
+                .orElseGet(() -> reissueAccessTokenIfRefreshExists(request, response));
+    }
+
+    private String reissueAccessTokenIfRefreshExists(HttpServletRequest request, HttpServletResponse response) {
+        validateRefreshTokenExists(request);
+        return reissueAccessTokenSafely(request, response);
+    }
+
+    private String reissueAccessTokenSafely(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            return reissueAccessToken(request, response);
+        } catch (ExpiredJwtException e) {
+            log.debug("Refresh token expired during token reissue attempt");
+            throw new RefreshTokenNotValidException();
+        }
+    }
+
+    private void validateRefreshTokenExists(HttpServletRequest request) {
+        if (isRefreshTokenMissing(request)) {
+            throw new AuthenticationRequiredException();
+        }
+    }
+
+    private boolean isRefreshTokenMissing(HttpServletRequest request) {
+        return jwtTokenResolver.resolveRefreshTokenFromRequest(request).isEmpty();
+    }
+
+    private void handleExpiredAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        log.debug("Access token expired, attempting reissue");
+        try {
+            String newToken = reissueAccessTokenIfRefreshExists(request, response);
+            setAuthentication(request, newToken);
+        } catch (AuthenticationRequiredException e) {
+            handleMissingAuthentication(response);
+        } catch (RefreshTokenNotValidException e) {
+            handleInvalidRefreshToken(response);
+        } catch (ExpiredJwtException e) {
+            log.debug("Refresh token also expired during reissue");
+            handleInvalidRefreshToken(response);
+        } catch (Exception e) {
+            handleTokenReissueFailure(response, e);
+        }
+    }
+
+    private void handleInvalidRefreshToken(HttpServletResponse response) {
+        log.warn("Refresh token is invalid or expired");
+        clearAllTokens(response);
+    }
+
+    private void handleMissingAuthentication(HttpServletResponse response) {
+        log.debug("Authentication not required or token missing");
+        invalidateCookie(TokenType.ACCESS, response);
+    }
+
+    private void handleTokenReissueFailure(HttpServletResponse response, Exception e) {
+        log.error("Failed to reissue access token", e);
+        invalidateCookie(TokenType.ACCESS, response);
+    }
+
+    private void handleUnexpectedError(HttpServletResponse response, Exception e) {
+        log.error("Unexpected authentication error", e);
+        invalidateCookie(TokenType.ACCESS, response);
     }
 
     private String reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
@@ -72,16 +130,22 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         return tokenResult.accessToken();
     }
 
-    private UserDetails getUserDetails(String token) {
-        String subject = jwtTokenResolver.getSubjectFromToken(token);
-        return userDetailsService.loadUserByUsername(subject);
-    }
-
-    private void setAuthentication(HttpServletRequest request, UserDetails userDetails) {
+    private void setAuthentication(HttpServletRequest request, String token) {
+        UserDetails userDetails = loadUserDetails(token);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private UserDetails loadUserDetails(String token) {
+        String subject = jwtTokenResolver.getSubjectFromToken(token);
+        return userDetailsService.loadUserByUsername(subject);
+    }
+
+    private void clearAllTokens(HttpServletResponse response) {
+        invalidateCookie(TokenType.ACCESS, response);
+        invalidateCookie(TokenType.REFRESH, response);
     }
 
     private void invalidateCookie(TokenType tokenType, HttpServletResponse response) {

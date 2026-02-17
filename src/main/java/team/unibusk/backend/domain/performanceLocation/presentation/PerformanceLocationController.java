@@ -10,10 +10,6 @@ import team.unibusk.backend.domain.performanceLocation.application.dto.response.
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationMapListResponse;
 import team.unibusk.backend.domain.performanceLocation.application.dto.response.PerformanceLocationSearchListResponse;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.EmptyKeywordException;
-import team.unibusk.backend.domain.performanceLocation.presentation.exception.InvalidKeywordLengthException;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/performance-locations")
@@ -63,5 +59,4 @@ public class PerformanceLocationController implements PerformanceLocationDocsCon
                 performanceLocationService.getPerformanceLocationDetail(performanceLocationId);
         return ResponseEntity.status(200).body(response);
     }
-
 }
