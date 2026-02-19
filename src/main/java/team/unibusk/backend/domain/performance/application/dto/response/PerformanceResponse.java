@@ -7,9 +7,7 @@ import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 public record PerformanceResponse(
@@ -39,23 +37,6 @@ public record PerformanceResponse(
         List<String> images
 
 ) {
-
-        public PerformanceResponse(Performance performance, String locationName) {
-                this(
-                        performance.getId(),
-                        performance.getTitle(),
-                        performance.getPerformanceDate(),
-                        performance.getStartTime(),
-                        performance.getEndTime(),
-                        locationName,
-
-                        performance.getImages() != null
-                                ? performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .collect(Collectors.toList())
-                                : Collections.emptyList()
-                );
-        }
 
         public static PerformanceResponse from(
                 Performance performance,
