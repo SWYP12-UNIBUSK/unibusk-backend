@@ -48,6 +48,13 @@
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
+### 📊 Monitoring & Logging
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Loki](https://img.shields.io/badge/Loki-F5A800?style=for-the-badge&logo=grafana&logoColor=white)
+![Promtail](https://img.shields.io/badge/Promtail-F5A800?style=for-the-badge&logo=grafana&logoColor=white)
+![Discord](https://img.shields.io/badge/Discord_Alert-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+
 ### 📚 Libraries & Tools
 ![Spring WebFlux](https://img.shields.io/badge/Spring_WebFlux-6DB33F?style=for-the-badge)
 ![Lombok](https://img.shields.io/badge/Lombok-BC4521?style=for-the-badge)
@@ -81,6 +88,12 @@ backend
     └── ...
 ```
 
+## 📐 ERD
+
+<p align="center">
+  <img src="docs/readme/erd.png" width="900" alt="ERD"/>
+</p>
+
 ## 🏗️ 시스템 아키텍처
 
 <p align="center">
@@ -92,28 +105,19 @@ UNIBUSK는 안정적인 서비스 운영과 무중단 배포를 목표로
 
 ---
 
-### 🔹 서비스 구성
+### 🌐 서비스 구성
 
-- **Cloudflare Workers**
-    - 프론트엔드 정적 리소스 제공 및 CDN 캐싱
-    - 사용자 요청을 서버로 전달
-
-- **Nginx**
-    - Reverse Proxy 역할 수행
-    - Blue/Green 컨테이너 간 트래픽 전환
-    - Health Check 기반 자동 롤백 지원
-
-- **Spring Boot (Docker)**
-    - Docker Compose 기반 멀티 컨테이너 환경
-    - Blue-Green 전략을 통한 무중단 배포
-
-- **Data Layer**
-    - MySQL : 서비스 주요 데이터 저장
-    - Redis : 캐싱 및 인증 토큰 관리
+| 컴포넌트 | 역할 |
+|---|---|
+| **Cloudflare Workers** | 프론트엔드 정적 리소스 제공 및 CDN 캐싱 |
+| **Nginx** | Reverse Proxy · Blue/Green 트래픽 전환 · Health Check 기반 자동 롤백 |
+| **Spring Boot (Docker)** | Docker Compose 기반 멀티 컨테이너 · Blue-Green 무중단 배포 |
+| **MySQL** | 서비스 주요 데이터 저장 |
+| **Redis** | 캐싱 및 인증 토큰 관리 |
 
 ---
 
-### 🔹 사용자 요청 흐름
+### 🔄 사용자 요청 흐름
 
 ```
 User → Cloudflare → Nginx → Spring Boot → MySQL / Redis
@@ -126,7 +130,7 @@ User → Cloudflare → Nginx → Spring Boot → MySQL / Redis
 
 ---
 
-### 🔹 CI/CD 배포 흐름
+### 🚀 CI/CD 배포 흐름
 
 ```
 GitHub Push → GitHub Actions → Docker Image Build
@@ -141,7 +145,19 @@ GitHub Push → GitHub Actions → Docker Image Build
 
 ---
 
-> Docker Compose와 Blue-Green 배포 전략을 통해 서비스 중단 없이 안전한 배포 환경을 구축했습니다.
+### 📊 모니터링 구성
+
+> **Docker Compose 기반 모니터링 스택**을 별도로 구성하여 서비스 상태를 실시간으로 관찰합니다.
+
+| 컴포넌트 | 역할 |
+|---|---|
+| **Promtail** | 애플리케이션 로그 파일 수집 및 태깅 |
+| **Loki** | 수집된 로그 집계 및 인덱싱 |
+| **Prometheus** | Spring Boot Actuator에서 메트릭 수집 (15s 간격) |
+| **Grafana** | 메트릭 · 로그 통합 대시보드 시각화 (CPU · Memory · TPS · JVM) |
+| **Discord Webhook** | Grafana Alert 기반 장애 · 에러 실시간 알림 |
+
+---
 
 ## 👥 팀원
 
