@@ -20,7 +20,7 @@ public class CustomException extends RuntimeException {
     }
 
     public boolean isServerError() {
-        return code.getStatus().equals(INTERNAL_SERVER_ERROR);
+        return code.getStatus().is5xxServerError();
     }
 
 }
