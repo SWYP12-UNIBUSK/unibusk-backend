@@ -2,15 +2,12 @@ package team.unibusk.backend.global.logging.aspect;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import team.unibusk.backend.global.logging.exception.ExceptionLogger;
 import team.unibusk.backend.global.logging.masker.ArgumentMasker;
 
 import java.lang.reflect.Method;
@@ -22,7 +19,6 @@ import java.lang.reflect.Method;
 public class LoggingAspect {
 
     private final ArgumentMasker argumentMasker;
-    private final ExceptionLogger exceptionLogger;
 
     @Pointcut(
             "execution(* team.unibusk.backend.domain..presentation..*(..))"
@@ -31,24 +27,22 @@ public class LoggingAspect {
 
     @Around("cut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        log.info("[CALL] {} args={}", method.getName(), argumentMasker.mask(joinPoint.getArgs()));
+
         long start = System.currentTimeMillis();
-
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String maskedArgs = argumentMasker.mask(joinPoint.getArgs());
-
-        log.info("[CALL] {} args={}", method.getName(), maskedArgs);
-
-        Object result = joinPoint.proceed();
-
-        log.info("[END] {} took={}ms", method.getName(), System.currentTimeMillis() - start);
-
-        return result;
-    }
-
-    @AfterThrowing(pointcut = "cut()", throwing = "e")
-    public void afterThrowing(JoinPoint joinPoint, Throwable e) {
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        exceptionLogger.log(method, e);
+        boolean thrown = false;
+        try {
+            return joinPoint.proceed();
+        } catch (Throwable e) {
+            thrown = true;
+            throw e;
+        } finally {
+            log.info("[{}] {} took={}ms",
+                    thrown ? "THROW" : "END",
+                    method.getName(),
+                    System.currentTimeMillis() - start);
+        }
     }
 
 }
