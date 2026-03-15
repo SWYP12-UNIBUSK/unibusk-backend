@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class TraceIdResolver {
 
     private static final String HEADER = "X-Request-ID";
-    private static final Pattern VALID_TRACE_ID = Pattern.compile("^[a-zA-Z0-9\\-]{8,32}$");
+    private static final Pattern VALID_TRACE_ID = Pattern.compile("^[A-Za-z0-9_-]{8,64}$");
 
     public String resolve(HttpServletRequest request) {
         String traceId = request.getHeader(HEADER);
