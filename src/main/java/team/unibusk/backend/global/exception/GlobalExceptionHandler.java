@@ -28,9 +28,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ExceptionResponse> handleCustomException(CustomException exception) {
 
         if (exception.isServerError()) {
-            log.error("Server error", exception);
+            log.error("[SERVER_ERROR] code={}, message={}",
+                    exception.getCode().getCode(),
+                    exception.getMessage(), exception);
         } else {
-            log.warn("Business error: {}", exception.getMessage());
+            log.warn("[BUSINESS_ERROR] code={}, message={}",
+                    exception.getCode().getCode(),
+                    exception.getMessage());
         }
 
         ExceptionResponse response = ExceptionResponse.from(exception);
