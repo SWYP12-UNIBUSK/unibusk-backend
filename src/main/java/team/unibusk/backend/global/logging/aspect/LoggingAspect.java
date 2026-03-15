@@ -27,19 +27,21 @@ public class LoggingAspect {
 
     @Around("cut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        long start = System.currentTimeMillis();
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String maskedArgs = argumentMasker.mask(joinPoint.getArgs());
+        log.info("[CALL] {} args={}", method.getName(), argumentMasker.mask(joinPoint.getArgs()));
 
-        log.info("[CALL] {} args={}", method.getName(), maskedArgs);
-
+        long start = System.currentTimeMillis();
+        boolean thrown = false;
         try {
-            Object result = joinPoint.proceed();
-            log.info("[END] {} took={}ms", method.getName(), System.currentTimeMillis() - start);
-            return result;
+            return joinPoint.proceed();
         } catch (Throwable e) {
-            log.info("[ERR] {} took={}ms", method.getName(), System.currentTimeMillis() - start);
+            thrown = true;
             throw e;
+        } finally {
+            log.info("[{}] {} took={}ms",
+                    thrown ? "THROW" : "END",
+                    method.getName(),
+                    System.currentTimeMillis() - start);
         }
     }
 
