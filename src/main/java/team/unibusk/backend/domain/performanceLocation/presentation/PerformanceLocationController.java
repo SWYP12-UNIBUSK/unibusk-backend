@@ -59,4 +59,5 @@ public class PerformanceLocationController implements PerformanceLocationDocsCon
                 performanceLocationService.getPerformanceLocationDetail(performanceLocationId);
         return ResponseEntity.status(200).body(response);
     }
+
 }

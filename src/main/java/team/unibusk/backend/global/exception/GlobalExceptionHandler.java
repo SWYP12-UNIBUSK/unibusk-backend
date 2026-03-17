@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static net.logstash.logback.argument.StructuredArguments.keyValue;
 import static team.unibusk.backend.global.exception.GlobalExceptionCode.INVALID_INPUT;
 import static team.unibusk.backend.global.exception.GlobalExceptionCode.SERVER_ERROR;
 
@@ -26,6 +27,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ExceptionResponse> handleCustomException(CustomException exception) {
+
+        if (exception.isServerError()) {
+            log.error("[SERVER_ERROR]",
+                    keyValue("code", exception.getCode().getCode()),
+                    keyValue("errorMessage", exception.getMessage()),
+                    exception);
+        } else {
+            log.warn("[BUSINESS_ERROR]",
+                    keyValue("code", exception.getCode().getCode()),
+                    keyValue("errorMessage", exception.getMessage()));
+        }
+
         ExceptionResponse response = ExceptionResponse.from(exception);
         return ResponseEntity.status(response.status()).body(response);
     }
