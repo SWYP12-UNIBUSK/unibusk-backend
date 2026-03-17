@@ -42,20 +42,23 @@ public record PerformanceResponse(
 ) {
 
         @QueryProjection
-        public PerformanceResponse(Performance performance, String locationName) {
+        public PerformanceResponse(
+                Long performanceId,
+                String title,
+                LocalDate performanceDate,
+                LocalDateTime startTime,
+                LocalDateTime endTime,
+                String locationName,
+                String imageUrl
+        ) {
                 this(
-                        performance.getId(),
-                        performance.getTitle(),
-                        performance.getPerformanceDate(),
-                        performance.getStartTime(),
-                        performance.getEndTime(),
+                        performanceId,
+                        title,
+                        performanceDate,
+                        startTime,
+                        endTime,
                         locationName,
-
-                        performance.getImages() != null
-                                ? performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .collect(Collectors.toList())
-                                : Collections.emptyList()
+                        imageUrl != null ? List.of(imageUrl) : Collections.emptyList()
                 );
         }
 
