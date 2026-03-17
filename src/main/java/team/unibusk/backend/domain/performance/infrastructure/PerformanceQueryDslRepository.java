@@ -1,7 +1,6 @@
 package team.unibusk.backend.domain.performance.infrastructure;
 
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,12 +12,14 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceResponse;
+import team.unibusk.backend.domain.performance.application.dto.response.QPerformanceResponse;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.domain.QPerformance;
 import team.unibusk.backend.domain.performance.domain.QPerformanceImage;
 
 import static team.unibusk.backend.domain.performance.domain.QPerformance.performance;
+import static team.unibusk.backend.domain.performance.domain.QPerformanceImage.performanceImage;
 import static team.unibusk.backend.domain.performanceLocation.domain.QPerformanceLocation.performanceLocation;
 
 import java.time.LocalDateTime;
@@ -32,12 +33,20 @@ public class PerformanceQueryDslRepository {
 
     public Page<PerformanceResponse> searchByCondition(PerformanceStatus status, String keyword, Pageable pageable) {
         List<PerformanceResponse> content = queryFactory
-                .select(Projections.constructor(PerformanceResponse.class,
-                        performance,
-                        performanceLocation.name
+                .select(new QPerformanceResponse(
+                        performance.id,
+                        performance.title,
+                        performance.performanceDate,
+                        performance.startTime,
+                        performance.endTime,
+                        performanceLocation.name,
+                        performanceImage.imageUrl
                 ))
                 .from(performance)
-                .join(performanceLocation).on(performance.performanceLocationId.eq(performanceLocation.id))
+                .leftJoin(performanceLocation)
+                .on(performance.performanceLocationId.eq(performanceLocation.id))
+                .leftJoin(performanceImage)
+                .on(performance.id.eq(performanceImage.performanceId))
                 .where(
                         filterByStatus(status),
                         locationNameContains(keyword)
@@ -50,7 +59,7 @@ public class PerformanceQueryDslRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(performance.count())
                 .from(performance)
-                .join(performanceLocation).on(performance.performanceLocationId.eq(performanceLocation.id))
+                .leftJoin(performanceLocation).on(performance.performanceLocationId.eq(performanceLocation.id))
                 .where(
                         filterByStatus(status),
                         locationNameContains(keyword)
@@ -58,6 +67,7 @@ public class PerformanceQueryDslRepository {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
+
     public List<Performance> findUpcomingByPerformanceLocationWithCursor(
             Long performanceLocationId,
             LocalDateTime cursorTime,

@@ -1,5 +1,6 @@
 package team.unibusk.backend.domain.performance.application.dto.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
@@ -7,9 +8,8 @@ import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Builder
 public record PerformanceResponse(
@@ -40,20 +40,24 @@ public record PerformanceResponse(
 
 ) {
 
-        public PerformanceResponse(Performance performance, String locationName) {
+        @QueryProjection
+        public PerformanceResponse(
+                Long performanceId,
+                String title,
+                LocalDate performanceDate,
+                LocalDateTime startTime,
+                LocalDateTime endTime,
+                String locationName,
+                String imageUrl
+        ) {
                 this(
-                        performance.getId(),
-                        performance.getTitle(),
-                        performance.getPerformanceDate(),
-                        performance.getStartTime(),
-                        performance.getEndTime(),
+                        performanceId,
+                        title,
+                        performanceDate,
+                        startTime,
+                        endTime,
                         locationName,
-
-                        performance.getImages() != null
-                                ? performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .collect(Collectors.toList())
-                                : Collections.emptyList()
+                        imageUrl != null ? List.of(imageUrl) : Collections.emptyList()
                 );
         }
 

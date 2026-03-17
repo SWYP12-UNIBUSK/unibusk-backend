@@ -16,6 +16,9 @@ public class PerformanceImage extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "performance_id", insertable = false, updatable = false)
+    private Long performanceId;
+
     @Column(nullable = false, length = 512)
     private String imageUrl;
 
