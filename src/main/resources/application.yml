@@ -1,6 +1,11 @@
 spring:
   profiles:
     active: local
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+server:
+  shutdown: graceful
 
 ---
 spring:
