@@ -58,6 +58,20 @@ rollback() {
     docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
   fi
 
+  # 롤백 헬스체크
+  ROLLBACK_PORT=8081
+  [ "$CURRENT" = "green" ] && ROLLBACK_PORT=8082
+  COUNT=0
+  until curl -sf http://127.0.0.1:$ROLLBACK_PORT/api/actuator/health >/dev/null; do
+    COUNT=$((COUNT+1))
+    [ $COUNT -ge $MAX_RETRY ] && { log "$CURRENT rollback unhealthy, giving up"; break; }
+    log "Waiting for $CURRENT to be healthy... ($COUNT/$MAX_RETRY)"
+    sleep $INTERVAL
+  done
+
+  log "$CURRENT healthy — waiting ${WARMUP_DELAY}s for warmup..."
+  sleep $WARMUP_DELAY
+
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
   sudo nginx -t
   sudo nginx -s reload
