@@ -5,6 +5,7 @@ BASE_DIR="$HOME/deployment/prod"
 NGINX_DIR="$BASE_DIR/nginx"
 COMPOSE="$BASE_DIR/docker/docker-compose.yml"
 STATE_FILE="$BASE_DIR/.active"
+PREV_SHA_FILE="$BASE_DIR/.prev_sha"
 
 MAX_RETRY=30
 INTERVAL=5
@@ -16,15 +17,23 @@ log() { echo "[$(date +"%T")] $1"; }
 rollback() {
   log "ROLLBACK triggered"
 
+  if [ -f "$PREV_SHA_FILE" ]; then
+    PREV_SHA=$(cat "$PREV_SHA_FILE")
+    log "Rolling back to image: $PREV_SHA"
+    export IMAGE_TAG=$PREV_SHA
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull $CURRENT
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $CURRENT
+  else
+    log "No previous SHA found, restarting CURRENT as-is"
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $CURRENT
+  fi
+
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
   sudo nginx -t
   sudo nginx -s reload
 
-  docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $CURRENT
-
   docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $NEXT || true
 
-  # 상태 파일 복원
   echo "$CURRENT" > "$STATE_FILE"
 
   exit 1
@@ -91,5 +100,7 @@ echo "$NEXT" > "$STATE_FILE"
 # 기존 컨테이너 정리 (graceful shutdown 대기)
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop $CURRENT
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $CURRENT
+
+echo "${DEPLOY_SHA:-latest}" > "$PREV_SHA_FILE"
 
 log "Deploy success: $NEXT live (image: ${DEPLOY_SHA:-latest})"
