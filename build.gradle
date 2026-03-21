@@ -25,47 +25,94 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // =========================
+    // Spring 기본
+    // =========================
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'      // JPA + Hibernate 사용
+    implementation 'org.springframework.boot:spring-boot-starter-security'      // Spring Security 인증/인가
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client' // OAuth2 로그인 (구글/카카오 등)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'    // @Valid, Bean Validation
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'        // REST API (Spring MVC)
+
+    compileOnly 'org.projectlombok:lombok'               // Lombok (컴파일 시에만 필요)
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // 개발용 자동 재시작
+
+    // =========================
+    // Database
+    // =========================
+    runtimeOnly 'com.h2database:h2'                      // 로컬 테스트용 인메모리 DB
+    runtimeOnly 'com.mysql:mysql-connector-j'           // MySQL 드라이버
+
+    // =========================
+    // Test
+    // =========================
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'   // JPA 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'   // Security 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'     // Controller 테스트
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+    // =========================
+    // JWT
+    // =========================
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'    // JWT 생성/검증 API
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'      // JWT 내부 구현체
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'   // JWT JSON 직렬화용
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
+    // =========================
+    // API 문서
+    // =========================
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'  // Swagger / OpenAPI 문서
 
-    implementation platform('software.amazon.awssdk:bom:2.41.5')
-    implementation 'software.amazon.awssdk:s3'
-    implementation 'software.amazon.awssdk:url-connection-client'
+    // =========================
+    // AWS
+    // =========================
+    implementation platform('software.amazon.awssdk:bom:2.41.5') // AWS SDK 버전 통합 관리
+    implementation 'software.amazon.awssdk:s3'                    // S3 파일 업로드/다운로드
+    implementation 'software.amazon.awssdk:url-connection-client' // 경량 HTTP 클라이언트
 
-    implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // =========================
+    // 파일 처리
+    // =========================
+    implementation 'org.apache.poi:poi-ooxml:5.2.3' // 엑셀 파일 생성/읽기
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.apache.commons:commons-lang3:3.19.0'
+    // =========================
+    // 비동기 / WebClient
+    // =========================
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient 사용 목적
 
-    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    // =========================
+    // Redis
+    // =========================
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis (토큰/캐시 등)
+
+    // =========================
+    // 유틸
+    // =========================
+    implementation 'org.apache.commons:commons-lang3:3.19.0' // StringUtils 등 유틸 함수
+
+    // =========================
+    // QueryDSL
+    // =========================
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"  // 타입 안전한 동적 쿼리
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
+    // =========================
+    // 모니터링
+    // =========================
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'   // 헬스체크/메트릭
+    implementation 'io.micrometer:micrometer-registry-prometheus'            // Prometheus 연동
 
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    // =========================
+    // 로그
+    // =========================
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4' // JSON 로그 (ELK용)
 }
 
 tasks.named('test') {
