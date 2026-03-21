@@ -12,4 +12,7 @@ COPY --chown=spring:spring ${JAR_FILE} app.jar
 HEALTHCHECK --start-period=30s --interval=10s --timeout=5s --retries=5 \
   CMD sh -c 'curl -f http://localhost:8080/api/actuator/health || exit 1'
 
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS \
+  -XX:+UseContainerSupport \
+  -XX:MaxRAMPercentage=75.0 \
+  -jar app.jar"]
