@@ -4,6 +4,7 @@ services:
   blue:
     image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
     container_name: unibusk-blue
+    stop_grace_period: 35s
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     ports:
@@ -23,6 +24,7 @@ services:
   green:
     image: ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
     container_name: unibusk-green
+    stop_grace_period: 35s
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     ports:
