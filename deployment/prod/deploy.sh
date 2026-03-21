@@ -91,6 +91,8 @@ cd "$BASE_DIR"
 
 set -a; source "$APP_ENV_FILE"; set +a
 
+: "${DEPLOY_SHA:?DEPLOY_SHA must be set for production deploys}"
+
 # 상태 파일로 현재 active 환경 판단 (없으면 docker ps로 fallback)
 load_state
 
@@ -113,9 +115,9 @@ else
   PORT=8081
 fi
 
-log "Deploy: $CURRENT → $NEXT (image tag: ${DEPLOY_SHA:-latest})"
+log "Deploy: $CURRENT → $NEXT (image tag: $DEPLOY_SHA)"
 
-export IMAGE_TAG=${DEPLOY_SHA:-latest}
+export IMAGE_TAG="$DEPLOY_SHA"
 
 # 배포 전 기존 NEXT 컨테이너 삭제
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$NEXT" || true
@@ -146,6 +148,6 @@ docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
 # 상태 atomic 저장
-save_state "$NEXT" "${DEPLOY_SHA:-latest}"
+save_state "$NEXT" "$DEPLOY_SHA"
 
-log "Deploy success: $NEXT live (image: ${DEPLOY_SHA:-latest})"
+log "Deploy success: $NEXT live (image: $DEPLOY_SHA)"
