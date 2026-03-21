@@ -61,8 +61,11 @@ if [ -f "$STATE_FILE" ]; then
 else
   if docker ps --filter "name=unibusk-blue" --filter "status=running" | grep unibusk-blue >/dev/null; then
     CURRENT="blue"
+  elif docker ps --filter "name=unibusk-green" --filter "status=running" | grep unibusk-green >/dev/null; then
+    CURRENT="green"
   else
     CURRENT="green"
+    log "Initial deployment detected, starting with blue"
   fi
 fi
 
@@ -106,7 +109,7 @@ sudo nginx -s reload
 echo "$NEXT" > "$STATE_FILE"
 
 # 기존 컨테이너 정리 (graceful shutdown 대기)
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop "$CURRENT"
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
 echo "${DEPLOY_SHA:-latest}" > "$PREV_SHA_FILE"
