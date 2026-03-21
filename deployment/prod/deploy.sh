@@ -4,8 +4,7 @@ set -Eeuo pipefail
 BASE_DIR="$HOME/deployment/prod"
 NGINX_DIR="$BASE_DIR/nginx"
 COMPOSE="$BASE_DIR/docker/docker-compose.yml"
-STATE_FILE="$BASE_DIR/.active"
-PREV_SHA_FILE="$BASE_DIR/.prev_sha"
+STATE_FILE="$BASE_DIR/.state"
 
 MAX_RETRY=30
 INTERVAL=5
@@ -17,6 +16,23 @@ NEXT=""
 
 log() { echo "[$(date +"%T")] $1"; }
 
+load_state() {
+  if [ -f "$STATE_FILE" ]; then
+    source "$STATE_FILE"
+    CURRENT=${ACTIVE:-}
+  fi
+}
+
+save_state() {
+  local active=$1
+  local sha=$2
+  local tmp
+  tmp=$(mktemp "$BASE_DIR/.state.XXXXXX")
+  echo "ACTIVE=$active" > "$tmp"
+  echo "SHA=$sha" >> "$tmp"
+  mv "$tmp" "$STATE_FILE"
+}
+
 rollback() {
   log "ROLLBACK triggered"
 
@@ -25,14 +41,20 @@ rollback() {
     exit 1
   fi
 
-  if [ -f "$PREV_SHA_FILE" ]; then
-    PREV_SHA=$(cat "$PREV_SHA_FILE")
-    log "Rolling back to image: $PREV_SHA"
-    export IMAGE_TAG=$PREV_SHA
-    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull "$CURRENT"
-    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
+  if [ -f "$STATE_FILE" ]; then
+    source "$STATE_FILE"
+    PREV_SHA=${SHA:-}
+    if [ -n "$PREV_SHA" ]; then
+      log "Rolling back to image: $PREV_SHA"
+      export IMAGE_TAG=$PREV_SHA
+      docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull "$CURRENT"
+      docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
+    else
+      log "No previous SHA found, restarting CURRENT as-is"
+      docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
+    fi
   else
-    log "No previous SHA found, restarting CURRENT as-is"
+    log "No state file found, restarting CURRENT as-is"
     docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
   fi
 
@@ -42,7 +64,7 @@ rollback() {
 
   docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$NEXT" || true
 
-  echo "$CURRENT" > "$STATE_FILE"
+  save_state "$CURRENT" "${PREV_SHA:-}"
 
   exit 1
 }
@@ -56,9 +78,9 @@ cd "$BASE_DIR"
 set -a; source "$APP_ENV_FILE"; set +a
 
 # 상태 파일로 현재 active 환경 판단 (없으면 docker ps로 fallback)
-if [ -f "$STATE_FILE" ]; then
-  CURRENT=$(cat "$STATE_FILE")
-else
+load_state
+
+if [ -z "${CURRENT:-}" ]; then
   if docker ps --filter "name=unibusk-blue" --filter "status=running" | grep unibusk-blue >/dev/null; then
     CURRENT="blue"
   elif docker ps --filter "name=unibusk-green" --filter "status=running" | grep unibusk-green >/dev/null; then
@@ -105,13 +127,11 @@ sudo cp "$NGINX_DIR/unibusk-$NEXT.conf" /etc/nginx/conf.d/default.conf
 sudo nginx -t
 sudo nginx -s reload
 
-# 상태 파일 업데이트
-echo "$NEXT" > "$STATE_FILE"
-
 # 기존 컨테이너 정리 (graceful shutdown 대기)
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
-echo "${DEPLOY_SHA:-latest}" > "$PREV_SHA_FILE"
+# 상태 atomic 저장
+save_state "$NEXT" "${DEPLOY_SHA:-latest}"
 
 log "Deploy success: $NEXT live (image: ${DEPLOY_SHA:-latest})"
