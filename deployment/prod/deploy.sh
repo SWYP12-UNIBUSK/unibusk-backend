@@ -12,27 +12,35 @@ INTERVAL=5
 WARMUP_DELAY=10
 APP_ENV_FILE="$BASE_DIR/.env"
 
+CURRENT=""
+NEXT=""
+
 log() { echo "[$(date +"%T")] $1"; }
 
 rollback() {
   log "ROLLBACK triggered"
 
+  if [ -z "${CURRENT:-}" ]; then
+    log "CURRENT not defined, cannot rollback"
+    exit 1
+  fi
+
   if [ -f "$PREV_SHA_FILE" ]; then
     PREV_SHA=$(cat "$PREV_SHA_FILE")
     log "Rolling back to image: $PREV_SHA"
     export IMAGE_TAG=$PREV_SHA
-    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull $CURRENT
-    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $CURRENT
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull "$CURRENT"
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
   else
     log "No previous SHA found, restarting CURRENT as-is"
-    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $CURRENT
+    docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$CURRENT"
   fi
 
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
   sudo nginx -t
   sudo nginx -s reload
 
-  docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $NEXT || true
+  docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$NEXT" || true
 
   echo "$CURRENT" > "$STATE_FILE"
 
@@ -71,11 +79,11 @@ log "Deploy: $CURRENT → $NEXT (image tag: ${DEPLOY_SHA:-latest})"
 export IMAGE_TAG=${DEPLOY_SHA:-latest}
 
 # 배포 전 기존 NEXT 컨테이너 삭제
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $NEXT || true
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$NEXT" || true
 
 # 이미지 pull 및 컨테이너 실행
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull $NEXT
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d $NEXT
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" pull "$NEXT"
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" up -d "$NEXT"
 
 # 헬스체크
 COUNT=0
@@ -98,8 +106,8 @@ sudo nginx -s reload
 echo "$NEXT" > "$STATE_FILE"
 
 # 기존 컨테이너 정리 (graceful shutdown 대기)
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop $CURRENT
-docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f $CURRENT
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop "$CURRENT"
+docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
 echo "${DEPLOY_SHA:-latest}" > "$PREV_SHA_FILE"
 
