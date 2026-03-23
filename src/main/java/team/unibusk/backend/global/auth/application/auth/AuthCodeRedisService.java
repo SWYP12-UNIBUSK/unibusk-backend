@@ -1,6 +1,7 @@
 package team.unibusk.backend.global.auth.application.auth;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import team.unibusk.backend.global.auth.application.model.AuthCodePayload;
@@ -8,6 +9,7 @@ import team.unibusk.backend.global.auth.presentation.exception.InvalidAuthCodeEx
 
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthCodeRedisService {
@@ -45,6 +47,7 @@ public class AuthCodeRedisService {
                     .firstLogin(Boolean.parseBoolean(split[1]))
                     .build();
         } catch (NumberFormatException e) {
+            log.warn("Failed to parse auth code payload: {}", value, e);
             throw new InvalidAuthCodeException();
         }
     }
