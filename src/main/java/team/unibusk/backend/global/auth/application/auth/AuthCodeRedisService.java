@@ -39,10 +39,14 @@ public class AuthCodeRedisService {
             throw new InvalidAuthCodeException();
         }
 
-        return AuthCodePayload.builder()
-                .memberId(Long.valueOf(split[0]))
-                .firstLogin(Boolean.parseBoolean(split[1]))
-                .build();
+        try {
+            return AuthCodePayload.builder()
+                    .memberId(Long.valueOf(split[0]))
+                    .firstLogin(Boolean.parseBoolean(split[1]))
+                    .build();
+        } catch (NumberFormatException e) {
+            throw new InvalidAuthCodeException();
+        }
     }
 
     private void validateNullCheck(String value) {
