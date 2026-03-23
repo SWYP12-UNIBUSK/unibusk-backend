@@ -81,4 +81,13 @@ class AuthCodeRedisServiceTest extends UnitTestSupport {
                 .isInstanceOf(InvalidAuthCodeException.class);
     }
 
+    @Test
+    void memberId가_파싱_불가능한_값이_저장된_인증코드를_사용하면_InvalidAuthCodeException이_발생한다() {
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(valueOperations.getAndDelete("OAUTH:corrupt-code")).willReturn("null:true");
+
+        assertThatThrownBy(() -> authCodeRedisService.consume("corrupt-code"))
+                .isInstanceOf(InvalidAuthCodeException.class);
+    }
+
 }
