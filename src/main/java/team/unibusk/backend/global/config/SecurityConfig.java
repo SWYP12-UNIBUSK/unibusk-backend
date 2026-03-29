@@ -51,10 +51,6 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
     private final CorsProperties corsProperties;
-    private final TokenInjector tokenInjector;
-    private final JwtTokenResolver jwtTokenResolver;
-    private final UserDetailsService userDetailsService;
-    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public JwtTokenFilter jwtTokenFilter(
@@ -72,12 +68,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity httpSecurity,
+            JwtTokenFilter jwtTokenFilter,
+            RedirectUrlFilter redirectUrlFilter
+    ) throws Exception {
         disableSecurityBasic(httpSecurity);
         configureCorsPolicy(httpSecurity);
         configureSessionManagement(httpSecurity);
         configureApiAuthorization(httpSecurity);
-        configureLogin(httpSecurity);
+        configureLogin(httpSecurity, jwtTokenFilter, redirectUrlFilter);
         configureExceptionHandler(httpSecurity);
 
         return httpSecurity.build();
@@ -97,9 +97,7 @@ public class SecurityConfig {
     private void configureCorsPolicy(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
-            corsConfiguration.setAllowedOrigins(
-                    corsProperties.allowedOrigins()
-            );
+            corsConfiguration.setAllowedOrigins(corsProperties.allowedOrigins());
             corsConfiguration.setAllowedMethods(ALLOWED_METHODS);
             corsConfiguration.setAllowedHeaders(ALLOWED_HEADERS);
             corsConfiguration.setExposedHeaders(EXPOSED_HEADERS);
@@ -108,19 +106,13 @@ public class SecurityConfig {
         }));
     }
 
-    private void configureLogin(HttpSecurity http) throws Exception {
-        http.addFilterBefore(redirectUrlFilter(tokenInjector),
-                OAuth2AuthorizationRequestRedirectFilter.class
-        );
-        http.addFilterBefore(
-                jwtTokenFilter(
-                        jwtTokenResolver,
-                        tokenInjector,
-                        userDetailsService,
-                        refreshTokenService
-                ),
-                UsernamePasswordAuthenticationFilter.class
-        );
+    private void configureLogin(
+            HttpSecurity http,
+            JwtTokenFilter jwtTokenFilter,
+            RedirectUrlFilter redirectUrlFilter
+    ) throws Exception {
+        http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.oauth2Login(oauth2 ->
                 oauth2.loginPage(securityProperties.oAuthUrl().loginUrl())
                         .userInfoEndpoint(userInfo -> userInfo.userService(defaultOAuth2UserService))
@@ -133,14 +125,11 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorize ->
                 authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/performances").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
-
                         .requestMatchers("/members/**").authenticated()
                         .requestMatchers("/auths/logout").authenticated()
-
                         .anyRequest().permitAll()
         );
     }
