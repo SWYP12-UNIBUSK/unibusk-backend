@@ -41,7 +41,12 @@ class MemberControllerTest extends ControllerTestSupport {
         assertThat(mvcTester.get().uri("/members/me"))
                 .hasStatusOk()
                 .bodyJson()
-                .extractingPath("$.email").isEqualTo("test@email.com");
+                .convertTo(MemberInfoResponse.class)
+                .satisfies(res -> {
+                    assertThat(res.memberId()).isEqualTo(1L);
+                    assertThat(res.email()).isEqualTo("test@email.com");
+                    assertThat(res.name()).isEqualTo("홍길동");
+                });
     }
 
     @Test
@@ -63,8 +68,12 @@ class MemberControllerTest extends ControllerTestSupport {
                 .content(body))
                 .hasStatusOk()
                 .bodyJson()
-                .extractingPath("$.name").isEqualTo("김철수");
-
+                .convertTo(MemberNameUpdateResponse.class)
+                .satisfies(res -> {
+                    assertThat(res.memberId()).isEqualTo(1L);
+                    assertThat(res.email()).isEqualTo("test@email.com");
+                    assertThat(res.name()).isEqualTo("김철수");
+                });
     }
 
     @Test
