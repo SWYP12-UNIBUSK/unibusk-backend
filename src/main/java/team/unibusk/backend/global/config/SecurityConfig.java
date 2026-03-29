@@ -35,6 +35,15 @@ public class SecurityConfig {
             List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS");
     private static final List<String> ALLOWED_HEADERS = List.of("*");
     private static final List<String> EXPOSED_HEADERS = List.of("Authorization", "Set-Cookie");
+    private static final String[] PERMIT_ALL_PATTERNS = {
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/actuator/**",
+            "/auths/login",
+            "/auths/token",
+            "/oauth2/**",
+    };
 
     private final DefaultOAuth2UserService defaultOAuth2UserService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
@@ -46,16 +55,6 @@ public class SecurityConfig {
     private final JwtTokenResolver jwtTokenResolver;
     private final UserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
-
-    private static final String[] PERMIT_ALL_PATTERNS = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/actuator/**",
-            "/auths/login",
-            "/auths/token",
-            "/oauth2/**",
-    };
 
     @Bean
     public JwtTokenFilter jwtTokenFilter(
