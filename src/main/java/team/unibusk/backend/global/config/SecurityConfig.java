@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -14,10 +15,13 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
+import team.unibusk.backend.global.auth.application.refreshtoken.RefreshTokenService;
 import team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter;
 import team.unibusk.backend.global.auth.presentation.security.handler.OAuth2LoginSuccessHandler;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.filter.JwtTokenFilter;
+import team.unibusk.backend.global.jwt.injector.TokenInjector;
+import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.util.List;
 
@@ -29,8 +33,6 @@ public class SecurityConfig {
 
     private final DefaultOAuth2UserService defaultOAuth2UserService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final JwtTokenFilter jwtTokenFilter;
-    private final RedirectUrlFilter redirectUrlFilter;
     private final SecurityProperties securityProperties;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
@@ -45,6 +47,25 @@ public class SecurityConfig {
             "/auths/token",
             "/oauth2/**",
     };
+    private final TokenInjector tokenInjector;
+    private final JwtTokenResolver jwtTokenResolver;
+    private final UserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
+
+    @Bean
+    public JwtTokenFilter jwtTokenFilter(
+            JwtTokenResolver jwtTokenResolver,
+            TokenInjector tokenInjector,
+            UserDetailsService userDetailsService,
+            RefreshTokenService refreshTokenService
+    ) {
+        return new JwtTokenFilter(jwtTokenResolver, tokenInjector, userDetailsService, refreshTokenService);
+    }
+
+    @Bean
+    public RedirectUrlFilter redirectUrlFilter(TokenInjector tokenInjector) {
+        return new RedirectUrlFilter(tokenInjector);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -84,8 +105,18 @@ public class SecurityConfig {
     }
 
     private void configureLogin(HttpSecurity http) throws Exception {
-        http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(redirectUrlFilter(tokenInjector),
+                OAuth2AuthorizationRequestRedirectFilter.class
+        );
+        http.addFilterBefore(
+                jwtTokenFilter(
+                        jwtTokenResolver,
+                        tokenInjector,
+                        userDetailsService,
+                        refreshTokenService
+                ),
+                UsernamePasswordAuthenticationFilter.class
+        );
         http.oauth2Login(oauth2 ->
                 oauth2.loginPage(securityProperties.oAuthUrl().loginUrl())
                         .userInfoEndpoint(userInfo -> userInfo.userService(defaultOAuth2UserService))
