@@ -34,6 +34,8 @@ class MemberServiceTest extends UnitTestSupport {
                 new MemberNameUpdateServiceRequest(1L, "김철수")
         );
 
+        assertThat(response.memberId()).isEqualTo(1L);
+        assertThat(response.email()).isEqualTo("test@email.com");
         assertThat(response.name()).isEqualTo("김철수");
     }
 
@@ -48,6 +50,7 @@ class MemberServiceTest extends UnitTestSupport {
 
         MemberInfoResponse response = memberService.getMyInfo(1L);
 
+        assertThat(response.memberId()).isEqualTo(1L);
         assertThat(response.email()).isEqualTo("test@email.com");
         assertThat(response.name()).isEqualTo("홍길동");
     }
