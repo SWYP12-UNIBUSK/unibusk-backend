@@ -31,6 +31,11 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
+    private static final List<String> ALLOWED_METHODS =
+            List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS");
+    private static final List<String> ALLOWED_HEADERS = List.of("*");
+    private static final List<String> EXPOSED_HEADERS = List.of("Authorization", "Set-Cookie");
+
     private final DefaultOAuth2UserService defaultOAuth2UserService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final SecurityProperties securityProperties;
@@ -96,9 +101,9 @@ public class SecurityConfig {
             corsConfiguration.setAllowedOrigins(
                     corsProperties.allowedOrigins()
             );
-            corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-            corsConfiguration.setAllowedHeaders(List.of("*"));
-            corsConfiguration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
+            corsConfiguration.setAllowedMethods(ALLOWED_METHODS);
+            corsConfiguration.setAllowedHeaders(ALLOWED_HEADERS);
+            corsConfiguration.setExposedHeaders(EXPOSED_HEADERS);
             corsConfiguration.setAllowCredentials(true);
             return corsConfiguration;
         }));
