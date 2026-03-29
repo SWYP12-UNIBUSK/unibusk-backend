@@ -42,6 +42,10 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
     private final CorsProperties corsProperties;
+    private final TokenInjector tokenInjector;
+    private final JwtTokenResolver jwtTokenResolver;
+    private final UserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
 
     private static final String[] PERMIT_ALL_PATTERNS = {
             "/swagger-ui/**",
@@ -52,10 +56,6 @@ public class SecurityConfig {
             "/auths/token",
             "/oauth2/**",
     };
-    private final TokenInjector tokenInjector;
-    private final JwtTokenResolver jwtTokenResolver;
-    private final UserDetailsService userDetailsService;
-    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public JwtTokenFilter jwtTokenFilter(
