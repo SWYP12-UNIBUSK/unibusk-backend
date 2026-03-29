@@ -18,6 +18,7 @@ import team.unibusk.backend.global.support.TestMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @WebMvcTest(
         controllers = {MemberController.class},
@@ -85,6 +86,8 @@ class MemberControllerTest extends ControllerTestSupport {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .hasStatus(HttpStatus.BAD_REQUEST);
+
+        verifyNoInteractions(memberService);
     }
 
     @Test
@@ -96,6 +99,8 @@ class MemberControllerTest extends ControllerTestSupport {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .hasStatus(HttpStatus.BAD_REQUEST);
+
+        verifyNoInteractions(memberService);
     }
 
 }
