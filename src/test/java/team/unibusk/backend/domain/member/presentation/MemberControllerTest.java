@@ -16,7 +16,7 @@ import team.unibusk.backend.global.support.ControllerTestSupport;
 import team.unibusk.backend.global.support.TestMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(
@@ -52,7 +52,9 @@ class MemberControllerTest extends ControllerTestSupport {
                 .email("test@email.com")
                 .name("김철수")
                 .build();
-        given(memberService.updateMemberName(any())).willReturn(response);
+        given(memberService.updateMemberName(
+                argThat(req -> req.memberId().equals(1L) && req.name().equals("김철수"))
+        )).willReturn(response);
 
         String body = objectMapper.writeValueAsString(new MemberNameUpdateRequest("김철수"));
 
@@ -62,6 +64,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .extractingPath("$.name").isEqualTo("김철수");
+
     }
 
     @Test
