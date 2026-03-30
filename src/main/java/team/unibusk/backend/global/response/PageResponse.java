@@ -1,9 +1,11 @@
 package team.unibusk.backend.global.response;
 
+import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+@Builder
 public record PageResponse<T>(
         List<T> content,
         int page,
@@ -21,5 +23,16 @@ public record PageResponse<T>(
                 page.getTotalPages(),
                 page.hasNext()
         );
+    }
+
+    public static <T> PageResponse<T> of(
+            List<T> content,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages,
+            boolean hasNext
+    ) {
+        return new PageResponse<>(content, page, size, totalElements, totalPages, hasNext);
     }
 }
