@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -14,10 +15,13 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
+import team.unibusk.backend.global.auth.application.refreshtoken.RefreshTokenService;
 import team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter;
 import team.unibusk.backend.global.auth.presentation.security.handler.OAuth2LoginSuccessHandler;
 import team.unibusk.backend.global.jwt.config.SecurityProperties;
 import team.unibusk.backend.global.jwt.filter.JwtTokenFilter;
+import team.unibusk.backend.global.jwt.injector.TokenInjector;
+import team.unibusk.backend.global.jwt.resolver.JwtTokenResolver;
 
 import java.util.List;
 
@@ -27,15 +31,10 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private final DefaultOAuth2UserService defaultOAuth2UserService;
-    private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final JwtTokenFilter jwtTokenFilter;
-    private final RedirectUrlFilter redirectUrlFilter;
-    private final SecurityProperties securityProperties;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
-    private final CorsProperties corsProperties;
-
+    private static final List<String> ALLOWED_METHODS =
+            List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS");
+    private static final List<String> ALLOWED_HEADERS = List.of("*");
+    private static final List<String> EXPOSED_HEADERS = List.of("Authorization", "Set-Cookie");
     private static final String[] PERMIT_ALL_PATTERNS = {
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -46,13 +45,39 @@ public class SecurityConfig {
             "/oauth2/**",
     };
 
+    private final DefaultOAuth2UserService defaultOAuth2UserService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final SecurityProperties securityProperties;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final CorsProperties corsProperties;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public JwtTokenFilter jwtTokenFilter(
+            JwtTokenResolver jwtTokenResolver,
+            TokenInjector tokenInjector,
+            UserDetailsService userDetailsService,
+            RefreshTokenService refreshTokenService
+    ) {
+        return new JwtTokenFilter(jwtTokenResolver, tokenInjector, userDetailsService, refreshTokenService);
+    }
+
+    @Bean
+    public RedirectUrlFilter redirectUrlFilter(TokenInjector tokenInjector) {
+        return new RedirectUrlFilter(tokenInjector);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity httpSecurity,
+            JwtTokenFilter jwtTokenFilter,
+            RedirectUrlFilter redirectUrlFilter
+    ) throws Exception {
         disableSecurityBasic(httpSecurity);
         configureCorsPolicy(httpSecurity);
         configureSessionManagement(httpSecurity);
         configureApiAuthorization(httpSecurity);
-        configureLogin(httpSecurity);
+        configureLogin(httpSecurity, jwtTokenFilter, redirectUrlFilter);
         configureExceptionHandler(httpSecurity);
 
         return httpSecurity.build();
@@ -72,18 +97,20 @@ public class SecurityConfig {
     private void configureCorsPolicy(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
-            corsConfiguration.setAllowedOrigins(
-                    corsProperties.allowedOrigins()
-            );
-            corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-            corsConfiguration.setAllowedHeaders(List.of("*"));
-            corsConfiguration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
+            corsConfiguration.setAllowedOrigins(corsProperties.allowedOrigins());
+            corsConfiguration.setAllowedMethods(ALLOWED_METHODS);
+            corsConfiguration.setAllowedHeaders(ALLOWED_HEADERS);
+            corsConfiguration.setExposedHeaders(EXPOSED_HEADERS);
             corsConfiguration.setAllowCredentials(true);
             return corsConfiguration;
         }));
     }
 
-    private void configureLogin(HttpSecurity http) throws Exception {
+    private void configureLogin(
+            HttpSecurity http,
+            JwtTokenFilter jwtTokenFilter,
+            RedirectUrlFilter redirectUrlFilter
+    ) throws Exception {
         http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.oauth2Login(oauth2 ->
@@ -98,14 +125,12 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorize ->
                 authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/performances").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
-
+                        .requestMatchers(HttpMethod.GET, "/performances/me").authenticated()
                         .requestMatchers("/members/**").authenticated()
                         .requestMatchers("/auths/logout").authenticated()
-
                         .anyRequest().permitAll()
         );
     }

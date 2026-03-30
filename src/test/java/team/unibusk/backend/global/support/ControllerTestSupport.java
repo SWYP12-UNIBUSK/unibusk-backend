@@ -7,6 +7,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import team.unibusk.backend.domain.member.application.MemberService;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
 import team.unibusk.backend.global.auth.application.refreshtoken.RefreshTokenService;
@@ -43,6 +44,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected TraceIdResolver traceIdResolver;
+
+    @MockitoBean
+    protected MemberService memberService;
 
     @MockitoBean
     protected PerformanceService performanceService;
