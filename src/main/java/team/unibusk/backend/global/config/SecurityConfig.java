@@ -128,6 +128,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/performances").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/performances/me").authenticated()
                         .requestMatchers("/members/**").authenticated()
                         .requestMatchers("/auths/logout").authenticated()
                         .anyRequest().permitAll()
