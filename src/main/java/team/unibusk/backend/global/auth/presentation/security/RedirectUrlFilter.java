@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Component
 public class RedirectUrlFilter extends OncePerRequestFilter {
 
     private final TokenInjector tokenInjector;
