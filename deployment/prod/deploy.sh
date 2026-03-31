@@ -158,9 +158,10 @@ ACTIVE_IMAGES=$(docker ps --format '{{.Image}}' | sort -u)
 
 KEEP_IMAGES=$(docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
   --format "{{.CreatedAt}} {{.Repository}}:{{.Tag}}" | \
-  awk '!/":latest"/ {print $NF}' | \
+  awk '!/:latest$/' | \
   sort -r | \
-  head -2)
+  head -2 | \
+  awk '{print $NF}')
 
 docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
   --format "{{.Repository}}:{{.Tag}}" | \
