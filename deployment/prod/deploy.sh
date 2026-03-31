@@ -147,9 +147,6 @@ sudo nginx -s reload
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
-# 상태 atomic 저장
-save_state "$NEXT" "$DEPLOY_SHA"
-
 # 이미지 정리 (실행 중 + 직전 SHA 1개 보존)
 log "Cleaning up unused images..."
 
@@ -181,3 +178,7 @@ docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
   done
 
 docker image prune -f
+
+save_state "$NEXT" "$DEPLOY_SHA"
+
+log "Deploy success: $NEXT live (image: $DEPLOY_SHA)"
