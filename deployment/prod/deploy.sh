@@ -147,7 +147,38 @@ sudo nginx -s reload
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 
-# 상태 atomic 저장
+# 이미지 정리 (실행 중 + 직전 SHA 1개 보존)
+log "Cleaning up unused images..."
+
+# 변수 유효성 검증 (DEPLOY_SHA와 동일한 패턴)
+: "${DOCKER_USERNAME:?DOCKER_USERNAME must be set}"
+: "${IMAGE_NAME:?IMAGE_NAME must be set}"
+
+ACTIVE_IMAGES=$(docker ps --format '{{.Image}}' | sort -u)
+
+KEEP_IMAGES=$(docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
+  --format "{{.CreatedAt}} {{.Repository}}:{{.Tag}}" | \
+  awk '!/:latest$/' | \
+  sort -r | \
+  head -2 | \
+  awk '{print $NF}')
+
+docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
+  --format "{{.Repository}}:{{.Tag}}" | \
+  awk '!/:latest/' | \
+  while read -r img_ref; do
+    if echo "$KEEP_IMAGES" | grep -Fq "$img_ref"; then
+      log "Keeping image: $img_ref"
+    elif echo "$ACTIVE_IMAGES" | grep -Fq "$img_ref"; then
+      log "Keeping active image: $img_ref"
+    else
+      log "Removing old image: $img_ref"
+      docker rmi -f "$img_ref" 2>/dev/null || true
+    fi
+  done
+
+docker image prune -f
+
 save_state "$NEXT" "$DEPLOY_SHA"
 
 log "Deploy success: $NEXT live (image: $DEPLOY_SHA)"

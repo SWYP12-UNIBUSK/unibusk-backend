@@ -84,8 +84,9 @@ jobs:
             cd ~/deployment/prod            
             echo "${{ secrets.ENV_PROD }}" > .env
             echo "DEPLOY_SHA=${{ github.sha }}" >> .env
+            echo "DOCKER_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
+            echo "IMAGE_NAME=${{ secrets.IMAGE_NAME }}" >> .env
             echo "Pulling latest image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
             chmod +x deploy.sh
             ./deploy.sh
-            docker image prune -f

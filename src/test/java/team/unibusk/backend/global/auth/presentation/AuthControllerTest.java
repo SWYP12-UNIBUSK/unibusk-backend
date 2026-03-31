@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import team.unibusk.backend.global.auth.application.dto.response.LoginResultResponse;
 import team.unibusk.backend.global.auth.presentation.request.AuthCodeExchangeRequest;
 import team.unibusk.backend.global.support.ControllerTestSupport;
+import team.unibusk.backend.global.support.TestMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,6 +65,7 @@ class AuthControllerTest extends ControllerTestSupport {
     }
 
     @Test
+    @TestMember
     void 로그아웃_요청_시_200이_반환된다() {
         willDoNothing().given(authService).logout(any(), any());
 
