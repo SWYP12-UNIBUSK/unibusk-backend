@@ -6,8 +6,6 @@ import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import team.unibusk.backend.domain.performance.PerformanceFixture;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceCursorResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
@@ -29,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willReturn;
 
 public class PerformanceServiceTest extends UnitTestSupport {
 

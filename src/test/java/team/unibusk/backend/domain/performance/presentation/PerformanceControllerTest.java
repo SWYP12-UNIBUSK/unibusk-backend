@@ -1,20 +1,11 @@
 package team.unibusk.backend.domain.performance.presentation;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
-import team.unibusk.backend.domain.performance.PerformanceFixture;
-import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
-import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
-import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 import team.unibusk.backend.global.support.ControllerTestSupport;
@@ -28,7 +19,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @WebMvcTest(controllers = PerformanceController.class)
 public class PerformanceControllerTest extends ControllerTestSupport {
