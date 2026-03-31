@@ -2,16 +2,11 @@ package team.unibusk.backend.domain.member.presentation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import team.unibusk.backend.domain.member.application.dto.response.MemberInfoResponse;
 import team.unibusk.backend.domain.member.application.dto.response.MemberNameUpdateResponse;
 import team.unibusk.backend.domain.member.presentation.request.MemberNameUpdateRequest;
-import team.unibusk.backend.global.auth.presentation.security.RedirectUrlFilter;
-import team.unibusk.backend.global.jwt.filter.JwtTokenFilter;
-import team.unibusk.backend.global.logging.filter.MdcFilter;
 import team.unibusk.backend.global.support.ControllerTestSupport;
 import team.unibusk.backend.global.support.TestMember;
 
@@ -20,13 +15,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-@WebMvcTest(
-        controllers = {MemberController.class},
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.ASSIGNABLE_TYPE,
-                classes = {JwtTokenFilter.class, MdcFilter.class, RedirectUrlFilter.class}
-        )
-)
+@WebMvcTest(controllers = {MemberController.class})
 class MemberControllerTest extends ControllerTestSupport {
 
     @Test
