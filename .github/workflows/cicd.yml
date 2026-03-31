@@ -88,4 +88,3 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
             chmod +x deploy.sh
             ./deploy.sh
-            docker image prune -f
