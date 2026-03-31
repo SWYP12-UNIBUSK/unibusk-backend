@@ -150,4 +150,32 @@ docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$CURRENT"
 # 상태 atomic 저장
 save_state "$NEXT" "$DEPLOY_SHA"
 
+# 이미지 정리 (실행 중 + 직전 SHA 1개 보존)
+log "Cleaning up unused images..."
+
+ACTIVE_IMAGES=$(docker ps --format '{{.Image}}' | sort -u)
+
+KEEP_IMAGES=$(docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
+  --format "{{.CreatedAt}} {{.Repository}}:{{.Tag}}" | \
+  grep -v ":latest" | \
+  sort -r | \
+  awk '{print $NF}' | \
+  head -2)
+
+docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
+  --format "{{.Repository}}:{{.Tag}}" | \
+  grep -v ":latest" | \
+  while read -r img_ref; do
+    if echo "$KEEP_IMAGES" | grep -q "$img_ref"; then
+      log "Keeping image: $img_ref"
+    elif echo "$ACTIVE_IMAGES" | grep -q "$img_ref"; then
+      log "Keeping active image: $img_ref"
+    else
+      log "Removing old image: $img_ref"
+      docker rmi -f "$img_ref" 2>/dev/null || true
+    fi
+  done
+
+docker image prune -f
+
 log "Deploy success: $NEXT live (image: $DEPLOY_SHA)"
