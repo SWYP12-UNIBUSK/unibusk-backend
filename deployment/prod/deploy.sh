@@ -158,14 +158,13 @@ ACTIVE_IMAGES=$(docker ps --format '{{.Image}}' | sort -u)
 
 KEEP_IMAGES=$(docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
   --format "{{.CreatedAt}} {{.Repository}}:{{.Tag}}" | \
-  grep -v ":latest" | \
+  awk '!/":latest"/ {print $NF}' | \
   sort -r | \
-  awk '{print $NF}' | \
   head -2)
 
 docker images "${DOCKER_USERNAME}/${IMAGE_NAME}" \
   --format "{{.Repository}}:{{.Tag}}" | \
-  grep -v ":latest" | \
+  awk '!/:latest/' | \
   while read -r img_ref; do
     if echo "$KEEP_IMAGES" | grep -Fq "$img_ref"; then
       log "Keeping image: $img_ref"
