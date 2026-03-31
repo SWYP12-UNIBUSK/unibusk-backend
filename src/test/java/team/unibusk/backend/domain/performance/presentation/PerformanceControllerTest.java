@@ -5,6 +5,7 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -17,6 +18,7 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 import team.unibusk.backend.global.support.ControllerTestSupport;
+import team.unibusk.backend.global.support.TestMember;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,20 +27,27 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @WebMvcTest(controllers = PerformanceController.class)
 public class PerformanceControllerTest extends ControllerTestSupport {
 
-    @Test
-    void 다가오는_공연_조회_시_페이지_정보와_공연_목록을_반환한다() {
+    private PageResponse<PerformanceResponse> createDefaultPageResponse(Long id, PerformanceStatus status) {
+        LocalDateTime time;
+        if(status.equals(PerformanceStatus.UPCOMING)) {
+            time = LocalDateTime.of(2027, 7, 30, 14, 0);
+        } else {
+            time = LocalDateTime.of(2025, 1, 30, 14, 0);
+        }
+
         PerformanceResponse performance = PerformanceResponse.builder()
-                .performanceId(1L)
-                .locationName("뚝섬")
+                .performanceId(id)
+                .locationName("홍대 걷고싶은거리")
                 .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.now().plusDays(5))
-                .startTime(LocalDateTime.now().plusDays(5))
-                .endTime(LocalDateTime.now().plusDays(5))
+                .performanceDate(time.toLocalDate())
+                .startTime(time)
+                .endTime(time.plusHours(2))
                 .build();
 
         PageResponse<PerformanceResponse> mockPageResponse = PageResponse.<PerformanceResponse>builder()
@@ -50,6 +59,13 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                 .hasNext(false)
                 .build();
 
+        return mockPageResponse;
+    }
+
+    @Test
+    void 다가오는_공연_조회_시_200과_공연_목록을_반환한다() {
+        PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(1L, PerformanceStatus.UPCOMING);
+
         given(performanceService.getUpcomingPerformances(any(Pageable.class))).willReturn(mockPageResponse);
 
         assertThat(mvcTester.get().uri("/performances/upcoming"))
@@ -57,15 +73,15 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .satisfies(json -> {
                     assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(1);
-                    assertThat(json).extractingPath("$.content[0].title").asString().isEqualTo("UNI 버스킹");
-                    assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("뚝섬");
+                    assertThat(json).extractingPath("$.content[0].title").asString().isEqualTo("UNIBUSK 버스킹");
+                    assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("홍대 걷고싶은거리");
 
                     assertThat(json).extractingPath("$.totalElements").asNumber().isEqualTo(1);
                 });
     }
 
     @Test
-    void 다가오는_공연_프리뷰_조회_시_프리뷰_목록을_반환한다() {
+    void 다가오는_공연_프리뷰_조회_시_200과_프리뷰_목록을_반환한다() {
         PerformancePreviewResponse performance1 = PerformancePreviewResponse.builder()
                 .performanceId(1L)
                 .locationName("뚝섬")
@@ -90,35 +106,19 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .satisfies(json -> {
-                    assertThat(json).extractingPath("[0].performanceId").isEqualTo(1);
-                    assertThat(json).extractingPath("[0].title").asString().isEqualTo("UNIBUSK 버스킹1");
-                    assertThat(json).extractingPath("[0].locationName").asString().isEqualTo("뚝섬");
+                    assertThat(json).extractingPath("$[0].performanceId").isEqualTo(1);
+                    assertThat(json).extractingPath("$[0].title").asString().isEqualTo("UNIBUSK 버스킹1");
+                    assertThat(json).extractingPath("$[0].locationName").asString().isEqualTo("뚝섬");
 
-                    assertThat(json).extractingPath("[1].performanceId").isEqualTo(2);
-                    assertThat(json).extractingPath("[1].title").asString().isEqualTo("UNIBUSK 버스킹2");
-                    assertThat(json).extractingPath("[1].locationName").asString().isEqualTo("망원");
+                    assertThat(json).extractingPath("$[1].performanceId").isEqualTo(2);
+                    assertThat(json).extractingPath("$[1].title").asString().isEqualTo("UNIBUSK 버스킹2");
+                    assertThat(json).extractingPath("$[1].locationName").asString().isEqualTo("망원");
                 });
     }
 
     @Test
-    void 지난_공연_조회_시_페이지_정보와_공연_목록을_반환한다() {
-        PerformanceResponse performance = PerformanceResponse.builder()
-                .performanceId(1L)
-                .locationName("홍대")
-                .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.now().minusDays(5))
-                .startTime(LocalDateTime.now().minusDays(5))
-                .endTime(LocalDateTime.now().minusDays(5))
-                .build();
-
-        PageResponse<PerformanceResponse> mockPageResponse = PageResponse.<PerformanceResponse>builder()
-                .content(List.of(performance))
-                .page(0)
-                .size(12)
-                .totalElements(1L)
-                .totalPages(1)
-                .hasNext(false)
-                .build();
+    void 지난_공연_조회_시_200과_공연_목록을_반환한다() {
+        PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(1L, PerformanceStatus.PAST);
 
         given(performanceService.getPastPerformances(any(Pageable.class))).willReturn(mockPageResponse);
 
@@ -128,14 +128,14 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                 .satisfies(json -> {
                     assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(1);
                     assertThat(json).extractingPath("$.content[0].title").asString().isEqualTo("UNIBUSK 버스킹");
-                    assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("홍대");
+                    assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("홍대 걷고싶은거리");
 
                     assertThat(json).extractingPath("$.totalElements").asNumber().isEqualTo(1);
                 });
     }
 
     @Test
-    void 공연_ID로_조회하면_공연_상세정보를_반환한다() {
+    void 공연_ID로_조회하면_200과_공연_상세정보를_반환한다() {
         PerformanceDetailResponse performance = PerformanceDetailResponse.builder()
                 .performanceId(1L)
                 .locationName("걷고싶은거리")
@@ -170,36 +170,22 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 장소명으로_다가오는_공연_검색_시_페이지_정보와_공연_목록을_반환한다() {
-        PerformanceResponse performance = PerformanceResponse.builder()
-                .performanceId(1L)
-                .locationName("홍대 걷고싶은거리")
-                .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.now().plusDays(5))
-                .startTime(LocalDateTime.now().plusDays(5))
-                .endTime(LocalDateTime.now().plusDays(5))
-                .build();
+    void 장소명으로_다가오는_공연_검색_시_200과_검색된_목록이_반환된다() {
+        String keyword = "홍대";
 
-        PageResponse<PerformanceResponse> mockPageResponse = PageResponse.<PerformanceResponse>builder()
-                .content(List.of(performance))
-                .page(0)
-                .size(12)
-                .totalElements(1L)
-                .totalPages(1)
-                .hasNext(false)
-                .build();
+        PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(10L, PerformanceStatus.UPCOMING);
 
         given(performanceService.searchPerformances(
                 eq(PerformanceStatus.UPCOMING),
-                any(),
+                eq(keyword),
                 any(Pageable.class))).willReturn(mockPageResponse);
 
         assertThat(mvcTester.get().uri("/performances/upcoming/search")
-                .param("keyword", "홍대"))
+                .param("keyword", keyword))
                 .hasStatusOk()
                 .bodyJson()
                 .satisfies(json -> {
-                    assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(1);
+                    assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(10);
                     assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("홍대 걷고싶은거리");
 
                     assertThat(json).extractingPath("$.totalElements").asNumber().isEqualTo(1);
@@ -207,36 +193,22 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 장소명으로_지난_공연_검색_시_페이지_정보와_공연_목록을_반환한다() {
-        PerformanceResponse performance = PerformanceResponse.builder()
-                .performanceId(1L)
-                .locationName("홍대 걷고싶은거리")
-                .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.now().minusDays(5))
-                .startTime(LocalDateTime.now().minusDays(5))
-                .endTime(LocalDateTime.now().minusDays(5))
-                .build();
+    void 장소명으로_지난_공연_검색_시_200과_검색된_목록이_반환된다() {
+        String keyword = "홍대";
 
-        PageResponse<PerformanceResponse> mockPageResponse = PageResponse.<PerformanceResponse>builder()
-                .content(List.of(performance))
-                .page(0)
-                .size(12)
-                .totalElements(1L)
-                .totalPages(1)
-                .hasNext(false)
-                .build();
+        PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(30L, PerformanceStatus.PAST);
 
         given(performanceService.searchPerformances(
                 eq(PerformanceStatus.PAST),
-                any(),
+                eq(keyword),
                 any(Pageable.class))).willReturn(mockPageResponse);
 
         assertThat(mvcTester.get().uri("/performances/past/search")
-                .param("keyword", "걷고싶은거리"))
+                .param("keyword", keyword))
                 .hasStatusOk()
                 .bodyJson()
                 .satisfies(json -> {
-                    assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(1);
+                    assertThat(json).extractingPath("$.content[0].performanceId").isEqualTo(30);
                     assertThat(json).extractingPath("$.content[0].locationName").asString().isEqualTo("홍대 걷고싶은거리");
 
                     assertThat(json).extractingPath("$.totalElements").asNumber().isEqualTo(1);
@@ -244,14 +216,22 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 특정_장소의_다가오는_공연을_최초_조회하면_커서_응답이_반환된다() {
+    void 검색어_파라미터가_누락되면_400이_반환된다() {
+        assertThat(mvcTester.get().uri("/performances/upcoming/search"))
+                .hasStatus(HttpStatus.BAD_REQUEST);
+
+        then(performanceService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void 특정_장소의_다가오는_공연을_최초_조회하면_200과_커서_응답이_반환된다() {
         Long locationId = 1L;
         LocalDateTime nextCursorTime = LocalDateTime.of(2027, 3, 30, 14, 0);
 
         PerformanceCursorResponse performance = PerformanceCursorResponse.builder()
                 .performanceId(5L)
                 .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.from(nextCursorTime))
+                .performanceDate(nextCursorTime.toLocalDate())
                 .startTime(nextCursorTime)
                 .endTime(nextCursorTime.plusHours(2))
                 .build();
@@ -285,7 +265,7 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 커서_정보와_함께_다가오는_공연의_다음_페이지를_조회하면_다음_공연_목록이_반환된다() {
+    void 커서_정보와_함께_다가오는_공연의_다음_페이지를_조회하면_200과_다음_공연_목록이_반환된다() {
         Long locationId = 1L;
         LocalDateTime cursorTime = LocalDateTime.of(2027, 3, 30, 14, 0);
         Long cursorId = 5L;
@@ -293,7 +273,7 @@ public class PerformanceControllerTest extends ControllerTestSupport {
         PerformanceCursorResponse performance = PerformanceCursorResponse.builder()
                 .performanceId(3L)
                 .title("재즈 페스티벌")
-                .performanceDate(LocalDate.from(cursorTime).plusDays(1))
+                .performanceDate(cursorTime.toLocalDate().plusDays(1))
                 .startTime(cursorTime.plusDays(1))
                 .endTime(cursorTime.plusDays(1).plusHours(2))
                 .build();
@@ -326,14 +306,14 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 특정_장소의_지난_공연_목록을_최초_조회하면_커서_응답이_반환된다() {
+    void 특정_장소의_지난_공연_목록을_최초_조회하면_200과_커서_응답이_반환된다() {
         Long locationId = 1L;
         LocalDateTime cursorTime = LocalDateTime.of(2025, 3, 30, 14, 0);
 
         PerformanceCursorResponse performance = PerformanceCursorResponse.builder()
                 .performanceId(20L)
                 .title("봄 콘서트")
-                .performanceDate(LocalDate.from(cursorTime))
+                .performanceDate(cursorTime.toLocalDate())
                 .startTime(cursorTime)
                 .endTime(cursorTime.plusHours(2))
                 .build();
@@ -363,7 +343,7 @@ public class PerformanceControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 커서_정보와_함께_지난_공연의_다음_페이지를_조회하면_다음_공연_목록이_반환된다() {
+    void 커서_정보와_함께_지난_공연의_다음_페이지를_조회하면_200과_다음_공연_목록이_반환된다() {
         Long locationId = 1L;
         LocalDateTime cursorTime = LocalDateTime.of(2025, 3, 30, 14, 0);
         Long cursorId = 20L;
@@ -371,7 +351,7 @@ public class PerformanceControllerTest extends ControllerTestSupport {
         PerformanceCursorResponse performance = PerformanceCursorResponse.builder()
                 .performanceId(19L)
                 .title("가을 밤의 어쿠스틱")
-                .performanceDate(LocalDate.from(cursorTime).minusMonths(2))
+                .performanceDate(cursorTime.toLocalDate().minusMonths(2))
                 .startTime(cursorTime.minusMonths(2))
                 .endTime(cursorTime.minusMonths(2).plusHours(2))
                 .build();
@@ -400,6 +380,81 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                     assertThat(json).extractingPath("$.hasNext").asBoolean().isFalse();
                     assertThat(json).extractingPath("$.nextCursorId").isNull();
                     assertThat(json).extractingPath("$.nextCursorTime").isNull();
+                });
+    }
+
+    @Test
+    @TestMember
+    void 내_공연_목록을_최초_조회하면_200과_커서_응답이_반환된다() {
+        Long memberId = 1L;
+        LocalDateTime time = LocalDateTime.of(2025, 3, 30, 14, 0);
+
+        MyPerformanceSummaryResponse summary = MyPerformanceSummaryResponse.builder()
+                .performanceId(100L)
+                .memberId(memberId)
+                .title("내가 등록한 공연")
+                .startTime(time)
+                .endTime(time.plusHours(2))
+                .performanceLocationName("신촌")
+                .build();
+
+        CursorResponse<MyPerformanceSummaryResponse> mockResponse = CursorResponse.<MyPerformanceSummaryResponse>builder()
+                .content(List.of(summary))
+                .hasNext(true)
+                .nextCursorId(100L)
+                .build();
+
+        given(performanceService.getMyPerformances(eq(memberId), isNull(), eq(10)))
+                .willReturn(mockResponse);
+
+        assertThat(mvcTester.get().uri("/performances/me"))
+                .hasStatusOk()
+                .bodyJson()
+                .satisfies(json -> {
+                    assertThat(json).extractingPath("$.content[0].performanceId").asNumber().isEqualTo(100);
+                    assertThat(json).extractingPath("$.content[0].title").asString().isEqualTo("내가 등록한 공연");
+
+                    assertThat(json).extractingPath("$.hasNext").asBoolean().isTrue();
+                    assertThat(json).extractingPath("$.nextCursorId").asNumber().isEqualTo(100);
+                });
+    }
+
+    @Test
+    @TestMember
+    void 커서_정보와_함께_내_공연_목록의_다음_페이지를_조회하면_200과_내_공연_목록이_반환된다() {
+        Long memberId = 1L;
+        Long cursorId = 100L;
+        LocalDateTime time = LocalDateTime.of(2025, 3, 30, 14, 0);
+
+        MyPerformanceSummaryResponse summary = MyPerformanceSummaryResponse.builder()
+                .performanceId(100L)
+                .memberId(memberId)
+                .title("내가 등록한 공연")
+                .startTime(time)
+                .endTime(time.plusHours(2))
+                .performanceLocationName("신촌")
+                .build();
+
+        CursorResponse<MyPerformanceSummaryResponse> mockResponse = CursorResponse.<MyPerformanceSummaryResponse>builder()
+                .content(List.of(summary))
+                .hasNext(false)
+                .nextCursorId(null)
+                .build();
+
+        given(performanceService.getMyPerformances(eq(memberId), eq(cursorId), eq(5)))
+                .willReturn(mockResponse);
+
+        assertThat(mvcTester.get().uri("/performances/me")
+                .param("cursorId", cursorId.toString())
+                .param("size", "5"))
+                .hasStatusOk()
+                .bodyJson()
+                .satisfies(json -> {
+                    assertThat(json).extractingPath("$.content[0].performanceId").asNumber().isEqualTo(100);
+                    assertThat(json).extractingPath("$.content[0].title").asString().isEqualTo("내가 등록한 공연");
+
+                    assertThat(json).extractingPath("$.hasNext").asBoolean().isFalse();
+                    assertThat(json).extractingPath("$.nextCursorId").isNull();
                 });
     }
 }
