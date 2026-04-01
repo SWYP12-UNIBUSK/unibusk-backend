@@ -254,7 +254,7 @@ public class PerformanceControllerTest extends ControllerTestSupport {
                     assertThat(json).extractingPath("$.hasNext").asBoolean().isTrue();
                     assertThat(json).extractingPath("$.nextCursorId").asNumber().isEqualTo(5);
 
-                    assertThat(json).extractingPath("$.nextCursorTime").asString().isNotBlank();
+                    assertThat(json).extractingPath("$.nextCursorTime").asString().isEqualTo("2027-03-30T14:00:00");
                 });
     }
 
