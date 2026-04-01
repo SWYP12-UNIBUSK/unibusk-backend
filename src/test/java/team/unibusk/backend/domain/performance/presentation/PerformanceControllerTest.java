@@ -72,22 +72,24 @@ public class PerformanceControllerTest extends ControllerTestSupport {
 
     @Test
     void 다가오는_공연_프리뷰_조회_시_200과_프리뷰_목록을_반환한다() {
+        LocalDateTime fixedNow = LocalDateTime.of(2027, 7, 30, 14, 0);
+
         PerformancePreviewResponse performance1 = PerformancePreviewResponse.builder()
                 .performanceId(1L)
                 .locationName("뚝섬")
                 .title("UNIBUSK 버스킹1")
-                .performanceDate(LocalDate.now().plusDays(5))
-                .startTime(LocalDateTime.now().plusDays(5))
-                .endTime(LocalDateTime.now().plusDays(5))
+                .performanceDate(fixedNow.toLocalDate())
+                .startTime(fixedNow)
+                .endTime(LocalDateTime.now().plusHours(1))
                 .build();
 
         PerformancePreviewResponse performance2 = PerformancePreviewResponse.builder()
                 .performanceId(2L)
                 .locationName("망원")
                 .title("UNIBUSK 버스킹2")
-                .performanceDate(LocalDate.now().plusDays(5))
-                .startTime(LocalDateTime.now().plusDays(5))
-                .endTime(LocalDateTime.now().plusDays(5))
+                .performanceDate(fixedNow.toLocalDate().plusDays(5))
+                .startTime(fixedNow.plusDays(5))
+                .endTime(fixedNow.plusDays(5).plusHours(2))
                 .build();
 
         given(performanceService.getUpcomingPerformancesPreview()).willReturn(List.of(performance1, performance2));
@@ -126,13 +128,15 @@ public class PerformanceControllerTest extends ControllerTestSupport {
 
     @Test
     void 공연_ID로_조회하면_200과_공연_상세정보를_반환한다() {
+        LocalDateTime fixedNow = LocalDateTime.of(2027, 7, 30, 14, 0);
+
         PerformanceDetailResponse performance = PerformanceDetailResponse.builder()
                 .performanceId(1L)
                 .locationName("걷고싶은거리")
                 .title("UNIBUSK 버스킹")
-                .performanceDate(LocalDate.now().plusDays(5))
-                .startTime(LocalDateTime.now().plusDays(5))
-                .endTime(LocalDateTime.now().plusDays(5))
+                .performanceDate(fixedNow.toLocalDate())
+                .startTime(fixedNow)
+                .endTime(fixedNow.plusHours(2))
                 .summary("UNIBUSK 공연입니다.")
                 .description("2026년 첫 무대 기대해주세요.")
                 .performers(List.of(
