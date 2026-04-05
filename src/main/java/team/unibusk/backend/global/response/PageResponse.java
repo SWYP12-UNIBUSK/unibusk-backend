@@ -1,9 +1,11 @@
 package team.unibusk.backend.global.response;
 
+import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+@Builder
 public record PageResponse<T>(
         List<T> content,
         int page,
