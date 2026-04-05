@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import team.unibusk.backend.domain.member.application.MemberService;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
 import team.unibusk.backend.global.config.TestSecurityConfig;
 import tools.jackson.databind.ObjectMapper;
@@ -30,6 +31,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PerformanceService performanceService;
+
+    @MockitoBean
+    protected PerformanceLocationService performanceLocationService;
 
 }
 
