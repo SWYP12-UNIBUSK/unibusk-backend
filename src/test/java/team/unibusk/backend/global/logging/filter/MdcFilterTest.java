@@ -107,6 +107,41 @@ class MdcFilterTest {
     }
 
     @Test
+    void X_Request_ID가_정확히_8자이면_해당_값을_traceId로_사용한다() throws Exception {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var capturedTraceId = new String[1];
+
+        given(request.getHeader("X-Request-ID")).willReturn("abcd1234");
+        given(request.getRequestURI()).willReturn("/test");
+        given(request.getMethod()).willReturn("GET");
+
+        mdcFilter.doFilter(request, response, (req, res) -> {
+            capturedTraceId[0] = MDC.get(MdcKey.TRACE_ID);
+        });
+
+        assertThat(capturedTraceId[0]).isEqualTo("abcd1234");
+    }
+
+    @Test
+    void X_Request_ID가_정확히_64자이면_해당_값을_traceId로_사용한다() throws Exception {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var capturedTraceId = new String[1];
+        var traceId64 = "a".repeat(64);
+
+        given(request.getHeader("X-Request-ID")).willReturn(traceId64);
+        given(request.getRequestURI()).willReturn("/test");
+        given(request.getMethod()).willReturn("GET");
+
+        mdcFilter.doFilter(request, response, (req, res) -> {
+            capturedTraceId[0] = MDC.get(MdcKey.TRACE_ID);
+        });
+
+        assertThat(capturedTraceId[0]).isEqualTo(traceId64);
+    }
+
+    @Test
     void X_Request_ID에_특수문자가_포함되면_UUID로_traceId가_생성된다() throws Exception {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
