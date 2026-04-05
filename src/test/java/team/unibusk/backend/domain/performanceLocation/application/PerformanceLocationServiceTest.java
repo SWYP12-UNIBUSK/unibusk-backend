@@ -21,7 +21,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -79,7 +78,7 @@ class PerformanceLocationServiceTest extends UnitTestSupport {
     void 지도_범위_내_공연_장소_목록이_반환된다() {
         var location = PerformanceLocationFixture.createDetailLocation(1L, "홍대", "서울시 마포구", 37.5546, 126.9206);
 
-        given(performanceLocationRepository.findInMapBounds(any(), any(), any(), any()))
+        given(performanceLocationRepository.findInMapBounds(eq(37.6), eq(37.5), eq(127.0), eq(126.9)))
                 .willReturn(List.of(location));
 
         PerformanceLocationMapListResponse response =
@@ -87,11 +86,12 @@ class PerformanceLocationServiceTest extends UnitTestSupport {
 
         assertThat(response.locations()).hasSize(1);
         assertThat(response.locations().get(0).name()).isEqualTo("홍대");
+        then(performanceLocationRepository).should().findInMapBounds(37.6, 37.5, 127.0, 126.9);
     }
 
     @Test
     void 지도_범위_내_공연_장소가_없으면_빈_목록이_반환된다() {
-        given(performanceLocationRepository.findInMapBounds(any(), any(), any(), any()))
+        given(performanceLocationRepository.findInMapBounds(eq(37.6), eq(37.5), eq(127.0), eq(126.9)))
                 .willReturn(List.of());
 
         PerformanceLocationMapListResponse response =
