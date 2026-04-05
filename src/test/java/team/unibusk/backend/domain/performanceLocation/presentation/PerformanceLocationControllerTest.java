@@ -66,7 +66,7 @@ class PerformanceLocationControllerTest extends ControllerTestSupport {
                 ))
                 .build();
 
-        given(performanceLocationService.findInMapBoundsResponse(any(), any(), any(), any()))
+        given(performanceLocationService.findInMapBoundsResponse(eq(37.6), eq(37.5), eq(127.0), eq(126.9)))
                 .willReturn(response);
 
         assertThat(mvcTester.get().uri("/performance-locations/map")
@@ -80,6 +80,9 @@ class PerformanceLocationControllerTest extends ControllerTestSupport {
                     assertThat(json).extractingPath("$.locations[0].performanceLocationId").asNumber().isEqualTo(1);
                     assertThat(json).extractingPath("$.locations[0].name").asString().isEqualTo("홍대 걷고싶은거리");
                 });
+
+        then(performanceLocationService).should()
+                .findInMapBoundsResponse(37.6, 37.5, 127.0, 126.9);
     }
 
     @Test
