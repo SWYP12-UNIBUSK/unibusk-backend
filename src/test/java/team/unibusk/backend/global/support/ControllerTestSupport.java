@@ -10,7 +10,6 @@ import team.unibusk.backend.domain.member.application.MemberService;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
 import team.unibusk.backend.global.config.TestSecurityConfig;
-import team.unibusk.backend.global.logging.filter.TraceIdResolver;
 import tools.jackson.databind.ObjectMapper;
 
 @ActiveProfiles("test")
@@ -25,9 +24,6 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected AuthService authService;
-
-    @MockitoBean
-    protected TraceIdResolver traceIdResolver;
 
     @MockitoBean
     protected MemberService memberService;
