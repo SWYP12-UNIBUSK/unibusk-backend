@@ -62,6 +62,12 @@ class PerformanceLocationServiceTest extends UnitTestSupport {
     }
 
     @Test
+    void 키워드가_공백만_있으면_EmptyKeywordException이_발생한다() {
+        assertThatThrownBy(() -> performanceLocationService.findByKeyword("   ", PageRequest.of(0, 4)))
+                .isInstanceOf(EmptyKeywordException.class);
+    }
+
+    @Test
     void 키워드가_255자를_초과하면_InvalidKeywordLengthException이_발생한다() {
         var keyword = "a".repeat(256);
 
