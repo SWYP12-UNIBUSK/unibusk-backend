@@ -29,13 +29,14 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-public class PerformanceServiceTest extends UnitTestSupport {
+class PerformanceServiceTest extends UnitTestSupport {
 
     @InjectMocks
     private PerformanceService performanceService;
 
     @Mock
     private PerformanceRepository performanceRepository;
+
     @Mock
     private PerformanceLocationRepository performanceLocationRepository;
 

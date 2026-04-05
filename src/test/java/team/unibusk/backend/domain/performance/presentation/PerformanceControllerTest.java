@@ -11,7 +11,6 @@ import team.unibusk.backend.global.response.PageResponse;
 import team.unibusk.backend.global.support.ControllerTestSupport;
 import team.unibusk.backend.global.support.TestMember;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 
 @WebMvcTest(controllers = PerformanceController.class)
-public class PerformanceControllerTest extends ControllerTestSupport {
+class PerformanceControllerTest extends ControllerTestSupport {
 
     private PageResponse<PerformanceResponse> createDefaultPageResponse(Long id, PerformanceStatus status) {
         LocalDateTime time;
