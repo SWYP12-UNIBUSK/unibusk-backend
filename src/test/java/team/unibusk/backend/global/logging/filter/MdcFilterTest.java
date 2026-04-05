@@ -52,7 +52,7 @@ class MdcFilterTest {
         });
 
         assertThat(capturedTraceId[0]).isNotNull();
-        assertThat(capturedTraceId[0]).matches("[a-f0-9\\-]{36}");
+        assertThat(capturedTraceId[0]).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
     }
 
     @Test
