@@ -24,13 +24,17 @@ class MdcFilterTest {
     void 유효한_X_Request_ID_헤더가_있으면_해당_값을_traceId로_사용한다() throws Exception {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
-        var chain = mock(FilterChain.class);
+        var capturedTraceId = new String[1];
 
         given(request.getHeader("X-Request-ID")).willReturn("valid-trace-id123");
         given(request.getRequestURI()).willReturn("/test");
         given(request.getMethod()).willReturn("GET");
 
-        mdcFilter.doFilter(request, response, chain);
+        mdcFilter.doFilter(request, response, (req, res) -> {
+            capturedTraceId[0] = MDC.get(MdcKey.TRACE_ID);
+        });
+
+        assertThat(capturedTraceId[0]).isEqualTo("valid-trace-id123");
     }
 
     @Test
