@@ -75,6 +75,21 @@ class PerformanceLocationServiceTest extends UnitTestSupport {
     }
 
     @Test
+    void 키워드가_정확히_255자이면_정상_조회된다() {
+        var keyword = "a".repeat(255);
+        var pageable = PageRequest.of(0, 4);
+        Page<PerformanceLocation> page = new PageImpl<>(List.of(), pageable, 0);
+
+        given(performanceLocationRepository.searchByKeyword(eq(keyword), eq(pageable))).willReturn(page);
+
+        PerformanceLocationListResponse response = performanceLocationService.findByKeyword(keyword, pageable);
+
+        assertThat(response.performanceLocations()).isEmpty();
+        assertThat(response.totalElements()).isZero();
+        then(performanceLocationRepository).should().searchByKeyword(keyword, pageable);
+    }
+
+    @Test
     void 지도_범위_내_공연_장소_목록이_반환된다() {
         var location = PerformanceLocationFixture.createDetailLocation(1L, "홍대", "서울시 마포구", 37.5546, 126.9206);
 
