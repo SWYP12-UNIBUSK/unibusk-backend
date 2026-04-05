@@ -70,6 +70,22 @@ class MapBoundsTest {
     }
 
     @Test
+    void 위도_경계값은_허용된다() {
+        var bounds = new MapBounds(90.0, -90.0, 127.0, 126.9);
+
+        assertThat(bounds.getNorth()).isEqualTo(90.0);
+        assertThat(bounds.getSouth()).isEqualTo(-90.0);
+    }
+
+    @Test
+    void 경도_경계값은_허용된다() {
+        var bounds = new MapBounds(37.6, 37.5, 180.0, -180.0);
+
+        assertThat(bounds.getEast()).isEqualTo(180.0);
+        assertThat(bounds.getWest()).isEqualTo(-180.0);
+    }
+
+    @Test
     void north가_south보다_작거나_같으면_InvalidMapBoundsException이_발생한다() {
         assertThatThrownBy(() -> new MapBounds(37.5, 37.5, 127.0, 126.9))
                 .isInstanceOf(InvalidMapBoundsException.class);
