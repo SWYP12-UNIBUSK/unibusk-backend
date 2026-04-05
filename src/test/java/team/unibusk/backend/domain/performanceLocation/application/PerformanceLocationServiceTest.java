@@ -98,6 +98,7 @@ class PerformanceLocationServiceTest extends UnitTestSupport {
                 performanceLocationService.findInMapBoundsResponse(37.6, 37.5, 127.0, 126.9);
 
         assertThat(response.locations()).isEmpty();
+        then(performanceLocationRepository).should().findInMapBounds(37.6, 37.5, 127.0, 126.9);
     }
 
     @Test
