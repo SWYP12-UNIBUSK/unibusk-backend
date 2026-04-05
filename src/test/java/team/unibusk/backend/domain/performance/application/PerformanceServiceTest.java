@@ -10,9 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.Performance;
+import team.unibusk.backend.domain.performance.domain.PerformanceFixture;
 import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
+import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationFixture;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
@@ -40,44 +42,17 @@ class PerformanceServiceTest extends UnitTestSupport {
     @Mock
     private PerformanceLocationRepository performanceLocationRepository;
 
-    private Performance createPerformance(Long id, Long memberId, Long locationId, LocalDateTime startTime) {
-        Performance performance = Performance.builder()
-                .memberId(memberId)
-                .performanceLocationId(locationId)
-                .title("테스트 공연" + id)
-                .summary("공연 요약")
-                .description("공연 상세 설명")
-                .performanceDate(startTime.toLocalDate())
-                .startTime(startTime)
-                .endTime(startTime.plusHours(2))
-                .build();
-
-        ReflectionTestUtils.setField(performance, "id", id);
-
-        return performance;
-    }
-
-    private PerformanceLocation createLocation(Long id, String name) {
-        PerformanceLocation performanceLocation = PerformanceLocation.builder()
-                .name(name)
-                .build();
-
-        ReflectionTestUtils.setField(performanceLocation, "id", id);
-
-        return performanceLocation;
-    }
-
     @Test
     void 다가오는_공연_목록_조회_시_공연과_장소_이름이_매핑되어_반환된다() {
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Performance performance = createPerformance(1L, 10L, 3L, LocalDateTime.now().plusDays(1));
+        Performance performance = PerformanceFixture.createPerformance(1L, 10L, 3L, LocalDateTime.now().plusDays(1));
         Page<Performance> mockPage = new PageImpl<>(List.of(performance));
 
         given(performanceRepository.findUpcomingPerformances(any(LocalDateTime.class), eq(pageable)))
                 .willReturn(mockPage);
 
-        PerformanceLocation location = createLocation(3L, "걷고싶은거리");
+        PerformanceLocation location = PerformanceLocationFixture.createLocation(3L, "걷고싶은거리");
 
         given(performanceLocationRepository.findByIds(Set.of(3L)))
                 .willReturn(List.of(location));
@@ -95,7 +70,7 @@ class PerformanceServiceTest extends UnitTestSupport {
     void 다가오는_공연_조회_시_매핑할_공연_장소_정보가_없을_경우_기본_메시지가_반환된다() {
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Performance performance = createPerformance(2L, 10L, 999L, LocalDateTime.now().plusDays(1));
+        Performance performance = PerformanceFixture.createPerformance(2L, 10L, 999L, LocalDateTime.now().plusDays(1));
         Page<Performance> mockPage = new PageImpl<>(List.of(performance));
 
         given(performanceRepository.findUpcomingPerformances(any(LocalDateTime.class), eq(pageable)))
@@ -112,16 +87,16 @@ class PerformanceServiceTest extends UnitTestSupport {
 
     @Test
     void 다가오는_공연_프리뷰_조회_시_공연과_장소_이름이_매핑되어_반환된다() {
-        Performance performance1 = createPerformance(2L, 10L, 10L, LocalDateTime.now().plusDays(1));
-        Performance performance2 = createPerformance(3L, 10L, 15L, LocalDateTime.now().plusDays(3));
+        Performance performance1 = PerformanceFixture.createPerformance(2L, 10L, 10L, LocalDateTime.now().plusDays(1));
+        Performance performance2 = PerformanceFixture.createPerformance(3L, 10L, 15L, LocalDateTime.now().plusDays(3));
 
         given(performanceRepository.findUpcomingPreview(
                 any(LocalDateTime.class),
                 argThat(pageable -> pageable.getPageNumber() == 0 && pageable.getPageSize() == 8)
         )).willReturn(List.of(performance1, performance2));
 
-        PerformanceLocation location1 = createLocation(10L, "망원");
-        PerformanceLocation location2 = createLocation(15L, "신촌");
+        PerformanceLocation location1 = PerformanceLocationFixture.createLocation(10L, "망원");
+        PerformanceLocation location2 = PerformanceLocationFixture.createLocation(15L, "신촌");
 
         given(performanceLocationRepository.findByIds(Set.of(10L, 15L)))
                 .willReturn(List.of(location1, location2));
@@ -144,13 +119,13 @@ class PerformanceServiceTest extends UnitTestSupport {
     void 지난_공연_목록_조회_시_공연과_장소_이름이_매핑되어_반환된다() {
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Performance performance = createPerformance(4L, 1L, 30L, LocalDateTime.now().minusDays(2));
+        Performance performance = PerformanceFixture.createPerformance(4L, 1L, 30L, LocalDateTime.now().minusDays(2));
         Page<Performance> mockPage = new PageImpl<>(List.of(performance));
 
         given(performanceRepository.findPastPerformances(any(LocalDateTime.class), eq(pageable)))
                 .willReturn(mockPage);
 
-        PerformanceLocation location = createLocation(30L, "한강");
+        PerformanceLocation location = PerformanceLocationFixture.createLocation(30L, "한강");
 
         given(performanceLocationRepository.findByIds(Set.of(30L)))
                 .willReturn(List.of(location));
@@ -167,7 +142,7 @@ class PerformanceServiceTest extends UnitTestSupport {
     void 지난_공연_조회_시_매핑할_장소_정보가_없을_경우_기본_메시지가_반환된다() {
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Performance performance = createPerformance(2L, 10L, 999L, LocalDateTime.now().minusDays(1));
+        Performance performance = PerformanceFixture.createPerformance(2L, 10L, 999L, LocalDateTime.now().minusDays(1));
         Page<Performance> mockPage = new PageImpl<>(List.of(performance));
 
         given(performanceRepository.findPastPerformances(any(LocalDateTime.class), eq(pageable)))
@@ -187,11 +162,11 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long performanceId = 1L;
         Long locationId = 10L;
 
-        Performance performance = createPerformance(performanceId, 100L, locationId, LocalDateTime.now());
+        Performance performance = PerformanceFixture.createPerformance(performanceId, 100L, locationId, LocalDateTime.now());
 
         given(performanceRepository.findDetailById(eq(performanceId))).willReturn(performance);
 
-        PerformanceLocation location = createLocation(locationId, "신촌");
+        PerformanceLocation location = PerformanceLocationFixture.createLocation(locationId, "신촌");
 
         given(performanceLocationRepository.findById(eq(locationId))).willReturn(location);
 
@@ -261,9 +236,9 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long cursorId = 100L;
         int size = 2;
 
-        Performance p1 = createPerformance(101L, 100L, locationId, cursorTime.plusHours(1));
-        Performance p2 = createPerformance(102L, 100L, locationId, cursorTime.plusHours(2));
-        Performance p3 = createPerformance(103L, 100L, locationId, cursorTime.plusHours(3));
+        Performance p1 = PerformanceFixture.createPerformance(101L, 100L, locationId, cursorTime.plusHours(1));
+        Performance p2 = PerformanceFixture.createPerformance(102L, 100L, locationId, cursorTime.plusHours(2));
+        Performance p3 = PerformanceFixture.createPerformance(103L, 100L, locationId, cursorTime.plusHours(3));
 
         List<Performance> mutableList = new ArrayList<>(List.of(p1, p2, p3));
 
@@ -292,7 +267,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long cursorId = 100L;
         int size = 2;
 
-        Performance p1 = createPerformance(101L, 100L, locationId, cursorTime.plusDays(1));
+        Performance p1 = PerformanceFixture.createPerformance(101L, 100L, locationId, cursorTime.plusDays(1));
 
         List<Performance> mutableList = new ArrayList<>(List.of(p1));
 
@@ -320,9 +295,9 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long cursorId = 50L;
         int size = 2;
 
-        Performance p1 = createPerformance(49L, 100L, locationId, cursorTime.minusDays(1));
-        Performance p2 = createPerformance(48L, 100L, locationId, cursorTime.minusDays(2));
-        Performance p3 = createPerformance(47L, 100L, locationId, cursorTime.minusDays(3));
+        Performance p1 = PerformanceFixture.createPerformance(49L, 100L, locationId, cursorTime.minusDays(1));
+        Performance p2 = PerformanceFixture.createPerformance(48L, 100L, locationId, cursorTime.minusDays(2));
+        Performance p3 = PerformanceFixture.createPerformance(47L, 100L, locationId, cursorTime.minusDays(3));
 
         List<Performance> mutableList = new ArrayList<>(List.of(p1, p2, p3));
 
@@ -351,7 +326,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long cursorId = 50L;
         int size = 2;
 
-        Performance p1 = createPerformance(49L, 100L, locationId, cursorTime.minusDays(1));
+        Performance p1 = PerformanceFixture.createPerformance(49L, 100L, locationId, cursorTime.minusDays(1));
 
         List<Performance> mutableList = new ArrayList<>(List.of(p1));
 
@@ -379,15 +354,15 @@ class PerformanceServiceTest extends UnitTestSupport {
         Long cursorId = 50L;
         int size = 2;
 
-        Performance p1 = createPerformance(49L, memberId, 10L, time.plusMonths(1));
-        Performance p2 = createPerformance(48L, memberId, 20L, time.plusMonths(2));
-        Performance p3 = createPerformance(47L, memberId, 30L, time.plusMonths(3));
+        Performance p1 = PerformanceFixture.createPerformance(49L, memberId, 10L, time.plusMonths(1));
+        Performance p2 = PerformanceFixture.createPerformance(48L, memberId, 20L, time.plusMonths(2));
+        Performance p3 = PerformanceFixture.createPerformance(47L, memberId, 30L, time.plusMonths(3));
 
         given(performanceRepository.findMyPerformancesWithCursor(eq(memberId), eq(cursorId), eq(size)))
                 .willReturn(List.of(p1, p2, p3));
 
-        PerformanceLocation loc1 = createLocation(10L, "홍대");
-        PerformanceLocation loc2 = createLocation(20L, "신촌");
+        PerformanceLocation loc1 = PerformanceLocationFixture.createLocation(10L, "홍대");
+        PerformanceLocation loc2 = PerformanceLocationFixture.createLocation(20L, "신촌");
 
         given(performanceLocationRepository.findByIds(Set.of(10L, 20L)))
                 .willReturn(List.of(loc1, loc2));

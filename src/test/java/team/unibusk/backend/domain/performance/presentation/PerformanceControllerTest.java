@@ -450,4 +450,5 @@ class PerformanceControllerTest extends ControllerTestSupport {
                     assertThat(json).extractingPath("$.nextCursorId").isNull();
                 });
     }
+
 }
