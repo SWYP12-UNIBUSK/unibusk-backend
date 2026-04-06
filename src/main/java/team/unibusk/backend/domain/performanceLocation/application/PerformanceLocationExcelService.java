@@ -17,7 +17,7 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
-import team.unibusk.backend.global.geocoding.application.KakaoMapService;
+import team.unibusk.backend.global.geocoding.application.GeocodingService;
 import team.unibusk.backend.global.geocoding.application.dto.Coordinate;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class PerformanceLocationExcelService {
 
     private final PerformanceLocationRepository performanceLocationRepository;
     private final ApplicationGuideRepository applicationGuideRepository;
-    private final KakaoMapService kakaoMapService;
+    private final GeocodingService geocodingService;
     private final FileUploadService fileUploadService;
 
     private static final String PERFORMANCELOCATION_FOLDER = "performanceLocations";
@@ -60,8 +60,7 @@ public class PerformanceLocationExcelService {
                 checkAlreadyExists(dto.name());
 
                 // [데이터 변환] 주소 -> 좌표(위경도) 변환
-                Coordinate coordinate = kakaoMapService.getCoordinateByAddress(dto.address())
-                        .orElseThrow(() -> new RuntimeException("주소에 해당하는 좌표를 찾을 수 없습니다."));
+                Coordinate coordinate = geocodingService.getCoordinateByAddress(dto.address());
 
                 // [이미지 처리] 엑셀 파일명에 맞는 이미지 찾기 및 S3 업로드
                 String s3Url = null;
