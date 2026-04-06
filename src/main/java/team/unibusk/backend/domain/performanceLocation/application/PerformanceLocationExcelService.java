@@ -17,8 +17,8 @@ import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocatio
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationImage;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.file.application.FileUploadService;
-import team.unibusk.backend.global.kakaoMap.application.KakaoMapService;
-import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
+import team.unibusk.backend.global.geocoding.application.KakaoMapService;
+import team.unibusk.backend.global.geocoding.application.dto.Coordinate;
 
 import java.io.IOException;
 import java.util.*;

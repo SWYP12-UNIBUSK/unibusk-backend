@@ -1,10 +1,9 @@
-package team.unibusk.backend.global.kakaoMap.application;
+package team.unibusk.backend.global.geocoding.application;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import team.unibusk.backend.global.kakaoMap.application.dto.Coordinate;
+import team.unibusk.backend.global.geocoding.application.dto.Coordinate;
 
 import java.util.Map;
 import java.util.List;

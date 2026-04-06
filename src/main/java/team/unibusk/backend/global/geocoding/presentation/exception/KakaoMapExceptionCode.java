@@ -1,4 +1,4 @@
-package team.unibusk.backend.global.kakaoMap.presentation.exception;
+package team.unibusk.backend.global.geocoding.presentation.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
