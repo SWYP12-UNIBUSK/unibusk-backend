@@ -17,7 +17,6 @@ public class GeocodingService {
     public Coordinate getCoordinateByAddress(String address) {
         try {
             semaphore.acquire();
-            Thread.sleep(200);
             return kakaoGeocodingClient.fetchCoordinate(address);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

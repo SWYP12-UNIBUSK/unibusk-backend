@@ -14,9 +14,12 @@ import team.unibusk.backend.global.geocoding.presentation.exception.KakaoMapPars
 @Component
 public class KakaoGeocodingClient {
 
+    private static final long REQUEST_DELAY_MS = 200;
     private final WebClient kakaoWebClient;
 
     public Coordinate fetchCoordinate(String address) {
+        delay();
+
         AddressResponse response = kakaoWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v2/local/search/address.json")
@@ -28,6 +31,15 @@ public class KakaoGeocodingClient {
                 .block();
 
         return parseCoordinate(response);
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(REQUEST_DELAY_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("요청이 중단되었습니다.");
+        }
     }
 
     private Coordinate parseCoordinate(AddressResponse response) {
