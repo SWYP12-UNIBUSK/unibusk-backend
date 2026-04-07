@@ -1,6 +1,7 @@
 package team.unibusk.backend.global.geocoding.infrastructure;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import team.unibusk.backend.global.geocoding.application.dto.AddressDocument;
@@ -10,8 +11,7 @@ import team.unibusk.backend.global.geocoding.presentation.exception.CoordinateNo
 import team.unibusk.backend.global.geocoding.presentation.exception.KakaoMapApiConnectionException;
 import team.unibusk.backend.global.geocoding.presentation.exception.KakaoMapParseException;
 
-import static reactor.netty.http.HttpConnectionLiveness.log;
-
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class KakaoGeocodingClient {
@@ -52,9 +52,6 @@ public class KakaoGeocodingClient {
 
         try {
             AddressDocument first = response.documents().get(0);
-            if (first.latitude() == null || first.longitude() == null) {
-                throw new CoordinateNotFoundException();
-            }
             return Coordinate.builder()
                     .latitude(Double.parseDouble(first.latitude()))
                     .longitude(Double.parseDouble(first.longitude()))
@@ -65,7 +62,11 @@ public class KakaoGeocodingClient {
     }
 
     private boolean hasNoResult(AddressResponse response) {
-        return response == null || response.documents() == null || response.documents().isEmpty();
+        if (response == null || response.documents() == null || response.documents().isEmpty()) {
+            return true;
+        }
+        AddressDocument first = response.documents().get(0);
+        return first.latitude() == null || first.longitude() == null;
     }
 
 }
