@@ -10,6 +10,8 @@ import team.unibusk.backend.global.geocoding.presentation.exception.CoordinateNo
 import team.unibusk.backend.global.geocoding.presentation.exception.KakaoMapApiConnectionException;
 import team.unibusk.backend.global.geocoding.presentation.exception.KakaoMapParseException;
 
+import static reactor.netty.http.HttpConnectionLiveness.log;
+
 @RequiredArgsConstructor
 @Component
 public class KakaoGeocodingClient {
@@ -27,6 +29,7 @@ public class KakaoGeocodingClient {
                         .build())
                 .retrieve()
                 .bodyToMono(AddressResponse.class)
+                .doOnError(e -> log.error("카카오 API 호출 실패", e))
                 .onErrorMap(e -> new KakaoMapApiConnectionException())
                 .block();
 
