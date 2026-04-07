@@ -15,14 +15,18 @@ public class GeocodingService {
     private final Semaphore semaphore = new Semaphore(1);
 
     public Coordinate getCoordinateByAddress(String address) {
+        boolean acquired = false;
         try {
             semaphore.acquire();
+            acquired = true;
             return kakaoGeocodingClient.fetchCoordinate(address);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("요청이 중단되었습니다.");
         } finally {
-            semaphore.release();
+            if (acquired) {
+                semaphore.release();
+            }
         }
     }
 
