@@ -50,23 +50,28 @@ public class KakaoGeocodingClient {
             throw new CoordinateNotFoundException();
         }
 
+        AddressDocument first = response.documents().get(0);
+
+        if (hasInvalidCoordinates(first)) {
+            throw new CoordinateNotFoundException();
+        }
+
         try {
-            AddressDocument first = response.documents().get(0);
             return Coordinate.builder()
                     .latitude(Double.parseDouble(first.latitude()))
                     .longitude(Double.parseDouble(first.longitude()))
                     .build();
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException e) {
             throw new KakaoMapParseException();
         }
     }
 
     private boolean hasNoResult(AddressResponse response) {
-        if (response == null || response.documents() == null || response.documents().isEmpty()) {
-            return true;
-        }
-        AddressDocument first = response.documents().get(0);
-        return first.latitude() == null || first.longitude() == null;
+        return response == null || response.documents() == null || response.documents().isEmpty();
+    }
+
+    private boolean hasInvalidCoordinates(AddressDocument document) {
+        return document.latitude() == null || document.longitude() == null;
     }
 
 }
