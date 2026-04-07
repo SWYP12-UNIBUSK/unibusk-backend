@@ -49,11 +49,14 @@ public class KakaoGeocodingClient {
 
         try {
             AddressDocument first = response.documents().get(0);
+            if (first.latitude() == null || first.longitude() == null) {
+                throw new CoordinateNotFoundException();
+            }
             return Coordinate.builder()
                     .latitude(Double.parseDouble(first.latitude()))
                     .longitude(Double.parseDouble(first.longitude()))
                     .build();
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             throw new KakaoMapParseException();
         }
     }
