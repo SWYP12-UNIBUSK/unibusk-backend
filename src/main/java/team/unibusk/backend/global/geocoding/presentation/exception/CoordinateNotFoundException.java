@@ -1,4 +1,4 @@
-package team.unibusk.backend.global.kakaoMap.presentation.exception;
+package team.unibusk.backend.global.geocoding.presentation.exception;
 
 import team.unibusk.backend.global.exception.CustomException;
 

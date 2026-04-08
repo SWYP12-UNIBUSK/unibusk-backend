@@ -17,6 +17,9 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
+    private static final int CONNECT_TIMEOUT_MS = 5000;
+    private static final int READ_WRITE_TIMEOUT_SEC = 10;
+
     @Value("${kakao.api.url}")
     private String apiUrl;
 
@@ -25,18 +28,18 @@ public class WebClientConfig {
 
     @Bean
     public WebClient kakaoWebClient() {
-        // 하위 Netty HttpClient 설정
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000) // 연결 타임아웃 5초
-                .responseTimeout(Duration.ofSeconds(10))           // 응답 타임아웃 10초
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT_MS)
+                .responseTimeout(Duration.ofSeconds(READ_WRITE_TIMEOUT_SEC))
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(10, TimeUnit.SECONDS))  // 읽기 타임아웃
-                        .addHandlerLast(new WriteTimeoutHandler(10, TimeUnit.SECONDS))); // 쓰기 타임아웃
+                        .addHandlerLast(new ReadTimeoutHandler(READ_WRITE_TIMEOUT_SEC, TimeUnit.SECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(READ_WRITE_TIMEOUT_SEC, TimeUnit.SECONDS)));
 
         return WebClient.builder()
                 .baseUrl(apiUrl)
-                .clientConnector(new ReactorClientHttpConnector(httpClient)) // 커넥터 연결
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + apiKey)
                 .build();
     }
+
 }
