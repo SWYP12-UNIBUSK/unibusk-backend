@@ -71,6 +71,9 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
                 applicationGuideService.getApplicationGuides(performanceLocationId);
 
         assertThat(response.applicationGuideResponses()).isEmpty();
+
+        then(performanceLocationRepository).should().findById(performanceLocationId);
+        then(applicationGuideRepository).should().findAllByPerformanceLocationId(performanceLocationId);
     }
 
     @Test
