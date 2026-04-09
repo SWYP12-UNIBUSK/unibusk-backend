@@ -82,6 +82,9 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
 
         assertThatThrownBy(() -> applicationGuideService.getApplicationGuides(performanceLocationId))
                 .isInstanceOf(PerformanceLocationNotFoundException.class);
+
+        then(performanceLocationRepository).should().findById(performanceLocationId);
+        then(applicationGuideRepository).shouldHaveNoInteractions();
     }
 
 }
