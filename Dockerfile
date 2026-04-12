@@ -1,10 +1,13 @@
-FROM eclipse-temurin:17-jre
-ENV TZ=Asia/Seoul
+FROM eclipse-temurin:17-jre-alpine
 ARG JAR_FILE=build/libs/*.jar
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl tzdata && \
+    cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone
 
-RUN addgroup --system spring && adduser --system --group spring
+ENV TZ=Asia/Seoul
+
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 COPY --chown=spring:spring ${JAR_FILE} app.jar
