@@ -7,7 +7,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import team.unibusk.backend.domain.applicationguide.application.ApplicationGuideService;
-import team.unibusk.backend.domain.member.application.MemberService;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
