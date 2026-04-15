@@ -1,10 +1,9 @@
-package team.unibusk.backend.domain.member.presentation;
+package team.unibusk.backend.domain.member.presentation.command;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import team.unibusk.backend.domain.member.application.dto.response.MemberInfoResponse;
 import team.unibusk.backend.domain.member.application.dto.response.MemberNameUpdateResponse;
 import team.unibusk.backend.domain.member.presentation.request.MemberNameUpdateRequest;
 import team.unibusk.backend.global.support.ControllerTestSupport;
@@ -15,29 +14,8 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-@WebMvcTest(controllers = {MemberController.class})
-class MemberControllerTest extends ControllerTestSupport {
-
-    @Test
-    @TestMember
-    void 내_정보_조회_시_200과_회원_정보가_반환된다() {
-        MemberInfoResponse response = MemberInfoResponse.builder()
-                .memberId(1L)
-                .email("test@email.com")
-                .name("홍길동")
-                .build();
-        given(memberService.getMyInfo(1L)).willReturn(response);
-
-        assertThat(mvcTester.get().uri("/members/me"))
-                .hasStatusOk()
-                .bodyJson()
-                .convertTo(MemberInfoResponse.class)
-                .satisfies(res -> {
-                    assertThat(res.memberId()).isEqualTo(1L);
-                    assertThat(res.email()).isEqualTo("test@email.com");
-                    assertThat(res.name()).isEqualTo("홍길동");
-                });
-    }
+@WebMvcTest(controllers = {MemberCommandController.class})
+class MemberCommandControllerTest extends ControllerTestSupport {
 
     @Test
     @TestMember
@@ -47,7 +25,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .email("test@email.com")
                 .name("김철수")
                 .build();
-        given(memberService.updateMemberName(
+        given(memberCommandService.updateMemberName(
                 argThat(req -> req.memberId().equals(1L) && req.name().equals("김철수"))
         )).willReturn(response);
 
@@ -76,7 +54,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .content(body))
                 .hasStatus(HttpStatus.BAD_REQUEST);
 
-        verifyNoInteractions(memberService);
+        verifyNoInteractions(memberCommandService);
     }
 
     @Test
@@ -89,7 +67,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .content(body))
                 .hasStatus(HttpStatus.BAD_REQUEST);
 
-        verifyNoInteractions(memberService);
+        verifyNoInteractions(memberCommandService);
     }
 
 }
