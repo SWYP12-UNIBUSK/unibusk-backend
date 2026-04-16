@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.unibusk.backend.domain.member.application.dto.response.MemberInfoResponse;
 import team.unibusk.backend.domain.member.application.query.MemberQueryService;
-import team.unibusk.backend.domain.member.presentation.MemberQueryDocsController;
 import team.unibusk.backend.global.annotation.MemberId;
 
 @RequiredArgsConstructor
