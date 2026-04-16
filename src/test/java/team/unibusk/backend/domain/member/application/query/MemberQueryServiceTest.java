@@ -6,9 +6,11 @@ import org.mockito.Mock;
 import team.unibusk.backend.domain.member.application.dto.response.MemberInfoResponse;
 import team.unibusk.backend.domain.member.domain.Member;
 import team.unibusk.backend.domain.member.domain.MemberRepository;
+import team.unibusk.backend.domain.member.presentation.exception.MemberNotFoundException;
 import team.unibusk.backend.global.support.UnitTestSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 class MemberQueryServiceTest extends UnitTestSupport {
@@ -33,6 +35,14 @@ class MemberQueryServiceTest extends UnitTestSupport {
         assertThat(response.memberId()).isEqualTo(1L);
         assertThat(response.email()).isEqualTo("test@email.com");
         assertThat(response.name()).isEqualTo("홍길동");
+    }
+
+    @Test
+    void 존재하지_않는_회원_조회_시_MemberNotFoundException이_발생한다() {
+        given(memberRepository.findByMemberId(1L)).willThrow(new MemberNotFoundException());
+
+        assertThatThrownBy(() -> memberQueryService.getMyInfo(1L))
+                .isInstanceOf(MemberNotFoundException.class);
     }
 
 }

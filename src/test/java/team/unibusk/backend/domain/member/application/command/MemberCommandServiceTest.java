@@ -7,9 +7,11 @@ import team.unibusk.backend.domain.member.application.dto.request.MemberNameUpda
 import team.unibusk.backend.domain.member.application.dto.response.MemberNameUpdateResponse;
 import team.unibusk.backend.domain.member.domain.Member;
 import team.unibusk.backend.domain.member.domain.MemberRepository;
+import team.unibusk.backend.domain.member.presentation.exception.MemberNotFoundException;
 import team.unibusk.backend.global.support.UnitTestSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 class MemberCommandServiceTest extends UnitTestSupport {
@@ -36,6 +38,15 @@ class MemberCommandServiceTest extends UnitTestSupport {
         assertThat(response.memberId()).isEqualTo(1L);
         assertThat(response.email()).isEqualTo("test@email.com");
         assertThat(response.name()).isEqualTo("김철수");
+    }
+
+    @Test
+    void 존재하지_않는_회원_이름_수정_시_MemberNotFoundException이_발생한다() {
+        given(memberRepository.findByMemberId(1L)).willThrow(new MemberNotFoundException());
+
+        assertThatThrownBy(() -> memberCommandService.updateMemberName(
+                new MemberNameUpdateServiceRequest(1L, "김철수")
+        )).isInstanceOf(MemberNotFoundException.class);
     }
 
 }
