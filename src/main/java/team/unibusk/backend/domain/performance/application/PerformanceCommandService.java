@@ -41,6 +41,20 @@ public class PerformanceCommandService {
     @Transactional
     public PerformanceRegisterResponse register(PerformanceRegisterServiceRequest request) {
         List<PerformanceImage> images = uploadImages(request.images());
+        List<String> uploadedImageUrls = images.stream()
+                .map(PerformanceImage::getImageUrl)
+                .toList();
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCompletion(int status) {
+                        if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                            uploadedImageUrls.forEach(fileUploadService::delete);
+                        }
+                    }
+                }
+        );
 
         try{
             List<Performer> performers = (request.performers() == null || request.performers().isEmpty())
