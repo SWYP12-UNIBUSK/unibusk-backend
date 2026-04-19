@@ -164,11 +164,20 @@ public class PerformanceCommandService {
 
         performance.validateOwner(member.getId());
 
-        performance.getImages().forEach(img ->
-                fileUploadService.delete(img.getImageUrl())
-        );
+        List<String> deleteTargetUrls = performance.getImages().stream()
+                .map(PerformanceImage::getImageUrl)
+                .toList();
 
         performanceRepository.delete(performance);
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        deleteTargetUrls.forEach(fileUploadService::delete);
+                    }
+                }
+        );
     }
 
     private List<PerformanceImage> uploadImages(List<MultipartFile> files) {
