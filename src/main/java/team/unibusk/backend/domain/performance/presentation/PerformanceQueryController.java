@@ -1,19 +1,14 @@
 package team.unibusk.backend.domain.performance.presentation;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performance.application.PerformanceQueryService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
-import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
-import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
@@ -24,25 +19,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/performances")
 @RequiredArgsConstructor
-public class PerformanceController implements PerformanceDocsController{
+public class PerformanceQueryController implements PerformanceQueryDocsController {
 
-    private final PerformanceService performanceService;
-
-    //공연 등록
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PerformanceRegisterResponse> registerPerformance(
-            @RequestPart("request") @Valid PerformanceRegisterRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @MemberId Long memberId
-    ) {
-
-        //서비스에서 저장
-        PerformanceRegisterResponse response =
-                performanceService.register(request.toServiceRequest(memberId, images));
-
-        return ResponseEntity.status(201).body(response);
-
-    }
+    private final PerformanceQueryService performanceQueryService;
 
     @GetMapping("/upcoming")
     public ResponseEntity<PageResponse<PerformanceResponse>> getUpcomingPerformances(
@@ -52,14 +31,14 @@ public class PerformanceController implements PerformanceDocsController{
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        PageResponse<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getUpcomingPerformances(pageable);
 
         return ResponseEntity.status(200).body(response);
     }
 
     @GetMapping("/upcoming/preview")
     public ResponseEntity<List<PerformancePreviewResponse>> getUpcomingPerformancesPreview() {
-        List<PerformancePreviewResponse> response = performanceService.getUpcomingPerformancesPreview();
+        List<PerformancePreviewResponse> response = performanceQueryService.getUpcomingPerformancesPreview();
 
         return ResponseEntity.status(200).body(response);
     }
@@ -72,38 +51,16 @@ public class PerformanceController implements PerformanceDocsController{
                     direction = Sort.Direction.DESC
             ) Pageable pageable
     ) {
-        PageResponse<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getPastPerformances(pageable);
 
         return ResponseEntity.status(200).body(response);
     }
 
     @GetMapping("/{performanceId}")
     public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
-        PerformanceDetailResponse response = performanceService.getPerformanceDetail(performanceId);
+        PerformanceDetailResponse response = performanceQueryService.getPerformanceDetail(performanceId);
 
         return ResponseEntity.status(200).body(response);
-    }
-
-    @PatchMapping(value = "/{performanceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PerformanceDetailResponse> updatePerformance(
-            @PathVariable Long performanceId,
-            @RequestPart("request") @Valid PerformanceUpdateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @MemberId Long memberId
-            ) {
-        PerformanceDetailResponse response = performanceService.updatePerformance(request.toServiceRequest(performanceId, memberId, images));
-
-        return ResponseEntity.status(200).body(response);
-    }
-
-    @DeleteMapping("/{performanceId}")
-    public ResponseEntity<Void> deletePerformance(
-            @PathVariable Long performanceId,
-            @MemberId Long memberId
-    ) {
-        performanceService.deletePerformance(performanceId, memberId);
-
-        return ResponseEntity.status(204).build();
     }
 
     @GetMapping("/upcoming/search")
@@ -116,7 +73,7 @@ public class PerformanceController implements PerformanceDocsController{
             )
             Pageable pageable
     ) {
-        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+        PageResponse<PerformanceResponse> response = performanceQueryService.searchPerformances(
                 PerformanceStatus.UPCOMING,
                 keyword,
                 pageable
@@ -135,7 +92,7 @@ public class PerformanceController implements PerformanceDocsController{
             )
             Pageable pageable
     ) {
-        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(
+        PageResponse<PerformanceResponse> response = performanceQueryService.searchPerformances(
                 PerformanceStatus.PAST,
                 keyword,
                 pageable
@@ -152,7 +109,7 @@ public class PerformanceController implements PerformanceDocsController{
             @RequestParam(defaultValue = "10") int size
     ) {
         CursorResponse<PerformanceCursorResponse> response =
-                performanceService.getUpcomingByLocationWithCursor(
+                performanceQueryService.getUpcomingByLocationWithCursor(
                         performanceLocationId,
                         cursorTime,
                         cursorId,
@@ -170,7 +127,7 @@ public class PerformanceController implements PerformanceDocsController{
             @RequestParam(defaultValue = "10") int size
     ) {
         CursorResponse<PerformanceCursorResponse> response =
-                performanceService.getPastByLocationWithCursor(
+                performanceQueryService.getPastByLocationWithCursor(
                         performanceLocationId,
                         cursorTime,
                         cursorId,
@@ -186,7 +143,7 @@ public class PerformanceController implements PerformanceDocsController{
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return performanceService.getMyPerformances(memberId, cursorId, size);
+        return performanceQueryService.getMyPerformances(memberId, cursorId, size);
     }
 
 }
