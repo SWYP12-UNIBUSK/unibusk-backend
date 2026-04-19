@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceFixture;
@@ -31,10 +30,10 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-class PerformanceServiceTest extends UnitTestSupport {
+class PerformanceQueryServiceTest extends UnitTestSupport {
 
     @InjectMocks
-    private PerformanceService performanceService;
+    private PerformanceQueryService performanceQueryService;
 
     @Mock
     private PerformanceRepository performanceRepository;
@@ -57,7 +56,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(3L)))
                 .willReturn(List.of(location));
 
-        PageResponse<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getUpcomingPerformances(pageable);
 
         assertThat(response.content()).hasSize(1);
         assertThat(response.content().get(0).performanceId()).isEqualTo(1L);
@@ -79,7 +78,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(999L)))
                 .willReturn(Collections.emptyList());
 
-        PageResponse<PerformanceResponse> response = performanceService.getUpcomingPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getUpcomingPerformances(pageable);
 
         assertThat(response.content()).hasSize(1);
         assertThat(response.content().get(0).locationName()).isEqualTo("공연 장소 정보가 없습니다.");
@@ -101,7 +100,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(10L, 15L)))
                 .willReturn(List.of(location1, location2));
 
-        List<PerformancePreviewResponse> response = performanceService.getUpcomingPerformancesPreview();
+        List<PerformancePreviewResponse> response = performanceQueryService.getUpcomingPerformancesPreview();
 
         assertThat(response).hasSize(2);
 
@@ -130,7 +129,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(30L)))
                 .willReturn(List.of(location));
 
-        PageResponse<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getPastPerformances(pageable);
 
         assertThat(response.content()).hasSize(1);
         assertThat(response.content().get(0).performanceId()).isEqualTo(4L);
@@ -151,7 +150,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(999L)))
                 .willReturn(Collections.emptyList());
 
-        PageResponse<PerformanceResponse> response = performanceService.getPastPerformances(pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.getPastPerformances(pageable);
 
         assertThat(response.content()).hasSize(1);
         assertThat(response.content().get(0).locationName()).isEqualTo("공연 장소 정보가 없습니다.");
@@ -170,7 +169,7 @@ class PerformanceServiceTest extends UnitTestSupport {
 
         given(performanceLocationRepository.findById(eq(locationId))).willReturn(location);
 
-        PerformanceDetailResponse response = performanceService.getPerformanceDetail(performanceId);
+        PerformanceDetailResponse response = performanceQueryService.getPerformanceDetail(performanceId);
 
         assertThat(response.performanceId()).isEqualTo(1L);
         assertThat(response.title()).isEqualTo("테스트 공연1");
@@ -199,7 +198,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceRepository.searchByCondition(eq(status), eq(keyword), eq(pageable)))
                 .willReturn(mockPage);
 
-        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(status, keyword, pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.searchPerformances(status, keyword, pageable);
 
         List<PerformanceResponse> content = response.content();
         assertThat(content).hasSize(1);
@@ -223,7 +222,7 @@ class PerformanceServiceTest extends UnitTestSupport {
         given(performanceRepository.searchByCondition(eq(status), eq(keyword), eq(pageable)))
                 .willReturn(emptyPage);
 
-        PageResponse<PerformanceResponse> response = performanceService.searchPerformances(status, keyword, pageable);
+        PageResponse<PerformanceResponse> response = performanceQueryService.searchPerformances(status, keyword, pageable);
 
         assertThat(response.content()).isEmpty();
         assertThat(response.totalElements()).isEqualTo(0L);
@@ -246,7 +245,7 @@ class PerformanceServiceTest extends UnitTestSupport {
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(size)
         )).willReturn(mutableList);
 
-        CursorResponse<PerformanceCursorResponse> response = performanceService.getUpcomingByLocationWithCursor(
+        CursorResponse<PerformanceCursorResponse> response = performanceQueryService.getUpcomingByLocationWithCursor(
                 locationId, cursorTime, cursorId, size
         );
 
@@ -275,7 +274,7 @@ class PerformanceServiceTest extends UnitTestSupport {
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(size)
         )).willReturn(mutableList);
 
-        CursorResponse<PerformanceCursorResponse> response = performanceService.getUpcomingByLocationWithCursor(
+        CursorResponse<PerformanceCursorResponse> response = performanceQueryService.getUpcomingByLocationWithCursor(
                 locationId, cursorTime, cursorId, size
         );
 
@@ -305,7 +304,7 @@ class PerformanceServiceTest extends UnitTestSupport {
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(size)
         )).willReturn(mutableList);
 
-        CursorResponse<PerformanceCursorResponse> response = performanceService.getPastByLocationWithCursor(
+        CursorResponse<PerformanceCursorResponse> response = performanceQueryService.getPastByLocationWithCursor(
                 locationId, cursorTime, cursorId, size
         );
 
@@ -334,7 +333,7 @@ class PerformanceServiceTest extends UnitTestSupport {
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(size)
         )).willReturn(mutableList);
 
-        CursorResponse<PerformanceCursorResponse> response = performanceService.getPastByLocationWithCursor(
+        CursorResponse<PerformanceCursorResponse> response = performanceQueryService.getPastByLocationWithCursor(
                 locationId, cursorTime, cursorId, size
         );
 
@@ -368,7 +367,7 @@ class PerformanceServiceTest extends UnitTestSupport {
                 .willReturn(List.of(loc1, loc2));
 
         CursorResponse<MyPerformanceSummaryResponse> response =
-                performanceService.getMyPerformances(memberId, cursorId, size);
+                performanceQueryService.getMyPerformances(memberId, cursorId, size);
 
         assertThat(response.content()).hasSize(2);
 

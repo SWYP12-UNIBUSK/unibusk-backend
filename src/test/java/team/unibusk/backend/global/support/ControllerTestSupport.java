@@ -9,7 +9,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 import team.unibusk.backend.domain.applicationguide.application.ApplicationGuideService;
 import team.unibusk.backend.domain.member.application.command.MemberCommandService;
 import team.unibusk.backend.domain.member.application.query.MemberQueryService;
-import team.unibusk.backend.domain.performance.application.PerformanceService;
+import team.unibusk.backend.domain.performance.application.PerformanceQueryService;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
 import team.unibusk.backend.global.config.TestSecurityConfig;
@@ -35,7 +35,7 @@ public abstract class ControllerTestSupport {
     protected MemberQueryService memberQueryService;
 
     @MockitoBean
-    protected PerformanceService performanceService;
+    protected PerformanceQueryService performanceQueryService;
 
     @MockitoBean
     protected PerformanceLocationService performanceLocationService;
