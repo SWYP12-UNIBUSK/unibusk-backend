@@ -1,0 +1,14 @@
+.git
+.github
+.gradle
+.idea
+build/classes
+build/reports
+build/test-results
+build/tmp
+build/generated
+out
+*.md
+deployment
+src/test
+gradle/wrapper/gradle-wrapper.jar
