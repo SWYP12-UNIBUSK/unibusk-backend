@@ -43,8 +43,8 @@ dependencies {
     // =========================
     // Database
     // =========================
-    runtimeOnly 'com.h2database:h2'                      // 로컬 테스트용 인메모리 DB
-    runtimeOnly 'com.mysql:mysql-connector-j'           // MySQL 드라이버
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
 
     // =========================
     // Test
