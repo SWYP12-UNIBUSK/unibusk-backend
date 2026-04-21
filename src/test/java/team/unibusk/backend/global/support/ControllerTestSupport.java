@@ -7,7 +7,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import team.unibusk.backend.domain.applicationguide.application.ApplicationGuideService;
-import team.unibusk.backend.domain.member.application.MemberService;
+import team.unibusk.backend.domain.member.application.command.MemberCommandService;
+import team.unibusk.backend.domain.member.application.query.MemberQueryService;
 import team.unibusk.backend.domain.performance.application.PerformanceService;
 import team.unibusk.backend.domain.performanceLocation.application.PerformanceLocationService;
 import team.unibusk.backend.global.auth.application.auth.AuthService;
@@ -28,7 +29,10 @@ public abstract class ControllerTestSupport {
     protected AuthService authService;
 
     @MockitoBean
-    protected MemberService memberService;
+    protected MemberCommandService memberCommandService;
+
+    @MockitoBean
+    protected MemberQueryService memberQueryService;
 
     @MockitoBean
     protected PerformanceService performanceService;
