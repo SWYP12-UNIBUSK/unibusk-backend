@@ -1,0 +1,10 @@
+.git
+.github
+.gradle
+.idea
+build
+out
+*.md
+deployment
+src/test
+gradle/wrapper/gradle-wrapper.jar
