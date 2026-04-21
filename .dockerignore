@@ -2,7 +2,11 @@
 .github
 .gradle
 .idea
-build
+build/classes
+build/reports
+build/test-results
+build/tmp
+build/generated
 out
 *.md
 deployment
