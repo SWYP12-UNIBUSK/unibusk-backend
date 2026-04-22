@@ -17,16 +17,15 @@ public class ApplicationGuide extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
+    private Long performanceLocationId;
+
+    @Column(nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_location_id", nullable = false)
-    private PerformanceLocation performanceLocation;
-
-    public static ApplicationGuide create(String content, PerformanceLocation performanceLocation) {
+    public static ApplicationGuide create(String content, Long performanceLocationId) {
         return ApplicationGuide.builder()
                 .content(content)
-                .performanceLocation(performanceLocation)
+                .performanceLocationId(performanceLocationId)
                 .build();
     }
 

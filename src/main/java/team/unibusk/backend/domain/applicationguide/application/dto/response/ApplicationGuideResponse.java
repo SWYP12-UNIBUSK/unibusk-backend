@@ -22,7 +22,7 @@ public record ApplicationGuideResponse(
     public static ApplicationGuideResponse from(ApplicationGuide applicationGuide) {
         return ApplicationGuideResponse.builder()
                 .applicationGuideId(applicationGuide.getId())
-                .performanceLocationId(applicationGuide.getPerformanceLocation().getId())
+                .performanceLocationId(applicationGuide.getPerformanceLocationId())
                 .content(applicationGuide.getContent())
                 .build();
     }
