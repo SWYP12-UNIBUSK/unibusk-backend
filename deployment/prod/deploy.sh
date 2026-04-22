@@ -74,7 +74,10 @@ rollback() {
 
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
   sudo nginx -t
-  if ! sudo nginx -s reload 2>/dev/null; then
+  if pgrep -x nginx >/dev/null 2>&1; then
+    sudo nginx -s reload
+  else
+    log "nginx not running — starting instead of reload"
     sudo nginx
   fi
 
@@ -143,7 +146,10 @@ sleep $WARMUP_DELAY
 # Nginx 교체
 sudo cp "$NGINX_DIR/unibusk-$NEXT.conf" /etc/nginx/conf.d/default.conf
 sudo nginx -t
-if ! sudo nginx -s reload 2>/dev/null; then
+if pgrep -x nginx >/dev/null 2>&1; then
+  sudo nginx -s reload
+else
+  log "nginx not running — starting instead of reload"
   sudo nginx
 fi
 
