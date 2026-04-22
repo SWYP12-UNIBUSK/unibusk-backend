@@ -8,8 +8,6 @@ import team.unibusk.backend.domain.applicationguide.application.dto.response.App
 import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuide;
 import team.unibusk.backend.domain.applicationguide.domain.ApplicationGuideRepository;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceLocationNotFoundException;
-import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
-import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationFixture;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.support.UnitTestSupport;
 
@@ -35,10 +33,8 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
     void 신청_가이드_목록을_정상_조회한다() {
         Long performanceLocationId = 1L;
 
-        PerformanceLocation location = PerformanceLocationFixture.createLocation(performanceLocationId, "홍대");
-
-        ApplicationGuide guide1 = ApplicationGuide.create("사전 신청 필수", location);
-        ApplicationGuide guide2 = ApplicationGuide.create("장비 직접 지참", location);
+        ApplicationGuide guide1 = ApplicationGuide.create("사전 신청 필수", performanceLocationId);
+        ApplicationGuide guide2 = ApplicationGuide.create("장비 직접 지참", performanceLocationId);
         ReflectionTestUtils.setField(guide1, "id", 1L);
         ReflectionTestUtils.setField(guide2, "id", 2L);
 
@@ -61,9 +57,7 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
     void 신청_가이드가_없으면_빈_목록을_반환한다() {
         Long performanceLocationId = 1L;
 
-        PerformanceLocation location = PerformanceLocationFixture.createLocation(performanceLocationId, "홍대");
-
-        given(performanceLocationRepository.findById(performanceLocationId)).willReturn(location);
+        given(performanceLocationRepository.findById(performanceLocationId)).willReturn(null);
         given(applicationGuideRepository.findAllByPerformanceLocationId(performanceLocationId))
                 .willReturn(List.of());
 
