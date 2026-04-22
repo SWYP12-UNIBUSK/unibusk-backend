@@ -47,7 +47,7 @@ public record PerformanceRegisterRequest (
     public record PerformerRegisterRequest(
             //공연자 정보
             @NotBlank(message = "공연자 이름은 필수 입력 항목입니다.")
-            @Size(max = 15, message = "공연자 이름은 최대 15자 입니다.")
+            @Size(max = 20, message = "공연자 이름은 최대 20자 입니다.")
             String name,
 
             @NotBlank(message = "이메일은 필수 입력 항목입니다.")
