@@ -38,7 +38,7 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
         ReflectionTestUtils.setField(guide1, "id", 1L);
         ReflectionTestUtils.setField(guide2, "id", 2L);
 
-        given(performanceLocationRepository.findById(performanceLocationId)).willReturn(location);
+        given(performanceLocationRepository.findById(performanceLocationId)).willReturn(null);
         given(applicationGuideRepository.findAllByPerformanceLocationId(performanceLocationId))
                 .willReturn(List.of(guide1, guide2));
 
