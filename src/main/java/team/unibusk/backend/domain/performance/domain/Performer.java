@@ -15,7 +15,7 @@ public class Performer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 20)
     private String name;
 
     @Column(nullable = false, length = 50)
