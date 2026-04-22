@@ -74,7 +74,12 @@ rollback() {
 
   sudo cp "$NGINX_DIR/unibusk-$CURRENT.conf" /etc/nginx/conf.d/default.conf
   sudo nginx -t
-  sudo nginx -s reload
+  if pgrep -x nginx >/dev/null 2>&1; then
+    sudo nginx -s reload
+  else
+    log "nginx not running — starting instead of reload"
+    sudo nginx
+  fi
 
   docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" rm -f "$NEXT" || true
 
@@ -141,7 +146,12 @@ sleep $WARMUP_DELAY
 # Nginx 교체
 sudo cp "$NGINX_DIR/unibusk-$NEXT.conf" /etc/nginx/conf.d/default.conf
 sudo nginx -t
-sudo nginx -s reload
+if pgrep -x nginx >/dev/null 2>&1; then
+  sudo nginx -s reload
+else
+  log "nginx not running — starting instead of reload"
+  sudo nginx
+fi
 
 # 기존 컨테이너 정리 (graceful shutdown 대기)
 docker compose -f "$COMPOSE" --env-file "$APP_ENV_FILE" stop -t 35 "$CURRENT"
