@@ -192,7 +192,7 @@ public class PerformanceLocationExcelService {
         for (String content : contents) {
             if (StringUtils.hasText(content)) {
                 // 정의하신 create 정적 팩토리 메서드 활용
-                guides.add(ApplicationGuide.create(content, savedLocation));
+                guides.add(ApplicationGuide.create(content, savedLocation.getId()));
             }
         }
 
