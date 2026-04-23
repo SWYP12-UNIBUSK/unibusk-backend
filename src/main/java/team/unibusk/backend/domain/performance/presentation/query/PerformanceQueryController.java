@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.presentation;
+package team.unibusk.backend.domain.performance.presentation.query;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.unibusk.backend.domain.performance.application.PerformanceQueryService;
+import team.unibusk.backend.domain.performance.application.query.PerformanceQueryService;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.global.annotation.MemberId;
@@ -16,9 +16,9 @@ import team.unibusk.backend.global.response.PageResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
-@RequestMapping("/performances")
 @RequiredArgsConstructor
+@RequestMapping("/performances")
+@RestController
 public class PerformanceQueryController implements PerformanceQueryDocsController {
 
     private final PerformanceQueryService performanceQueryService;

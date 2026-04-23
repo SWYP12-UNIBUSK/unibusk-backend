@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.presentation;
+package team.unibusk.backend.domain.performance.presentation.command;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import team.unibusk.backend.domain.performance.application.PerformanceCommandService;
+import team.unibusk.backend.domain.performance.application.command.PerformanceCommandService;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceDetailResponse;
 import team.unibusk.backend.domain.performance.application.dto.response.PerformanceRegisterResponse;
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceRegisterRequest;
@@ -15,9 +15,9 @@ import team.unibusk.backend.global.annotation.MemberId;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/performances")
 @RequiredArgsConstructor
+@RequestMapping("/performances")
+@RestController
 public class PerformanceCommandController implements PerformanceCommandDocsController {
 
     private final PerformanceCommandService performanceCommandService;

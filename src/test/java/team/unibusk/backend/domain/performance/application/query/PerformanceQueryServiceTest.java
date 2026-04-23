@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.application;
+package team.unibusk.backend.domain.performance.application.query;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

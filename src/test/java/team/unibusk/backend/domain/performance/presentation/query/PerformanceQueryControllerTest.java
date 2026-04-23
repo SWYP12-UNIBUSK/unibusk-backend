@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.presentation;
+package team.unibusk.backend.domain.performance.presentation.query;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

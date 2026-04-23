@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.application;
+package team.unibusk.backend.domain.performance.application.command;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional
+@Service
 public class PerformanceCommandService {
 
     private final MemberRepository memberRepository;

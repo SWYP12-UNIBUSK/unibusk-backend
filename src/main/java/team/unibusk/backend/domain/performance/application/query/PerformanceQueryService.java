@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.application;
+package team.unibusk.backend.domain.performance.application.query;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,9 +22,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
 public class PerformanceQueryService {
 
     private final PerformanceRepository performanceRepository;
