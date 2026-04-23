@@ -82,12 +82,12 @@ public class PerformanceCommandService {
                     .build();
 
             Performance saved = performanceRepository.save(performance);
+
             return PerformanceRegisterResponse.builder()
                     .performanceId(saved.getId())
                     .build();
 
         }catch(Exception e){
-            images.forEach(img -> fileUploadService.delete(img.getImageUrl()));
             throw new PerformanceRegistrationFailedException();
         }
     }
