@@ -1,4 +1,4 @@
-package team.unibusk.backend.domain.performance.presentation;
+package team.unibusk.backend.domain.performance.presentation.query;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -19,8 +19,8 @@ import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 
-@WebMvcTest(controllers = PerformanceController.class)
-class PerformanceControllerTest extends ControllerTestSupport {
+@WebMvcTest(controllers = PerformanceQueryController.class)
+class PerformanceQueryControllerTest extends ControllerTestSupport {
 
     private PageResponse<PerformanceResponse> createDefaultPageResponse(Long id, PerformanceStatus status) {
         LocalDateTime time;
@@ -55,7 +55,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
     void 다가오는_공연_조회_시_200과_공연_목록을_반환한다() {
         PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(1L, PerformanceStatus.UPCOMING);
 
-        given(performanceService.getUpcomingPerformances(any(Pageable.class))).willReturn(mockPageResponse);
+        given(performanceQueryService.getUpcomingPerformances(any(Pageable.class))).willReturn(mockPageResponse);
 
         assertThat(mvcTester.get().uri("/performances/upcoming"))
                 .hasStatusOk()
@@ -91,7 +91,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .endTime(fixedNow.plusDays(5).plusHours(2))
                 .build();
 
-        given(performanceService.getUpcomingPerformancesPreview()).willReturn(List.of(performance1, performance2));
+        given(performanceQueryService.getUpcomingPerformancesPreview()).willReturn(List.of(performance1, performance2));
 
         assertThat(mvcTester.get().uri("/performances/upcoming/preview"))
                 .hasStatusOk()
@@ -111,7 +111,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
     void 지난_공연_조회_시_200과_공연_목록을_반환한다() {
         PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(1L, PerformanceStatus.PAST);
 
-        given(performanceService.getPastPerformances(any(Pageable.class))).willReturn(mockPageResponse);
+        given(performanceQueryService.getPastPerformances(any(Pageable.class))).willReturn(mockPageResponse);
 
         assertThat(mvcTester.get().uri("/performances/past"))
                 .hasStatusOk()
@@ -150,7 +150,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .latitude(37.0)
                 .build();
 
-        given(performanceService.getPerformanceDetail(1L)).willReturn(performance);
+        given(performanceQueryService.getPerformanceDetail(1L)).willReturn(performance);
 
         assertThat(mvcTester.get().uri("/performances/1"))
                 .hasStatusOk()
@@ -168,7 +168,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
 
         PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(10L, PerformanceStatus.UPCOMING);
 
-        given(performanceService.searchPerformances(
+        given(performanceQueryService.searchPerformances(
                 eq(PerformanceStatus.UPCOMING),
                 eq(keyword),
                 any(Pageable.class))).willReturn(mockPageResponse);
@@ -191,7 +191,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
 
         PageResponse<PerformanceResponse> mockPageResponse = createDefaultPageResponse(30L, PerformanceStatus.PAST);
 
-        given(performanceService.searchPerformances(
+        given(performanceQueryService.searchPerformances(
                 eq(PerformanceStatus.PAST),
                 eq(keyword),
                 any(Pageable.class))).willReturn(mockPageResponse);
@@ -213,7 +213,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
         assertThat(mvcTester.get().uri("/performances/upcoming/search"))
                 .hasStatus(HttpStatus.BAD_REQUEST);
 
-        then(performanceService).shouldHaveNoInteractions();
+        then(performanceQueryService).shouldHaveNoInteractions();
     }
 
     @Test
@@ -236,7 +236,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .hasNext(true)
                 .build();
 
-        given(performanceService.getUpcomingByLocationWithCursor(
+        given(performanceQueryService.getUpcomingByLocationWithCursor(
                 eq(locationId),
                 isNull(),
                 isNull(),
@@ -278,7 +278,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .hasNext(false)
                 .build();
 
-        given(performanceService.getUpcomingByLocationWithCursor(
+        given(performanceQueryService.getUpcomingByLocationWithCursor(
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(5)
         )).willReturn(mockResponse);
 
@@ -318,7 +318,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .hasNext(true)
                 .build();
 
-        given(performanceService.getPastByLocationWithCursor(
+        given(performanceQueryService.getPastByLocationWithCursor(
                 eq(locationId), isNull(), isNull(), eq(10)
         )).willReturn(mockResponse);
 
@@ -356,7 +356,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .nextCursorId(null)
                 .build();
 
-        given(performanceService.getPastByLocationWithCursor(
+        given(performanceQueryService.getPastByLocationWithCursor(
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(5)
         )).willReturn(mockResponse);
 
@@ -397,7 +397,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .nextCursorId(100L)
                 .build();
 
-        given(performanceService.getMyPerformances(eq(memberId), isNull(), eq(10)))
+        given(performanceQueryService.getMyPerformances(eq(memberId), isNull(), eq(10)))
                 .willReturn(mockResponse);
 
         assertThat(mvcTester.get().uri("/performances/me"))
@@ -434,7 +434,7 @@ class PerformanceControllerTest extends ControllerTestSupport {
                 .nextCursorId(null)
                 .build();
 
-        given(performanceService.getMyPerformances(eq(memberId), eq(cursorId), eq(5)))
+        given(performanceQueryService.getMyPerformances(eq(memberId), eq(cursorId), eq(5)))
                 .willReturn(mockResponse);
 
         assertThat(mvcTester.get().uri("/performances/me")
