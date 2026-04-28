@@ -34,11 +34,10 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
     @Test
     void 신청_가이드_목록을_정상_조회한다() {
         Long performanceLocationId = 1L;
-
         PerformanceLocation location = PerformanceLocationFixture.createLocation(performanceLocationId, "홍대");
 
-        ApplicationGuide guide1 = ApplicationGuide.create("사전 신청 필수", location);
-        ApplicationGuide guide2 = ApplicationGuide.create("장비 직접 지참", location);
+        ApplicationGuide guide1 = ApplicationGuide.create("사전 신청 필수", performanceLocationId);
+        ApplicationGuide guide2 = ApplicationGuide.create("장비 직접 지참", performanceLocationId);
         ReflectionTestUtils.setField(guide1, "id", 1L);
         ReflectionTestUtils.setField(guide2, "id", 2L);
 
@@ -60,7 +59,6 @@ class ApplicationGuideServiceTest extends UnitTestSupport {
     @Test
     void 신청_가이드가_없으면_빈_목록을_반환한다() {
         Long performanceLocationId = 1L;
-
         PerformanceLocation location = PerformanceLocationFixture.createLocation(performanceLocationId, "홍대");
 
         given(performanceLocationRepository.findById(performanceLocationId)).willReturn(location);
