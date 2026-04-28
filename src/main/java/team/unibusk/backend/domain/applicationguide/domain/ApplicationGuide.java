@@ -15,7 +15,7 @@ public class ApplicationGuide extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "performance_location_id", nullable = false)
     private Long performanceLocationId;
 
     @Column(nullable = false)
