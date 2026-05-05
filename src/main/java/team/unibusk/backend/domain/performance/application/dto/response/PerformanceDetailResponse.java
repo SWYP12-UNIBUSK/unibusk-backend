@@ -13,6 +13,9 @@ import java.util.List;
 @Builder
 public record PerformanceDetailResponse (
 
+        @Schema(description = "회원 ID", example = "1")
+        Long memberId,
+
         @Schema(description = "공연 고유 ID", example = "101")
         Long performanceId,
 
@@ -61,6 +64,7 @@ public record PerformanceDetailResponse (
                 PerformanceLocation location
         ) {
                 return PerformanceDetailResponse.builder()
+                        .memberId(performance.getMemberId())
                         .performanceId(performance.getId())
                         .title(performance.getTitle())
                         .performanceDate(performance.getPerformanceDate())
