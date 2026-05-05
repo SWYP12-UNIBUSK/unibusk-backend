@@ -130,6 +130,7 @@ class PerformanceQueryControllerTest extends ControllerTestSupport {
         LocalDateTime fixedNow = LocalDateTime.of(2027, 7, 30, 14, 0);
 
         PerformanceDetailResponse performance = PerformanceDetailResponse.builder()
+                .memberId(1L)
                 .performanceId(1L)
                 .locationName("걷고싶은거리")
                 .title("UNIBUSK 버스킹")
