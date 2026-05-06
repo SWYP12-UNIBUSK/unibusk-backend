@@ -29,14 +29,11 @@ public class Member extends BaseTimeEntity {
 
     private String externalId;
 
-    private boolean firstLogin;
-
     public static Member from(AuthAttributes attributes) {
         return Member.builder()
                 .email(attributes.getEmail())
                 .provider(attributes.getProvider())
                 .externalId(attributes.getExternalId())
-                .firstLogin(true)
                 .build();
     }
 

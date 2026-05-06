@@ -19,15 +19,6 @@ class MemberTest {
     }
 
     @Test
-    void OAuth_인증정보로_회원을_생성하면_최초_로그인_상태다() {
-        AuthAttributes attributes = 인증정보("test@email.com", "kakao-123");
-
-        Member member = Member.from(attributes);
-
-        assertThat(member.isFirstLogin()).isTrue();
-    }
-
-    @Test
     void 이름을_생성하면_이름이_설정된다() {
         Member member = 회원("test@email.com", "kakao-123");
 
