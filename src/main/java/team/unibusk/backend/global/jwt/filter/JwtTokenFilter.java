@@ -72,8 +72,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String reissueAccessTokenSafely(HttpServletRequest request, HttpServletResponse response) {
         try {
             return reissueAccessToken(request, response);
-        } catch (ExpiredJwtException | SignatureException e) {
+        } catch (ExpiredJwtException e) {
             log.debug("Refresh token expired during token reissue attempt");
+            throw new RefreshTokenNotValidException();
+        } catch (SignatureException e) {
+            log.debug("Refresh token signature mismatch during token reissue attempt");
             throw new RefreshTokenNotValidException();
         }
     }
