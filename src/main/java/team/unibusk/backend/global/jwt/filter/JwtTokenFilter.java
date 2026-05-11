@@ -1,6 +1,7 @@
 package team.unibusk.backend.global.jwt.filter;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,7 +72,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String reissueAccessTokenSafely(HttpServletRequest request, HttpServletResponse response) {
         try {
             return reissueAccessToken(request, response);
-        } catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException | SignatureException e) {
             log.debug("Refresh token expired during token reissue attempt");
             throw new RefreshTokenNotValidException();
         }
