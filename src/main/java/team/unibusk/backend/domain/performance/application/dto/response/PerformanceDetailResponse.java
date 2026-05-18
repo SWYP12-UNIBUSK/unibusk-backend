@@ -42,7 +42,7 @@ public record PerformanceDetailResponse (
                 description = "공연 이미지 URL",
                 example = "https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg"
         )
-        String image,
+        String imageUrl,
 
         @Schema(description = "공연자 정보 목록")
         List<PerformerResponse> performers,
@@ -81,7 +81,7 @@ public record PerformanceDetailResponse (
                         .longitude(location.getLongitude())
                         .summary(performance.getSummary())
                         .description(performance.getDescription())
-                        .image(imageUrl)
+                        .imageUrl(imageUrl)
                         .performers(
                                 performers.stream()
                                         .map(PerformerResponse::from)
