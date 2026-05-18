@@ -13,8 +13,6 @@ import team.unibusk.backend.domain.performance.presentation.request.PerformanceR
 import team.unibusk.backend.domain.performance.presentation.request.PerformanceUpdateRequest;
 import team.unibusk.backend.global.annotation.MemberId;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RequestMapping("/performances")
 @RestController

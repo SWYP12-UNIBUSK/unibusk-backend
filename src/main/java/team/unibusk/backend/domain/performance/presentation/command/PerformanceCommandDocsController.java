@@ -21,8 +21,6 @@ import team.unibusk.backend.global.annotation.MemberId;
 import team.unibusk.backend.global.annotation.SwaggerBody;
 import team.unibusk.backend.global.exception.ExceptionResponse;
 
-import java.util.List;
-
 @Tag(name = "Performance", description = "공연 관련 API")
 @RequestMapping("/performances")
 public interface PerformanceCommandDocsController {

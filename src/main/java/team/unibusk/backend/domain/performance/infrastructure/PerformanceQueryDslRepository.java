@@ -16,7 +16,6 @@ import team.unibusk.backend.domain.performance.application.dto.response.QPerform
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
 import team.unibusk.backend.domain.performance.domain.QPerformance;
-import team.unibusk.backend.domain.performance.domain.QPerformanceImage;
 
 import static team.unibusk.backend.domain.performance.domain.QPerformance.performance;
 import static team.unibusk.backend.domain.performance.domain.QPerformanceImage.performanceImage;

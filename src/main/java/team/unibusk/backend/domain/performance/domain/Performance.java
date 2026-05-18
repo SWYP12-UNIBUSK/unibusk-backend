@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
 import team.unibusk.backend.domain.performance.presentation.exception.PerformanceAccessDeniedException;
 import team.unibusk.backend.global.domain.BaseTimeEntity;
 
