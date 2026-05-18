@@ -25,11 +25,11 @@ public class PerformanceCommandController implements PerformanceCommandDocsContr
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PerformanceRegisterResponse> registerPerformance(
             @RequestPart("request") @Valid PerformanceRegisterRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @MemberId Long memberId
     ) {
         PerformanceRegisterResponse response =
-                performanceCommandService.register(request.toServiceRequest(memberId, images));
+                performanceCommandService.register(request.toServiceRequest(memberId, image));
 
         return ResponseEntity.status(201).body(response);
     }
@@ -38,10 +38,10 @@ public class PerformanceCommandController implements PerformanceCommandDocsContr
     public ResponseEntity<PerformanceDetailResponse> updatePerformance(
             @PathVariable Long performanceId,
             @RequestPart("request") @Valid PerformanceUpdateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @MemberId Long memberId
     ) {
-        PerformanceDetailResponse response = performanceCommandService.updatePerformance(request.toServiceRequest(performanceId, memberId, images));
+        PerformanceDetailResponse response = performanceCommandService.updatePerformance(request.toServiceRequest(performanceId, memberId, image));
 
         return ResponseEntity.status(200).body(response);
     }

@@ -50,9 +50,9 @@ public record PerformanceUpdateRequest(
     public PerformanceUpdateServiceRequest toServiceRequest(
             Long performanceId,
             Long memberId,
-            List<MultipartFile> images
+            MultipartFile image
     ) {
-        List<MultipartFile> safeImages = (images == null) ? List.of() : images;
+        MultipartFile safeImage = image;
         return PerformanceUpdateServiceRequest.builder()
                 .memberId(memberId)
                 .performanceId(performanceId)
@@ -63,7 +63,7 @@ public record PerformanceUpdateRequest(
                 .startTime(startTime)
                 .endTime(endTime)
                 .summary(summary)
-                .images(safeImages)
+                .image(safeImage)
                 .description(description)
                 .build();
     }

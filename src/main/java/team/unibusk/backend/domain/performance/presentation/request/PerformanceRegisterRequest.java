@@ -101,8 +101,8 @@ public record PerformanceRegisterRequest (
     }
 
 
-    public PerformanceRegisterServiceRequest toServiceRequest(Long memberId, List<MultipartFile> images) {
-        List<MultipartFile> safeImages = (images == null) ? List.of() : images;
+    public PerformanceRegisterServiceRequest toServiceRequest(Long memberId, MultipartFile image) {
+        MultipartFile safeImage = image;
         return PerformanceRegisterServiceRequest.builder()
                 .performers(this.performers.stream()
                         .map(p -> PerformanceRegisterServiceRequest.PerformerServiceRequest.builder()
@@ -120,7 +120,7 @@ public record PerformanceRegisterRequest (
                 .endTime(this.endTime)
                 .summary(this.summary)
                 .description(this.description)
-                .images(safeImages)
+                .image(safeImage)
                 .build();
     }
 }

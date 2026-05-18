@@ -17,7 +17,7 @@ public record PerformanceRegisterServiceRequest(
         LocalDateTime startTime,
         LocalDateTime endTime,
         String summary,
-        List<MultipartFile> images,
+        MultipartFile image,
         String description
 ) {
     @Builder

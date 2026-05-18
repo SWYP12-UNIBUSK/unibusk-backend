@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
 import team.unibusk.backend.domain.performance.domain.PerformanceImage;
+import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
 import java.time.LocalDate;
@@ -38,10 +39,10 @@ public record PerformanceDetailResponse (
         String description,
 
         @Schema(
-                description = "공연 이미지 URL 목록",
-                example = "[\"https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg\"]"
+                description = "공연 이미지 URL",
+                example = "https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg"
         )
-        List<String> images,
+        String image,
 
         @Schema(description = "공연자 정보 목록")
         List<PerformerResponse> performers,
@@ -61,7 +62,9 @@ public record PerformanceDetailResponse (
 ){
         public static PerformanceDetailResponse from(
                 Performance performance,
-                PerformanceLocation location
+                PerformanceLocation location,
+                String imageUrl,
+                List<Performer> performers
         ) {
                 return PerformanceDetailResponse.builder()
                         .memberId(performance.getMemberId())
@@ -78,13 +81,9 @@ public record PerformanceDetailResponse (
                         .longitude(location.getLongitude())
                         .summary(performance.getSummary())
                         .description(performance.getDescription())
-                        .images(
-                                performance.getImages().stream()
-                                        .map(PerformanceImage::getImageUrl)
-                                        .toList()
-                        )
+                        .image(imageUrl)
                         .performers(
-                                performance.getPerformers().stream()
+                                performers.stream()
                                         .map(PerformerResponse::from)
                                         .toList()
                         )

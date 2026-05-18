@@ -32,16 +32,17 @@ public record MyPerformanceSummaryResponse(
         String performanceLocationName,
 
         @Schema(
-                description = "공연 이미지 URL 리스트",
-                example = "[\"https://image1.jpg\", \"https://image2.jpg\"]"
+                description = "공연 이미지 URL",
+                example = "https://image1.jpg"
         )
-        List<String> imageUrls
+        String imageUrl
 
 ) {
 
     public static MyPerformanceSummaryResponse from(
             Performance performance,
-            PerformanceLocation performanceLocation
+            PerformanceLocation performanceLocation,
+            String imageUrl
     ) {
         return MyPerformanceSummaryResponse.builder()
                 .performanceId(performance.getId())
@@ -50,11 +51,7 @@ public record MyPerformanceSummaryResponse(
                 .startTime(performance.getStartTime())
                 .endTime(performance.getEndTime())
                 .performanceLocationName(performanceLocation.getName())
-                .imageUrls(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
-                )
+                .imageUrl(imageUrl)
                 .build();
     }
 
