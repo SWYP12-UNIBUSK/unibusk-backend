@@ -253,7 +253,8 @@ public class PerformanceQueryService {
         return images.stream()
                 .collect(Collectors.toMap(
                         PerformanceImage::getPerformanceId,
-                        PerformanceImage::getImageUrl
+                        PerformanceImage::getImageUrl,
+                        (existing, replacement) -> existing
                 ));
     }
 
