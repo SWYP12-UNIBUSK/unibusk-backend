@@ -15,6 +15,9 @@ public class Performer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "performance_id", nullable = false)
+    private Long performanceId;
+
     @Column(nullable = false, length = 20)
     private String name;
 
@@ -28,7 +31,8 @@ public class Performer {
     private String instagram;
 
     @Builder
-    private Performer(String name, String email, String phoneNumber, String instagram) {
+    private Performer(Long performanceId, String name, String email, String phoneNumber, String instagram) {
+        this.performanceId = performanceId;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;

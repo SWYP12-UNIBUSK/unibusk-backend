@@ -7,15 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
-import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
-import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
+import team.unibusk.backend.domain.performance.domain.*;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
 import team.unibusk.backend.global.response.CursorResponse;
 import team.unibusk.backend.global.response.PageResponse;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,10 +28,11 @@ public class PerformanceQueryService {
 
     private final PerformanceRepository performanceRepository;
     private final PerformanceLocationRepository performanceLocationRepository;
+    private final PerformanceImageRepository performanceImageRepository;
+    private final PerformerRepository performerRepository;
 
     public PageResponse<PerformanceResponse> getUpcomingPerformances(Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
-
         Page<Performance> performances =
                 performanceRepository.findUpcomingPerformances(now, pageable);
 
@@ -41,9 +41,7 @@ public class PerformanceQueryService {
 
     public List<PerformancePreviewResponse> getUpcomingPerformancesPreview() {
         LocalDateTime now = LocalDateTime.now();
-
         Pageable pageable = PageRequest.of(0, 8);
-
         List<Performance> performances = performanceRepository.findUpcomingPreview(now, pageable);
 
         Set<Long> locationIds = performances.stream()
@@ -57,14 +55,15 @@ public class PerformanceQueryService {
                                 PerformanceLocation::getName
                         ));
 
+        Map<Long, String> imageUrlMap = getImageUrlMap(performances);
+
         return performances.stream()
-                .map(p -> PerformancePreviewResponse.from(p, locationNameMap))
+                .map(p -> PerformancePreviewResponse.from(p, locationNameMap, imageUrlMap.get(p.getId())))
                 .toList();
     }
 
     public PageResponse<PerformanceResponse> getPastPerformances(Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
-
         Page<Performance> performances =
                 performanceRepository.findPastPerformances(now, pageable);
 
@@ -73,11 +72,14 @@ public class PerformanceQueryService {
 
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
         Performance performance = performanceRepository.findDetailById(performanceId);
-
         PerformanceLocation location =
                 performanceLocationRepository.findById(performance.getPerformanceLocationId());
 
-        return PerformanceDetailResponse.from(performance, location);
+        List<Performer> performers = performerRepository.findByPerformanceId(performanceId);
+        PerformanceImage image = performanceImageRepository.findByPerformanceId(performanceId);
+        String imageUrl = image.getImageUrl();
+
+        return PerformanceDetailResponse.from(performance, location, imageUrl, performers);
     }
 
     public PageResponse<PerformanceResponse> searchPerformances(
@@ -154,12 +156,15 @@ public class PerformanceQueryService {
                                 Function.identity()
                         ));
 
+        Map<Long, String> imageUrlMap = getImageUrlMap(performances);
+
         List<MyPerformanceSummaryResponse> content =
                 performances.stream()
                         .map(p ->
                                 MyPerformanceSummaryResponse.from(
                                         p,
-                                        locationMap.get(p.getPerformanceLocationId())
+                                        locationMap.get(p.getPerformanceLocationId()),
+                                        imageUrlMap.get(p.getId())
                                 )
                         )
                         .toList();
@@ -177,16 +182,17 @@ public class PerformanceQueryService {
     }
 
     private PageResponse<PerformanceResponse> mapToPageResponse(Page<Performance> performances) {
-        Map<Long, String> locationNameMap =
-                performanceLocationRepository.findByIds(
-                                performances.getContent().stream()
-                                        .map(Performance::getPerformanceLocationId)
-                                        .collect(Collectors.toSet())
-                        ).stream()
-                        .collect(Collectors.toMap(
-                                PerformanceLocation::getId,
-                                PerformanceLocation::getName
-                        ));
+        Set<Long> locationIds = performances.getContent().stream()
+                .map(Performance::getPerformanceLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, String> locationNameMap = performanceLocationRepository.findByIds(locationIds).stream()
+                .collect(Collectors.toMap(
+                        PerformanceLocation::getId,
+                        PerformanceLocation::getName
+                ));
+
+        Map<Long, String> imageUrlMap = getImageUrlMap(performances.getContent());
 
         Page<PerformanceResponse> page = performances.map(p ->
                 PerformanceResponse.from(
@@ -194,7 +200,8 @@ public class PerformanceQueryService {
                         locationNameMap.getOrDefault(
                                 p.getPerformanceLocationId(),
                                 "공연 장소 정보가 없습니다."
-                        )
+                        ),
+                        imageUrlMap.get(p.getId())
                 )
         );
 
@@ -208,9 +215,11 @@ public class PerformanceQueryService {
             performances.remove(size);
         }
 
+        Map<Long, String> imageUrlMap = getImageUrlMap(performances);
+
         List<PerformanceCursorResponse> contents =
                 performances.stream()
-                        .map(PerformanceCursorResponse::from)
+                        .map(p -> PerformanceCursorResponse.from(p, imageUrlMap.get(p.getId())))
                         .toList();
 
         LocalDateTime nextCursorTime = null;
@@ -228,6 +237,24 @@ public class PerformanceQueryService {
                 nextCursorId,
                 hasNext
         );
+    }
+
+    private Map<Long, String> getImageUrlMap(List<Performance> performances) {
+        if (performances.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> performanceIds = performances.stream()
+                .map(Performance::getId)
+                .toList();
+
+        List<PerformanceImage> images = performanceImageRepository.findByPerformanceIdIn(performanceIds);
+
+        return images.stream()
+                .collect(Collectors.toMap(
+                        PerformanceImage::getPerformanceId,
+                        PerformanceImage::getImageUrl
+                ));
     }
 
 }

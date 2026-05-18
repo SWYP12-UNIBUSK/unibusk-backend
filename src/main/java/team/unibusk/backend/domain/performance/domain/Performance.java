@@ -13,9 +13,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class Performance extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,22 +48,10 @@ public class Performance extends BaseTimeEntity {
     @Column(nullable = false)
     private long viewCount = 0L;
 
-    // 애그리거트 루트를 통해서만 자식의 생명주기가 관리됨
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "performance_id") // 자식 테이블에 FK 생성
-    @BatchSize(size = 10)
-    private List<PerformanceImage> images = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "performance_id")
-    @BatchSize(size = 10)
-    private List<Performer> performers = new ArrayList<>();
-
     @Builder
     private Performance(Long memberId, Long performanceLocationId, String title,
                         String summary, String description, LocalDate performanceDate,
-                        LocalDateTime startTime, LocalDateTime endTime,
-                        List<PerformanceImage> images, List<Performer> performers) {
+                        LocalDateTime startTime, LocalDateTime endTime) {
         this.memberId = memberId;
         this.performanceLocationId = performanceLocationId;
         this.title = title;
@@ -73,9 +61,6 @@ public class Performance extends BaseTimeEntity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.viewCount = 0;
-
-        if (images != null) this.images.addAll(images);
-        if (performers != null) this.performers.addAll(performers);
     }
 
     public void updateBasicInfo(
@@ -94,22 +79,6 @@ public class Performance extends BaseTimeEntity {
         this.summary = summary;
         this.description = description;
         this.performanceLocationId = performanceLocationId;
-    }
-
-    public void addPerformer(Performer performer) {
-        this.performers.add(performer);
-    }
-
-    public void addImage(PerformanceImage image) {
-        this.images.add(image);
-    }
-
-    public void clearPerformers() {
-        this.performers.clear();
-    }
-
-    public void clearImages() {
-        this.images.clear();
     }
 
     public void validateOwner(Long memberId) {

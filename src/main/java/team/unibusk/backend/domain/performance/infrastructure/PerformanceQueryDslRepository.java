@@ -118,12 +118,9 @@ public class PerformanceQueryDslRepository {
             int size
     ) {
         QPerformance p = QPerformance.performance;
-        QPerformanceImage i = QPerformanceImage.performanceImage;
 
         return queryFactory
-                .selectDistinct(p)
-                .from(p)
-                .leftJoin(p.images, i).fetchJoin()
+                .selectFrom(p)
                 .where(
                         p.memberId.eq(memberId),
                         cursorIdLt(p, cursorId)

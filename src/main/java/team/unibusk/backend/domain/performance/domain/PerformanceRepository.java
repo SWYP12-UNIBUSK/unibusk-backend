@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface PerformanceRepository {
 
-    Performance save(Performance perfomance);
+    Performance save(Performance performance);
 
     Page<Performance> findPastPerformances(LocalDateTime now, Pageable pageable);
 

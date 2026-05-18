@@ -16,18 +16,16 @@ public class PerformanceImage extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "performance_id", insertable = false, updatable = false)
+    @Column(name = "performance_id")
     private Long performanceId;
 
     @Column(nullable = false, length = 512)
     private String imageUrl;
 
-    @Column(nullable = false)
-    private int sortOrder;
-
     @Builder
-    private PerformanceImage(String imageUrl, int sortOrder) {
+    private PerformanceImage(Long performanceId, String imageUrl) {
+        this.performanceId = performanceId;
         this.imageUrl = imageUrl;
-        this.sortOrder = sortOrder;
     }
+
 }
