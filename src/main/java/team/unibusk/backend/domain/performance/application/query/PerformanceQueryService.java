@@ -77,7 +77,7 @@ public class PerformanceQueryService {
 
         List<Performer> performers = performerRepository.findByPerformanceId(performanceId);
         PerformanceImage image = performanceImageRepository.findByPerformanceId(performanceId);
-        String imageUrl = image.getImageUrl();
+        String imageUrl = (image != null) ? image.getImageUrl() : null;
 
         return PerformanceDetailResponse.from(performance, location, imageUrl, performers);
     }
