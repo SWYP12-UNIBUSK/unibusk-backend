@@ -134,9 +134,10 @@ public class PerformanceCommandService {
 
         if (newImageUrl != null) {
             PerformanceImage oldImage = performanceImageRepository.findByPerformanceId(performance.getId());
-            String deleteTargetUrl = oldImage.getImageUrl();
-
-            performanceImageRepository.deleteByPerformanceId(performance.getId());
+            String deleteTargetUrl = oldImage != null ? oldImage.getImageUrl() : null;
+            if(oldImage != null) {
+                performanceImageRepository.deleteByPerformanceId(performance.getId());
+            }
 
             PerformanceImage newImage = PerformanceImage.builder()
                     .performanceId(performance.getId())
@@ -150,7 +151,9 @@ public class PerformanceCommandService {
                     new TransactionSynchronization() {
                         @Override
                         public void afterCommit() {
-                            fileUploadService.delete(deleteTargetUrl);
+                            if(deleteTargetUrl != null) {
+                                fileUploadService.delete(deleteTargetUrl);
+                            }
                         }
 
                         @Override

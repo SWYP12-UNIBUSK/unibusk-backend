@@ -8,10 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
-import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceFixture;
-import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
-import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
+import team.unibusk.backend.domain.performance.domain.*;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationFixture;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -37,6 +34,12 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
 
     @Mock
     private PerformanceRepository performanceRepository;
+
+    @Mock
+    private PerformanceImageRepository performanceImageRepository;
+
+    @Mock
+    private PerformerRepository performerRepository;
 
     @Mock
     private PerformanceLocationRepository performanceLocationRepository;
