@@ -51,6 +51,11 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     """)
     List<Performance> findUpcomingPreview(@Param("now") LocalDateTime now, Pageable pageable);
 
+    @Query("""
+        select p
+        from Performance p
+        where p.id = :performanceId
+    """)
     Optional<Performance> findDetailById(@Param("performanceId") Long performanceId);
 
 }
