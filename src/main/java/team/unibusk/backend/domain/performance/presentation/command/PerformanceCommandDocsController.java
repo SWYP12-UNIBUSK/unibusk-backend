@@ -43,7 +43,7 @@ public interface PerformanceCommandDocsController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<PerformanceRegisterResponse> registerPerformance(
             @RequestPart("request") @Valid PerformanceRegisterRequest request,
-            @Parameter(description = "공연 관련 이미지 리스트 (다중 파일 업로드 가능)")
+            @Parameter(description = "공연 관련 이미지")
             @RequestPart(value = "image", required = false) MultipartFile image,
             @MemberId Long memberId
     );
