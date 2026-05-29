@@ -3,11 +3,9 @@ package team.unibusk.backend.domain.performance.application.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Builder
@@ -32,16 +30,17 @@ public record PerformancePreviewResponse(
         String locationName,
 
         @Schema(
-                description = "공연 이미지 URL 목록",
-                example = "[\"https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg\"]"
+                description = "공연 이미지 URL",
+                example = "https://image1.jpg"
         )
-        List<String> images
+        String imageUrl
 
 ) {
 
     public static PerformancePreviewResponse from(
             Performance performance,
-            Map<Long, String> locationNameMap
+            Map<Long, String> locationNameMap,
+            String imageUrl
     ) {
         return PerformancePreviewResponse.builder()
                 .performanceId(performance.getId())
@@ -55,11 +54,7 @@ public record PerformancePreviewResponse(
                                 "공연 장소 정보가 없습니다."
                         )
                 )
-                .images(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
-                )
+                .imageUrl(imageUrl)
                 .build();
     }
 

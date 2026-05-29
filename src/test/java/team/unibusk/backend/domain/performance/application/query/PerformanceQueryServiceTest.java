@@ -8,10 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import team.unibusk.backend.domain.performance.application.dto.response.*;
-import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceFixture;
-import team.unibusk.backend.domain.performance.domain.PerformanceRepository;
-import team.unibusk.backend.domain.performance.domain.PerformanceStatus;
+import team.unibusk.backend.domain.performance.domain.*;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationFixture;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocationRepository;
@@ -29,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 class PerformanceQueryServiceTest extends UnitTestSupport {
 
@@ -37,6 +35,12 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
 
     @Mock
     private PerformanceRepository performanceRepository;
+
+    @Mock
+    private PerformanceImageRepository performanceImageRepository;
+
+    @Mock
+    private PerformerRepository performerRepository;
 
     @Mock
     private PerformanceLocationRepository performanceLocationRepository;
@@ -100,6 +104,17 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(10L, 15L)))
                 .willReturn(List.of(location1, location2));
 
+        PerformanceImage img1 = mock(PerformanceImage.class);
+        given(img1.getPerformanceId()).willReturn(2L);
+        given(img1.getImageUrl()).willReturn("preview_image_2.jpg");
+
+        PerformanceImage img2 = mock(PerformanceImage.class);
+        given(img2.getPerformanceId()).willReturn(3L);
+        given(img2.getImageUrl()).willReturn("preview_image_3.jpg");
+
+        given(performanceImageRepository.findByPerformanceIdIn(anyList()))
+                .willReturn(List.of(img1, img2));
+
         List<PerformancePreviewResponse> response = performanceQueryService.getUpcomingPerformancesPreview();
 
         assertThat(response).hasSize(2);
@@ -107,11 +122,12 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
         assertThat(response.get(0).performanceId()).isEqualTo(2L);
         assertThat(response.get(0).title()).isEqualTo("테스트 공연2");
         assertThat(response.get(0).locationName()).isEqualTo("망원");
-
+        assertThat(response.get(0).imageUrl()).isEqualTo("preview_image_2.jpg");
 
         assertThat(response.get(1).performanceId()).isEqualTo(3L);
         assertThat(response.get(1).title()).isEqualTo("테스트 공연3");
         assertThat(response.get(1).locationName()).isEqualTo("신촌");
+        assertThat(response.get(1).imageUrl()).isEqualTo("preview_image_3.jpg");
     }
 
     @Test
@@ -162,22 +178,34 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
         Long locationId = 10L;
 
         Performance performance = PerformanceFixture.createPerformance(performanceId, 100L, locationId, LocalDateTime.now());
-
         given(performanceRepository.findDetailById(eq(performanceId))).willReturn(performance);
 
         PerformanceLocation location = PerformanceLocationFixture.createLocation(locationId, "신촌");
-
         given(performanceLocationRepository.findById(eq(locationId))).willReturn(location);
+
+        PerformanceImage img = mock(PerformanceImage.class);
+        given(img.getImageUrl()).willReturn("image1.jpg");
+        given(performanceImageRepository.findByPerformanceId(performanceId))
+                .willReturn(img);
+
+        Performer performer = mock(Performer.class);
+        given(performer.getName()).willReturn("밴드 유니버스크");
+        given(performerRepository.findByPerformanceId(eq(performanceId)))
+                .willReturn(List.of(performer));
 
         PerformanceDetailResponse response = performanceQueryService.getPerformanceDetail(performanceId);
 
         assertThat(response.performanceId()).isEqualTo(1L);
         assertThat(response.title()).isEqualTo("테스트 공연1");
-
         assertThat(response.locationName()).isEqualTo("신촌");
+
+        assertThat(response.imageUrl()).isEqualTo("image1.jpg");
+        assertThat(response.performers().get(0).name()).isEqualTo("밴드 유니버스크");
 
         then(performanceRepository).should().findDetailById(performanceId);
         then(performanceLocationRepository).should().findById(locationId);
+        then(performanceImageRepository).should().findByPerformanceId(performanceId);
+        then(performerRepository).should().findByPerformanceId(performanceId);
     }
 
     @Test
@@ -245,12 +273,20 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
                 eq(locationId), eq(cursorTime), eq(cursorId), eq(size)
         )).willReturn(mutableList);
 
+        PerformanceImage img = mock(PerformanceImage.class);
+        given(img.getPerformanceId()).willReturn(101L);
+        given(img.getImageUrl()).willReturn("cursor_img_101.jpg");
+
+        given(performanceImageRepository.findByPerformanceIdIn(anyList()))
+                .willReturn(List.of(img));
+
         CursorResponse<PerformanceCursorResponse> response = performanceQueryService.getUpcomingByLocationWithCursor(
                 locationId, cursorTime, cursorId, size
         );
 
         assertThat(response.content()).hasSize(2);
         assertThat(response.content().get(0).performanceId()).isEqualTo(101L);
+        assertThat(response.content().get(0).imageUrl()).isEqualTo("cursor_img_101.jpg");
         assertThat(response.content().get(1).performanceId()).isEqualTo(102L);
 
         assertThat(response.hasNext()).isTrue();
@@ -366,6 +402,13 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
         given(performanceLocationRepository.findByIds(Set.of(10L, 20L)))
                 .willReturn(List.of(loc1, loc2));
 
+        PerformanceImage img = mock(PerformanceImage.class);
+        given(img.getPerformanceId()).willReturn(49L);
+        given(img.getImageUrl()).willReturn("img_49.jpg");
+
+        given(performanceImageRepository.findByPerformanceIdIn(anyList()))
+                .willReturn(List.of(img));
+
         CursorResponse<MyPerformanceSummaryResponse> response =
                 performanceQueryService.getMyPerformances(memberId, cursorId, size);
 
@@ -373,6 +416,7 @@ class PerformanceQueryServiceTest extends UnitTestSupport {
 
         assertThat(response.content().get(0).performanceId()).isEqualTo(49L);
         assertThat(response.content().get(0).performanceLocationName()).isEqualTo("홍대");
+        assertThat(response.content().get(0).imageUrl()).isEqualTo("img_49.jpg");
 
         assertThat(response.content().get(1).performanceId()).isEqualTo(48L);
         assertThat(response.content().get(1).performanceLocationName()).isEqualTo("신촌");

@@ -18,6 +18,6 @@ public record PerformanceUpdateServiceRequest(
         LocalDateTime startTime,
         LocalDateTime endTime,
         String summary,
-        List<MultipartFile> images,
+        MultipartFile image,
         String description
 ) {}

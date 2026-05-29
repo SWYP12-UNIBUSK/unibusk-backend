@@ -13,8 +13,8 @@ import team.unibusk.backend.domain.performance.presentation.exception.Performanc
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 @RequiredArgsConstructor
+@Repository
 public class PerformanceRepositoryImpl implements PerformanceRepository {
 
     private final PerformanceJpaRepository performanceJpaRepository;

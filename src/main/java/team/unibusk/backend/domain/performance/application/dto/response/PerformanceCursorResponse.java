@@ -3,11 +3,9 @@ package team.unibusk.backend.domain.performance.application.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 public record PerformanceCursorResponse(
@@ -28,25 +26,21 @@ public record PerformanceCursorResponse(
         LocalDateTime endTime,
 
         @Schema(
-                description = "공연 이미지 URL 목록",
-                example = "[\"https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg\"]"
+                description = "공연 이미지 URL",
+                example = "https://image1.jpg"
         )
-        List<String> images
+        String imageUrl
 
 ) {
 
-    public static PerformanceCursorResponse from(Performance performance) {
+    public static PerformanceCursorResponse from(Performance performance, String imageUrl) {
         return PerformanceCursorResponse.builder()
                 .performanceId(performance.getId())
                 .title(performance.getTitle())
                 .performanceDate(performance.getPerformanceDate())
                 .startTime(performance.getStartTime())
                 .endTime(performance.getEndTime())
-                .images(
-                        performance.getImages().stream()
-                                .map(PerformanceImage::getImageUrl)
-                                .toList()
-                )
+                .imageUrl(imageUrl)
                 .build();
     }
 

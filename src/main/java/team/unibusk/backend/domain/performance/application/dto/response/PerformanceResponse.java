@@ -4,12 +4,9 @@ import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Collections;
 
 @Builder
 public record PerformanceResponse(
@@ -33,37 +30,21 @@ public record PerformanceResponse(
         String locationName,
 
         @Schema(
-                description = "공연 이미지 URL 목록",
-                example = "[\"https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg\"]"
+                description = "공연 이미지 URL",
+                example = "https://image1.jpg"
         )
-        List<String> images
+        String imageUrl
 
 ) {
 
         @QueryProjection
-        public PerformanceResponse(
-                Long performanceId,
-                String title,
-                LocalDate performanceDate,
-                LocalDateTime startTime,
-                LocalDateTime endTime,
-                String locationName,
-                String imageUrl
-        ) {
-                this(
-                        performanceId,
-                        title,
-                        performanceDate,
-                        startTime,
-                        endTime,
-                        locationName,
-                        imageUrl != null ? List.of(imageUrl) : Collections.emptyList()
-                );
+        public PerformanceResponse {
         }
 
         public static PerformanceResponse from(
                 Performance performance,
-                String locationName
+                String locationName,
+                String imageUrl
         ) {
                 return PerformanceResponse.builder()
                         .performanceId(performance.getId())
@@ -72,11 +53,7 @@ public record PerformanceResponse(
                         .startTime(performance.getStartTime())
                         .endTime(performance.getEndTime())
                         .locationName(locationName)
-                        .images(
-                                performance.getImages().stream()
-                                        .map(PerformanceImage::getImageUrl)
-                                        .toList()
-                        )
+                        .imageUrl(imageUrl)
                         .build();
         }
 

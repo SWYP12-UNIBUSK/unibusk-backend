@@ -15,7 +15,7 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
 
     @Query(
         value = """
-            select distinct p
+            select p
             from Performance p
             where p.endTime < :now
             order by p.startTime desc
@@ -30,7 +30,7 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
 
     @Query(
         value = """
-            select distinct p
+            select p
             from Performance p
             where p.endTime >= :now
             order by p.startTime asc
@@ -44,7 +44,7 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     Page<Performance> findUpcomingPerformances(@Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("""
-        select distinct p
+        select p
         from Performance p
         where p.endTime >= :now
         order by p.startTime asc
@@ -52,9 +52,8 @@ public interface PerformanceJpaRepository extends JpaRepository<Performance, Lon
     List<Performance> findUpcomingPreview(@Param("now") LocalDateTime now, Pageable pageable);
 
     @Query("""
-        select distinct p
+        select p
         from Performance p
-        left join fetch p.images
         where p.id = :performanceId
     """)
     Optional<Performance> findDetailById(@Param("performanceId") Long performanceId);
