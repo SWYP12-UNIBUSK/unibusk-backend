@@ -3,7 +3,6 @@ package team.unibusk.backend.domain.performance.application.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import team.unibusk.backend.domain.performance.domain.Performance;
-import team.unibusk.backend.domain.performance.domain.PerformanceImage;
 import team.unibusk.backend.domain.performance.domain.Performer;
 import team.unibusk.backend.domain.performanceLocation.domain.PerformanceLocation;
 
@@ -40,7 +39,7 @@ public record PerformanceDetailResponse (
 
         @Schema(
                 description = "공연 이미지 URL",
-                example = "https://unibusk-bucket.s3.ap-northeast-2.amazonaws.com/performance/123e4567.jpg"
+                example = "https://image1.jpg"
         )
         String imageUrl,
 
