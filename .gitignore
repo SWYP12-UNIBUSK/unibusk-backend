@@ -39,3 +39,6 @@ out/
 application-*.yml
 
 .DS_Store
+
+# 로컬 전용 성능 분석 문서 (GitHub 비공개)
+docs/perf/
