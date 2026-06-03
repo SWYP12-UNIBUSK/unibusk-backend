@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,8 +29,17 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
     @PersistenceContext
     private EntityManager em;
 
+    private Statistics stats;
+    private boolean previousStatisticsEnabled;
+
     @BeforeEach
     void setUp() {
+        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
+        stats = sf.getStatistics();
+
+        previousStatisticsEnabled = stats.isStatisticsEnabled();
+        stats.setStatisticsEnabled(true);
+
         persists(List.of(
                 makeLocation("홍대 걷고싶은거리 버스킹존1",  "서울시 마포구 어울마당로 107", 37.5546, 126.9225),
                 makeLocation("홍대 걷고싶은거리 버스킹존 2", "서울시 마포구 어울마당로 111", 37.5548, 126.9228),
@@ -42,11 +52,13 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         em.clear();
     }
 
+    @AfterEach
+    void tearDown() {
+        stats.setStatisticsEnabled(previousStatisticsEnabled);
+    }
+
     @Test
     void 지도_범위_조회_시_이미지_N플러스1이_발생하지_않는다() {
-        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
-        Statistics stats = sf.getStatistics();
-        stats.setStatisticsEnabled(true);
         stats.clear();
 
         long start = System.currentTimeMillis();
@@ -74,9 +86,6 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
 
     @Test
     void 키워드_검색_시_이미지_N플러스1이_발생하지_않는다() {
-        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
-        Statistics stats = sf.getStatistics();
-        stats.setStatisticsEnabled(true);
         stats.clear();
 
         long start = System.currentTimeMillis();
@@ -118,9 +127,6 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         em.flush();
         em.clear();
 
-        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
-        Statistics stats = sf.getStatistics();
-        stats.setStatisticsEnabled(true);
         stats.clear();
 
         long start = System.currentTimeMillis();
@@ -162,9 +168,6 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         em.flush();
         em.clear();
 
-        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
-        Statistics stats = sf.getStatistics();
-        stats.setStatisticsEnabled(true);
         stats.clear();
 
         long start = System.currentTimeMillis();
