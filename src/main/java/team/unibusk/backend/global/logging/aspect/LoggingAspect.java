@@ -20,12 +20,13 @@ public class LoggingAspect {
 
     private final ArgumentMasker argumentMasker;
 
-    @Pointcut(
-            "execution(* team.unibusk.backend.domain..presentation..*(..))"
-    )
-    private void cut() {}
+    @Pointcut("execution(* team.unibusk.backend.domain..presentation..*(..))")
+    private void domainPresentation() {}
 
-    @Around("cut()")
+    @Pointcut("execution(* team.unibusk.backend.global.auth.presentation.*.*(..))")
+    private void authPresentation() {}
+
+    @Around("domainPresentation() || authPresentation()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         log.info("[CALL] {} args={}", method.getName(), argumentMasker.mask(joinPoint.getArgs()));
