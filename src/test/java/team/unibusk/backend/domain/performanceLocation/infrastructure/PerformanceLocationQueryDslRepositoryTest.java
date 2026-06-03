@@ -43,7 +43,7 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 지도_범위_조회_시_발생하는_쿼리_수를_측정한다() {
+    void 지도_범위_조회_시_이미지_N플러스1이_발생하지_않는다() {
         SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
         Statistics stats = sf.getStatistics();
         stats.setStatisticsEnabled(true);
@@ -59,6 +59,9 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         long elapsed = System.currentTimeMillis() - start;
 
         assertThat(result).hasSize(3);
+        assertThat(stats.getCollectionFetchCount())
+                .as("N+1 발생: 이미지 컬렉션 추가 SELECT가 %d회 발생했습니다.", stats.getCollectionFetchCount())
+                .isZero();
 
         System.out.println("========================================");
         System.out.println("[ findInMapBounds N+1 측정 ]");
@@ -66,13 +69,11 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         System.out.println("▶ 응답 시간            : " + elapsed + "ms");
         System.out.println("▶ 쿼리 실행 수         : " + stats.getQueryExecutionCount());
         System.out.println("▶ 컬렉션 추가 SELECT   : " + stats.getCollectionFetchCount());
-        System.out.println("  N+1이면 추가 SELECT = " + result.size());
-        System.out.println("  fetch join이면 추가 SELECT = 0");
         System.out.println("========================================");
     }
 
     @Test
-    void 키워드_검색_시_발생하는_쿼리_수를_측정한다() {
+    void 키워드_검색_시_이미지_N플러스1이_발생하지_않는다() {
         SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);
         Statistics stats = sf.getStatistics();
         stats.setStatisticsEnabled(true);
@@ -88,6 +89,9 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         long elapsed = System.currentTimeMillis() - start;
 
         assertThat(result).hasSize(3);
+        assertThat(stats.getCollectionFetchCount())
+                .as("N+1 발생: 이미지 컬렉션 추가 SELECT가 %d회 발생했습니다.", stats.getCollectionFetchCount())
+                .isZero();
 
         System.out.println("========================================");
         System.out.println("[ searchByNameOrAddress N+1 측정 ]");
@@ -95,14 +99,12 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         System.out.println("▶ 응답 시간            : " + elapsed + "ms");
         System.out.println("▶ 쿼리 실행 수         : " + stats.getQueryExecutionCount());
         System.out.println("▶ 컬렉션 추가 SELECT   : " + stats.getCollectionFetchCount());
-        System.out.println("  N+1이면 추가 SELECT = " + result.size());
-        System.out.println("  fetch join이면 추가 SELECT = 0");
         System.out.println("========================================");
     }
 
-    @ParameterizedTest(name = "지도_범위_조회_장소_{0}개_규모별_측정")
+    @ParameterizedTest(name = "지도_범위_조회_장소_{0}개_N플러스1_없음")
     @ValueSource(ints = {10, 100, 1000})
-    void 지도_범위_조회_데이터_규모별_쿼리_수를_측정한다(int count) {
+    void 지도_범위_조회_데이터_규모별_N플러스1이_발생하지_않는다(int count) {
         List<PerformanceLocation> locations = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             locations.add(makeLocation(
@@ -131,6 +133,9 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         long elapsed = System.currentTimeMillis() - start;
 
         assertThat(result).hasSize(count);
+        assertThat(stats.getCollectionFetchCount())
+                .as("N+1 발생: 이미지 컬렉션 추가 SELECT가 %d회 발생했습니다.", stats.getCollectionFetchCount())
+                .isZero();
 
         System.out.println("========================================");
         System.out.println("[ findInMapBounds - 장소 " + count + "개 규모 측정 ]");
@@ -138,14 +143,12 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         System.out.println("▶ 응답 시간            : " + elapsed + "ms");
         System.out.println("▶ 쿼리 실행 수         : " + stats.getQueryExecutionCount());
         System.out.println("▶ 컬렉션 추가 SELECT   : " + stats.getCollectionFetchCount());
-        System.out.println("  N+1이면 추가 SELECT = " + result.size());
-        System.out.println("  fetch join이면 추가 SELECT = 0");
         System.out.println("========================================");
     }
 
-    @ParameterizedTest(name = "키워드_검색_장소_{0}개_규모별_측정")
+    @ParameterizedTest(name = "키워드_검색_장소_{0}개_N플러스1_없음")
     @ValueSource(ints = {10, 100, 1000})
-    void 키워드_검색_데이터_규모별_쿼리_수를_측정한다(int count) {
+    void 키워드_검색_데이터_규모별_N플러스1이_발생하지_않는다(int count) {
         List<PerformanceLocation> locations = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             locations.add(makeLocation(
@@ -174,6 +177,9 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         long elapsed = System.currentTimeMillis() - start;
 
         assertThat(result).hasSize(count);
+        assertThat(stats.getCollectionFetchCount())
+                .as("N+1 발생: 이미지 컬렉션 추가 SELECT가 %d회 발생했습니다.", stats.getCollectionFetchCount())
+                .isZero();
 
         System.out.println("========================================");
         System.out.println("[ searchByNameOrAddress - 장소 " + count + "개 규모 측정 ]");
@@ -181,8 +187,6 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
         System.out.println("▶ 응답 시간            : " + elapsed + "ms");
         System.out.println("▶ 쿼리 실행 수         : " + stats.getQueryExecutionCount());
         System.out.println("▶ 컬렉션 추가 SELECT   : " + stats.getCollectionFetchCount());
-        System.out.println("  N+1이면 추가 SELECT = " + result.size());
-        System.out.println("  fetch join이면 추가 SELECT = 0");
         System.out.println("========================================");
     }
 
@@ -196,7 +200,7 @@ class PerformanceLocationQueryDslRepositoryTest extends IntegrationTestSupport {
                 .longitude(lng)
                 .images(List.of(
                         PerformanceLocationImage.builder()
-                                .imageUrl("https://performanceLocations/test.jpg")
+                                .imageUrl("https://unibusk-bucket.s3.amazonaws.com/performanceLocations/test.jpg")
                                 .build()
                 ))
                 .build();
