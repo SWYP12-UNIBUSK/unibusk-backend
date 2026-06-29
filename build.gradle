@@ -44,7 +44,7 @@ dependencies {
     // Database
     // =========================
     testRuntimeOnly 'com.h2database:h2'
-    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
     // =========================
     // Test

@@ -114,7 +114,7 @@ public class SecurityConfig {
             RedirectUrlFilter redirectUrlFilter
     ) throws Exception {
         http.addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        //http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.oauth2Login(oauth2 ->
                 oauth2.loginPage(securityProperties.oAuthUrl().loginUrl())
                         .userInfoEndpoint(userInfo -> userInfo.userService(defaultOAuth2UserService))
@@ -123,17 +123,22 @@ public class SecurityConfig {
         );
     }
 
+//    private void configureApiAuthorization(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity.authorizeHttpRequests(authorize ->
+//                authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+//                        .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
+//                        .requestMatchers(HttpMethod.POST, "/performances").authenticated()
+//                        .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
+//                        .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/performances/me").authenticated()
+//                        .requestMatchers("/members/**").authenticated()
+//                        .requestMatchers("/auths/logout").authenticated()
+//                        .anyRequest().permitAll()
+//        );
+//    }
     private void configureApiAuthorization(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(authorize ->
-                authorize.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/performances").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/performances/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/performances/*").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/performances/me").authenticated()
-                        .requestMatchers("/members/**").authenticated()
-                        .requestMatchers("/auths/logout").authenticated()
-                        .anyRequest().permitAll()
+                authorize.anyRequest().permitAll()
         );
     }
 
